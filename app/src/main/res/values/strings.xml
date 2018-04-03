@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Municipal</string>
-    <string name="bottom_nav_new_nepal">New Nepal</string>
+    <string name="bottom_nav_new_nepal">Map</string>
     <string name="bottom_nav_detail_map">Detail Map</string>
     <string name="bottom_nav_ministry">Ministry</string>
 </resources>

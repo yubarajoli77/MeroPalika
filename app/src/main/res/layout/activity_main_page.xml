@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.widget.RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -41,6 +42,12 @@
             android:background="@drawable/bg_top"
             android:orientation="vertical">
 
+            <fragment
+                android:id="@+id/map_fragment"
+                android:name="com.google.android.gms.maps.MapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
         </LinearLayout>
 
         <View
@@ -49,11 +56,13 @@
             android:layout_weight="0.9" />
 
         <LinearLayout
+            android:id="@+id/path_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.8"
             android:gravity="bottom"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="visible">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -121,37 +130,37 @@
                         android:id="@+id/btn_all"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@color/transparent"
                         android:text="All"
                         android:textAllCaps="false"
-                        android:textSize="10sp"
-                        android:background="@color/transparent"/>
+                        android:textSize="10sp" />
 
                     <Button
                         android:id="@+id/btn_metropolitian"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@color/transparent"
                         android:text="Metropolitian"
                         android:textAllCaps="false"
-                        android:textSize="10sp"
-                        android:background="@color/transparent"/>
+                        android:textSize="10sp" />
 
                     <Button
                         android:id="@+id/btn_sub_metropolitian"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@color/transparent"
                         android:text="Sub-Metropolitian"
                         android:textAllCaps="false"
-                        android:textSize="10sp"
-                        android:background="@color/transparent"/>
+                        android:textSize="10sp" />
 
                     <Button
                         android:id="@+id/btn_municipality"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@color/transparent"
                         android:text="Municipality"
                         android:textAllCaps="false"
-                        android:textSize="10sp"
-                        android:background="@color/transparent"/>
+                        android:textSize="10sp" />
 
                     <Button
                         android:id="@+id/btn_rural_municipality"
@@ -165,10 +174,11 @@
                         android:id="@+id/btn_old_vdc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@color/transparent"
                         android:text="Old-VDC"
                         android:textAllCaps="false"
                         android:textSize="10sp"
-                        android:background="@color/transparent"/>
+                        android:visibility="gone" />
                 </LinearLayout>
             </HorizontalScrollView>
 
