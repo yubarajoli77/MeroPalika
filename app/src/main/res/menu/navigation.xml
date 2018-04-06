@@ -12,7 +12,10 @@
         android:id="@+id/navigation_new_nepal"
         android:icon="@drawable/globe"
         android:title="@string/bottom_nav_new_nepal"/>
-
+    <item
+        android:id="@+id/navigation_information"
+        android:title="Know More"
+        android:icon="@drawable/ic_visibility_black_24dp"/>
     <item
         android:id="@+id/navigation_detail_map"
         android:icon="@drawable/ic_map_black_24dp"

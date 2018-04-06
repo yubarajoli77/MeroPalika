@@ -3,8 +3,12 @@ package com.softechfoundation.municipal;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -14,33 +18,30 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.text.Editable;
-import android.text.Layout;
+import android.text.SpannableString;
 import android.text.TextWatcher;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
-import android.view.KeyEvent;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.Volley;
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -55,11 +56,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.softechfoundation.municipal.horizontalScrollMenuItem.ListItem;
 import com.softechfoundation.municipal.horizontalScrollMenuItem.ListItemAdapter;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -77,7 +74,8 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
     private Button btnOldVdc, btnMetropolitian, btnSubMetropolitian, btnMunicipality, btnRuralMunicipality;
     public static Button btnAll;
     public static HorizontalScrollView horizontalScrollViewMenu;
-    private View pathView;
+    public static View pathView;
+    private View topDetail;
 
     View fragmentMap;
     private GoogleMap mGoogleMap;
@@ -96,7 +94,244 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
 
+        OnBoardingStart();
         initialization();
+
+
+    }
+
+    private void OnBoardingStart() {
+        // We load a drawable and create a location to show a tap target here
+
+        // We need the display to get the width and height at this point in time
+
+        final Display display = getWindowManager().getDefaultDisplay();
+
+        // Load our little droid guy
+
+        final Drawable droid = ContextCompat.getDrawable(this, R.drawable.ic_home_black_24dp);
+
+        // Tell our droid buddy where we want him to appear
+
+        final Rect droidTarget = new Rect(0, 0, droid.getIntrinsicWidth() * 2, droid.getIntrinsicHeight() * 2);
+
+        // Using deprecated methods makes you look way cool
+
+        droidTarget.offset(display.getWidth() / 2, display.getHeight() / 2);
+
+
+
+        final SpannableString sassyDesc = new SpannableString("It allows you to go back, sometimes");
+
+        sassyDesc.setSpan(new StyleSpan(Typeface.ITALIC), sassyDesc.length() - "sometimes".length(), sassyDesc.length(), 0);
+
+
+
+        // We have a sequence of targets, so lets build it!
+
+//        final TapTargetSequence sequence = new TapTargetSequence(this)
+//
+//
+//                .targets(
+//
+//                        // This tap target will target the back button, we just need to pass its containing toolbar
+//
+//                        TapTarget.forToolbarNavigationIcon(toolbar, "This is the back button", sassyDesc).id(1),
+//
+//                        // Likewise, this tap target will target the search button
+//
+//                        TapTarget.forToolbarMenuItem(toolbar, R.id.history, "This is a search icon", "As you can see, it has gotten pretty dark around here...")
+//
+//                                .dimColor(android.R.color.black)
+//
+//                                .outerCircleColor(R.color.colorAccent)
+//
+//                                .targetCircleColor(android.R.color.black)
+//
+//                                .transparentTarget(true)
+//
+//                                .textColor(android.R.color.black)
+//
+//                                .id(2),
+//
+//                        // You can also target the overflow button in your toolbar
+//
+//                        TapTarget.forToolbarOverflow(toolbar, "This will show more options", "But they're not useful :(").id(3),
+//
+//                        // This tap target will target our droid buddy at the given target rect
+//
+//                        TapTarget.forBounds(droidTarget, "Oh look!", "You can point to any part of the screen. You also can't cancel this one!")
+//
+//                                .cancelable(false)
+//
+//                                .icon(droid)
+//
+//                                .id(4)
+//
+//                )
+//
+//                .listener(new TapTargetSequence.Listener() {
+//
+//                    // This listener will tell us when interesting(tm) events happen in regards
+//
+//                    // to the sequence
+//
+//                    @Override
+//
+//                    public void onSequenceFinish() {
+//
+//                        Toast.makeText(MainPage.this, "Congrats, You know the functionality now", Toast.LENGTH_SHORT).show();
+//                        //((TextView) findViewById(R.id.educated)).setText("Congratulations! You're educated now!");
+//
+//                    }
+//
+//
+//
+//                    @Override
+//
+//                    public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {
+//
+//                        Log.d("TapTargetView", "Clicked on " + lastTarget.id());
+//
+//                    }
+//
+//
+//
+//                    @Override
+//
+//                    public void onSequenceCanceled(TapTarget lastTarget) {
+//
+//                        final AlertDialog dialog = new AlertDialog.Builder(MainPage.this)
+//
+//                                .setTitle("Uh oh")
+//
+//                                .setMessage("You canceled the sequence")
+//
+//                                .setPositiveButton("Oops", null).show();
+//
+//                        TapTargetView.showFor(dialog,
+//
+//                                TapTarget.forView(dialog.getButton(DialogInterface.BUTTON_POSITIVE), "Uh oh!", "You canceled the sequence at step " + lastTarget.id())
+//
+//                                        .cancelable(false)
+//
+//                                        .tintTarget(false), new TapTargetView.Listener() {
+//
+//                                    @Override
+//
+//                                    public void onTargetClick(TapTargetView view) {
+//
+//                                        super.onTargetClick(view);
+//
+//                                        dialog.dismiss();
+//
+//                                    }
+//
+//                                });
+//
+//                    }
+//
+//                });
+
+
+
+        // You don't always need a sequence, and for that there's a single time tap target
+
+        final SpannableString spannedDesc = new SpannableString("This is the sample app for TapTargetView");
+
+        spannedDesc.setSpan(new UnderlineSpan(), spannedDesc.length() - "TapTargetView".length(), spannedDesc.length(), 0);
+
+        TapTargetView.showFor(this, TapTarget.forView(findViewById(R.id.search_box),
+                "Search the state, district and vdc from here", spannedDesc)
+                .outerCircleColor(R.color.red)      // Specify a color for the outer circle
+                .outerCircleAlpha(0.96f)            // Specify the alpha amount for the outer circle
+                .targetCircleColor(R.color.white)   // Specify a color for the target circle
+                .titleTextSize(20)                  // Specify the size (in sp) of the title text
+                .titleTextColor(R.color.white)      // Specify the color of the title text
+                .descriptionTextSize(10)            // Specify the size (in sp) of the description text
+                .descriptionTextColor(R.color.red)  // Specify the color of the description text
+                .textColor(R.color.blue)            // Specify a color for both the title and description text
+                .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
+                .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
+                .drawShadow(true)                   // Whether to draw a drop shadow or not
+                .cancelable(false)                  // Whether tapping outside the outer circle dismisses the view
+                .tintTarget(true)                   // Whether to tint the target view's color
+                .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
+                //.icon(Drawable)                     // Specify a custom drawable to draw as the target
+                .targetRadius(60)
+                .cancelable(false)
+
+                .drawShadow(true)
+
+                .titleTextDimen(R.dimen.title_text_size)
+
+                .tintTarget(false), new TapTargetView.Listener() {
+
+
+
+            @Override
+
+            public void onTargetClick(TapTargetView view) {
+
+                super.onTargetClick(view);
+
+                // .. which evidently starts the sequence we defined earlier
+
+                //sequence.start();
+
+            }
+
+
+
+            @Override
+
+            public void onOuterCircleClick(TapTargetView view) {
+
+                super.onOuterCircleClick(view);
+
+                Toast.makeText(view.getContext(), "You clicked the outer circle!", Toast.LENGTH_SHORT).show();
+
+            }
+
+
+
+            @Override
+
+            public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
+
+                Log.d("TapTargetViewSample", "You dismissed me :(");
+
+            }
+
+        });
+
+        TapTargetView.showFor(this,                 // `this` is an Activity
+                TapTarget.forView(findViewById(R.id.navigation_new_nepal), "Local Level Finder",
+                        "Find the local level from old vdcs")
+                        // All options below are optional
+                        .outerCircleColor(R.color.red)      // Specify a color for the outer circle
+                        .outerCircleAlpha(0.96f)            // Specify the alpha amount for the outer circle
+                        .targetCircleColor(R.color.white)   // Specify a color for the target circle
+                        .titleTextSize(20)                  // Specify the size (in sp) of the title text
+                        .titleTextColor(R.color.white)      // Specify the color of the title text
+                        .descriptionTextSize(10)            // Specify the size (in sp) of the description text
+                        .descriptionTextColor(R.color.red)  // Specify the color of the description text
+                        .textColor(R.color.blue)            // Specify a color for both the title and description text
+                        .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
+                        .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
+                        .drawShadow(true)                   // Whether to draw a drop shadow or not
+                        .cancelable(false)                  // Whether tapping outside the outer circle dismisses the view
+                        .tintTarget(true)                   // Whether to tint the target view's color
+                        .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
+                        //.icon(Drawable)                     // Specify a custom drawable to draw as the target
+                        .targetRadius(60),                  // Specify the target radius (in dp)
+                new TapTargetView.Listener() {          // The listener can listen for regular clicks, long clicks or cancels
+                    @Override
+                    public void onTargetClick(TapTargetView view) {
+                        super.onTargetClick(view);      // This call is optional
+
+                    }
+                });
 
     }
 
@@ -124,6 +359,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
         fragmentMap = findViewById(R.id.map_fragment);
         geocoder = new Geocoder(this, Locale.getDefault());
         pathView = findViewById(R.id.path_view);
+        topDetail=findViewById(R.id.top_detail_view);
         checkNetConnection();
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
@@ -157,7 +393,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 SetAllBtnColorToDefault();
-                btnAll.setBackground(getResources().getDrawable(R.drawable.btn_clicked_style));
+                btnAll.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnAll.setTextColor(Color.WHITE);
                 recyclerView.setAdapter(ListItemAdapter.adapterAll);
 
@@ -170,7 +406,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
                         anim.setDuration(3000);
                         anim.start();
                     }
-                }, 3000);
+                }, 1000);
 
 
             }
@@ -180,7 +416,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 SetAllBtnColorToDefault();
-                btnMetropolitian.setBackground(getResources().getDrawable(R.drawable.btn_clicked_style));
+                btnMetropolitian.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnMetropolitian.setTextColor(Color.WHITE);
                 recyclerView.setAdapter(ListItemAdapter.adapterMetroplitan);
             }
@@ -189,7 +425,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 SetAllBtnColorToDefault();
-                btnSubMetropolitian.setBackground(getResources().getDrawable(R.drawable.btn_clicked_style));
+                btnSubMetropolitian.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnSubMetropolitian.setTextColor(Color.WHITE);
                 recyclerView.setAdapter(ListItemAdapter.adapterSubMetropolitan);
             }
@@ -199,7 +435,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 SetAllBtnColorToDefault();
-                btnMunicipality.setBackground(getResources().getDrawable(R.drawable.btn_clicked_style));
+                btnMunicipality.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnMunicipality.setTextColor(Color.WHITE);
                 recyclerView.setAdapter(ListItemAdapter.adapterMunicipal);
             }
@@ -208,7 +444,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 SetAllBtnColorToDefault();
-                btnRuralMunicipality.setBackground(getResources().getDrawable(R.drawable.btn_clicked_style));
+                btnRuralMunicipality.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnRuralMunicipality.setTextColor(Color.WHITE);
                 recyclerView.setAdapter(ListItemAdapter.adapterRuralMunicipal);
             }
@@ -218,7 +454,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 SetAllBtnColorToDefault();
-                btnOldVdc.setBackground(getResources().getDrawable(R.drawable.btn_clicked_style));
+                btnOldVdc.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnOldVdc.setTextColor(Color.WHITE);
             }
         });
@@ -255,6 +491,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 navigation.setVisibility(View.GONE);
+               // pathView.setVisibility(View.GONE);
             }
         });
 
@@ -318,7 +555,9 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.history) {
-            Toast.makeText(this, "There is no history yet.", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "There is no history yet.", Toast.LENGTH_SHORT).show();
+            Intent intent2=new Intent(MainPage.this,StateDetails.class);
+            startActivity(intent2);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -345,9 +584,10 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
             switch (item.getItemId()) {
                 case R.id.navigation_home:
+
+                    topDetail.setVisibility(View.GONE);
                     stateBtn.setText("States");
                     stateBtn.setVisibility(View.VISIBLE);
                     districtBtn.setVisibility(View.GONE);
@@ -357,6 +597,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
                     catagories.setText("States");
                     recyclerView.setAdapter(adapter);
                     searchBox.setAdapter(autoComAdapter);
+                    searchBox.setVisibility(View.VISIBLE);
                     fragmentMap.setVisibility(View.GONE);
 
                     searchBox.addTextChangedListener(new TextWatcher() {
@@ -385,13 +626,23 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
                         }
                     });
                     return true;
+                case R.id.navigation_information:
+                    fragmentMap.setVisibility(View.GONE);
+                    topDetail.setVisibility(View.VISIBLE);
+                    searchBox.setVisibility(View.GONE);
+                    return true;
                 case R.id.navigation_new_nepal:
+                    topDetail.setVisibility(View.GONE);
                     fragmentMap.setVisibility(View.VISIBLE);
+                    searchBox.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_detail_map:
+                    Intent intent=new Intent(MainPage.this,MoreInfo.class);
+                    startActivity(intent);
                     return true;
                 case R.id.navigation_ministry:
-
+                    Intent intent1=new Intent(MainPage.this,MoreInfo.class);
+                    startActivity(intent1);
                     return true;
             }
             return false;
@@ -642,6 +893,7 @@ public class MainPage extends AppCompatActivity implements OnMapReadyCallback {
     public void onBackPressed() {
 
         navigation.setVisibility(View.VISIBLE);
+      //  pathView.setVisibility(View.VISIBLE);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
         builder.setTitle("Do you want to Exit?");

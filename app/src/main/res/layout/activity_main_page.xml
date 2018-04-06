@@ -6,6 +6,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#cfd8dc"
     tools:context="com.softechfoundation.municipal.MainPage">
 
     <android.widget.AutoCompleteTextView
@@ -39,14 +40,19 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="5"
-            android:background="@drawable/bg_top"
+            android:background="@drawable/stone_gray"
             android:orientation="vertical">
-
             <fragment
                 android:id="@+id/map_fragment"
                 android:name="com.google.android.gms.maps.MapFragment"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"/>
+            <include
+                android:id="@+id/top_detail_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                layout="@layout/custom_detail_design"
+                android:visibility="gone"/>
 
         </LinearLayout>
 
@@ -188,9 +194,8 @@
                 android:layout_height="0dp"
                 android:layout_weight="0.4"
                 android:gravity="center|bottom"
-                android:padding="2dp"
                 android:text="States"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                 android:textColor="#000000"
                 android:textStyle="bold"
                 android:visibility="visible" />

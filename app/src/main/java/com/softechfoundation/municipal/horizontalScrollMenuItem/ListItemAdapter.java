@@ -103,6 +103,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
             @Override
             public void onClick(View v) {
                 MainPage.navigation.setVisibility(View.VISIBLE);
+               // MainPage.pathView.setVisibility(View.VISIBLE);
                 if ("state".equals(currentItem.getType())) {
                     state=currentItem.getName();
                    // Toast.makeText(context, "Inside state clicked: "+state, Toast.LENGTH_SHORT).show();

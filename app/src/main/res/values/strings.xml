@@ -3,4 +3,9 @@
     <string name="bottom_nav_new_nepal">Map</string>
     <string name="bottom_nav_detail_map">Detail Map</string>
     <string name="bottom_nav_ministry">Ministry</string>
+    <string name="title_activity_more_info">MoreInfo</string>
+    <string name="title_activity_state_details">StateDetails</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

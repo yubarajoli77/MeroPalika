@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+    <!--
+    <ImageView
+        android:id="@+id/item_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/android"/>
+    -->
+
+    <!--<TextView-->
+        <!--android:id="@+id/bt_item"-->
+        <!--android:layout_width="50dp"-->
+        <!--android:layout_height="50dp"-->
+        <!--android:background="@drawable/ripple_circle_bg"-->
+        <!--android:gravity="center" />-->
+    <android.support.v7.widget.CardView
+        android:id="@+id/circular_card_item"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:layout_width="110dp"
+        android:layout_height="120dp"
+        android:layout_margin="4dp"
+        card_view:cardBackgroundColor="@color/white"
+        card_view:cardCornerRadius="10dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/circular_card_image_item"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:padding="4dp"
+            android:layout_gravity="center"
+            android:src="@drawable/natural_resources"/>
+
+            <TextView
+                android:id="@+id/circular_description_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:layout_gravity="center"
+                android:text="State 1"
+                android:textColor="@color/black" />
+
+            <!--<com.github.aakira.expandablelayout.ExpandableRelativeLayout-->
+                <!--android:id="@+id/expandableLayout"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--app:ael_duration="500"-->
+                <!--app:ael_interpolator="anticipateOvershoot"-->
+                <!--app:ael_orientation="horizontal">-->
+
+
+            <!--<TextView-->
+                <!--android:id="@+id/circular_description_item"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="This is the dummy short desciption. We can show short detail here"-->
+                <!--android:textColor="@color/black"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:padding="8dp"/>-->
+            <!--</com.github.aakira.expandablelayout.ExpandableRelativeLayout>-->
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>
