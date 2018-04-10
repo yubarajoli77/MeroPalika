@@ -42,13 +42,9 @@
             android:value="AIzaSyDOMd2j82kkRmWXnYRRLT4cyKFZftn8aEs" />
 
         <activity
-            android:name=".MoreInfo"
-            android:label="@string/title_activity_more_info"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".StateDetails"
-            android:label="@string/title_activity_state_details"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".ListOfServicesAndResources"></activity>
     </application>
 
 </manifest>

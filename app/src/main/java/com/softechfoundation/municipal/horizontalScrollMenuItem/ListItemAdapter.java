@@ -31,8 +31,10 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.softechfoundation.municipal.CacheRequest;
+import com.softechfoundation.municipal.MainFragment;
 import com.softechfoundation.municipal.MainPage;
 import com.softechfoundation.municipal.R;
+import com.softechfoundation.municipal.ResourcePojo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,6 +60,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
     public static String state,district,localLevel;
     private List<ListItem> dataItem = Collections.emptyList();
     private RecyclerView recyclerView;
+
     private String name;
     public static ListItemAdapter adapterDistrict, adapterVdc, adapterMetroplitan,adapterAll;
     public static ListItemAdapter adapterSubMetropolitan,adapterMunicipal,adapterRuralMunicipal;
@@ -107,10 +110,10 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
                 if ("state".equals(currentItem.getType())) {
                     state=currentItem.getName();
                    // Toast.makeText(context, "Inside state clicked: "+state, Toast.LENGTH_SHORT).show();
-                    MainPage.searchBox.setHint("Search District");
-                    MainPage.searchBox.setText("");
-                    MainPage.catagories.setText("Districts");
-                    MainPage.stateBtn.setText(currentItem.getName());
+                    MainFragment.searchBox.setHint("Search District");
+                    MainFragment.searchBox.setText("");
+                    MainFragment.catagories.setText("Districts");
+                    MainFragment.stateBtn.setText(currentItem.getName());
                    // Toast.makeText(context, "You clicked " + currentItem.getName(), Toast.LENGTH_SHORT).show();
 
                     populateDistrictRecyclerView();
@@ -167,56 +170,56 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
                 if ("district".equals(currentItem.getType())) {
                     //Toast.makeText(context, "You clicked " + currentItem.getName(), Toast.LENGTH_SHORT).show();
                     district=currentItem.getName();
-                    MainPage.searchBox.setHint("Search VDC");
-                    MainPage.searchBox.setText("");
-                    MainPage.catagories.setText("VDCs");
-                    MainPage.catagories.setVisibility(View.GONE);
-                    MainPage.horizontalScrollViewMenu.setVisibility(View.VISIBLE);
-                    MainPage.districtBtn.setText(currentItem.getName());
+                    MainFragment.searchBox.setHint("Search VDC");
+                    MainFragment.searchBox.setText("");
+                    MainFragment.catagories.setText("VDCs");
+                    MainFragment.catagories.setVisibility(View.GONE);
+                    MainFragment.horizontalScrollViewMenu.setVisibility(View.VISIBLE);
+                    MainFragment.districtBtn.setText(currentItem.getName());
                     populateVdcRecyclerView();
                 }
                 if ("vdc".equals(currentItem.getType())) {
                    // Toast.makeText(context, "You clicked " + currentItem.getName(), Toast.LENGTH_SHORT).show();
                     localLevel=currentItem.getName();
-                    MainPage.stateBtn.setVisibility(View.VISIBLE);
-                    MainPage.vdcBtn.setVisibility(View.VISIBLE);
-                    MainPage.districtBtn.setVisibility(View.VISIBLE);
-                    MainPage.vdcBtn.setText(currentItem.getName());
-                    MainPage.catagories.setText("VDCs");
+                    MainFragment.stateBtn.setVisibility(View.VISIBLE);
+                    MainFragment.vdcBtn.setVisibility(View.VISIBLE);
+                    MainFragment.districtBtn.setVisibility(View.VISIBLE);
+                    MainFragment.vdcBtn.setText(currentItem.getName());
+                    MainFragment.catagories.setText("VDCs");
 
                 }
 
             }
         });
 
-        MainPage.districtBtn.setOnClickListener(new View.OnClickListener() {
+        MainFragment.districtBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 populateDistrictRecyclerView();
                 //Toast.makeText(context, "Inside pathDistrictBtn: "+state, Toast.LENGTH_SHORT).show();
-                MainPage.catagories.setText("Districts");
-                MainPage.searchBox.setHint("Search Districts...");
-                MainPage.stateBtn.setVisibility(View.VISIBLE);
-                MainPage.districtBtn.setVisibility(View.VISIBLE);
-                MainPage.districtBtn.setText("Districts");
-                MainPage.vdcBtn.setVisibility(View.GONE);
-                MainPage.catagories.setVisibility(View.GONE);
-                MainPage.horizontalScrollViewMenu.setVisibility(View.VISIBLE);
+                MainFragment.catagories.setText("Districts");
+                MainFragment.searchBox.setHint("Search Districts...");
+                MainFragment.stateBtn.setVisibility(View.VISIBLE);
+                MainFragment.districtBtn.setVisibility(View.VISIBLE);
+                MainFragment.districtBtn.setText("Districts");
+                MainFragment.vdcBtn.setVisibility(View.GONE);
+                MainFragment.catagories.setVisibility(View.GONE);
+                MainFragment.horizontalScrollViewMenu.setVisibility(View.VISIBLE);
             }
         });
 
-        MainPage.vdcBtn.setOnClickListener(new View.OnClickListener() {
+        MainFragment.vdcBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 populateVdcRecyclerView();
-                MainPage.catagories.setText("VDCs");
-                MainPage.vdcBtn.setText("VDCs");
-                MainPage.searchBox.setHint("Search VDCs...");
-                MainPage.stateBtn.setVisibility(View.VISIBLE);
-                MainPage.stateBtn.setVisibility(View.VISIBLE);
-                MainPage.districtBtn.setVisibility(View.VISIBLE);
-                MainPage.catagories.setVisibility(View.GONE);
-                MainPage.horizontalScrollViewMenu.setVisibility(View.VISIBLE);
+                MainFragment.catagories.setText("VDCs");
+                MainFragment.vdcBtn.setText("VDCs");
+                MainFragment.searchBox.setHint("Search VDCs...");
+                MainFragment.stateBtn.setVisibility(View.VISIBLE);
+                MainFragment.stateBtn.setVisibility(View.VISIBLE);
+                MainFragment.districtBtn.setVisibility(View.VISIBLE);
+                MainFragment.catagories.setVisibility(View.GONE);
+                MainFragment.horizontalScrollViewMenu.setVisibility(View.VISIBLE);
             }
         });
 
@@ -232,13 +235,13 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
         final List<ListItem>municipalList=new ArrayList<>();
         final List<ListItem> ruralMunicipalList=new ArrayList<>();
 
-        MainPage.stateBtn.setVisibility(View.VISIBLE);
-        MainPage.vdcBtn.setVisibility(View.VISIBLE);
-        MainPage.districtBtn.setVisibility(View.VISIBLE);
+        MainFragment.stateBtn.setVisibility(View.VISIBLE);
+        MainFragment.vdcBtn.setVisibility(View.VISIBLE);
+        MainFragment.districtBtn.setVisibility(View.VISIBLE);
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.178:8088/localLevel/rest/districts/localLevel/",
+        String url = makeFinalUrl("http://192.168.100.237:8088/localLevel/rest/districts/localLevel/",
                 district);
 
 
@@ -314,7 +317,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
 
                     if(adapterAll!=null){
                         recyclerView.setAdapter(adapterAll);
-                        MainPage.btnAll.performClick();
+                        MainFragment.btnAll.performClick();
                     }else {
                         Toast.makeText(context, "No value in all Adapter", Toast.LENGTH_SHORT).show();
                     }
@@ -346,8 +349,8 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
         }
 
         final ArrayAdapter<String> autoComAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, allNames);
-        MainPage.searchBox.setAdapter(autoComAdapter);
-        MainPage.searchBox.addTextChangedListener(new TextWatcher() {
+        MainFragment.searchBox.setAdapter(autoComAdapter);
+        MainFragment.searchBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -382,14 +385,14 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
     private void populateDistrictRecyclerView() {
        final String[] districtNames;
         final List<ListItem> districtList=new ArrayList<>();
-       MainPage.stateBtn.setVisibility(View.VISIBLE);
-       MainPage.vdcBtn.setVisibility(View.GONE);
-       MainPage.districtBtn.setText("Districts");
-        MainPage.districtBtn.setVisibility(View.VISIBLE);
+        MainFragment.stateBtn.setVisibility(View.VISIBLE);
+        MainFragment.vdcBtn.setVisibility(View.GONE);
+        MainFragment.districtBtn.setText("Districts");
+        MainFragment.districtBtn.setVisibility(View.VISIBLE);
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.178:8088/localLevel/rest/districts/state/",
+        String url = makeFinalUrl("http://192.168.100.237:8088/localLevel/rest/districts/state/",
                 state);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -447,12 +450,12 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ListIt
             j++;
         }
         final ArrayAdapter<String> autoComAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, districtNames);
-        MainPage.searchBox.setAdapter(autoComAdapter);
+        MainFragment.searchBox.setAdapter(autoComAdapter);
 
 //        adapterDistrict = new ListItemAdapter(getContext(), districtList, recyclerView);
 //        recyclerView.setAdapter(adapterDistrict);
 
-        MainPage.searchBox.addTextChangedListener(new TextWatcher() {
+        MainFragment.searchBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 

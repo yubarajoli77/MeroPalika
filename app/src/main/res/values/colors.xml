@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ddA9A9A9</color>
-    <color name="colorPrimaryDark">#fc646262</color>
+    <color name="colorPrimary">#A9A9A9</color>
+    <color name="colorPrimaryDark">#646262</color>
     <color name="colorAccent">#474847</color>
     <color name="greisBlue">#5076d2</color>
     <color name="transparent">#00ffffff</color>
@@ -24,6 +24,9 @@
     <color name="navy">#000080</color>
     <color name="black">#000000</color>
     <color name="washBlue">#263238</color>
+
+
+    <color name="targetOuterCircleColor">#43a047</color>
 
 
 </resources>

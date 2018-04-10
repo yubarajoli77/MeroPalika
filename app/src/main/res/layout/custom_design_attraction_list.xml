@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        app:cardCornerRadius="4dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp">
+            <TextView
+                android:id="@+id/attraction_list_list_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="Fewa Lake"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                android:padding="4dp"/>
+            <TextView
+                android:id="@+id/attraction_list_list_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/attraction_list_list_name"
+                android:text="Lake Side, Pokhara"
+                android:padding="4dp"/>
+            <ImageButton
+                android:id="@+id/attraction_list_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/location_24dp"
+                android:background="@color/transparent"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+</android.widget.LinearLayout>
