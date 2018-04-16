@@ -1,11 +1,8 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.Activities;
 
-import android.*;
 import android.Manifest;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,20 +14,23 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.getkeepsafe.taptargetview.TapTargetView;
+import com.softechfoundation.municipal.Fragments.HomeFragment;
+import com.softechfoundation.municipal.Fragments.MainFragment;
+import com.softechfoundation.municipal.Fragments.MinistryFragment;
+import com.softechfoundation.municipal.Fragments.SeperateDetailMapFragment;
+import com.softechfoundation.municipal.Fragments.StateFragment;
+import com.softechfoundation.municipal.R;
 
 public class MainPage extends AppCompatActivity {
     public static BottomNavigationView navigation;
-    View fragmentMap;
     private Fragment fragment;
     TapTargetSequence sequence;
     private boolean isHomeFirstTime = true;
@@ -358,14 +358,10 @@ public class MainPage extends AppCompatActivity {
                 case R.id.navigation_detail_map:
                     getSupportActionBar().setTitle("Detail In Map");
                     fragment=new SeperateDetailMapFragment();
-//                    Intent intent = new Intent(MainPage.this, MoreInfo.class);
-//                    startActivity(intent);
                     break;
                 case R.id.navigation_ministry:
                     getSupportActionBar().setTitle("Ministry Of Nepal");
                     fragment=new MinistryFragment();
-//                    Intent intent1 = new Intent(MainPage.this, MoreInfo.class);
-//                    startActivity(intent1);
                     break;
             }
             if (fragment != null) {
@@ -384,7 +380,6 @@ public class MainPage extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        navigation.setVisibility(View.VISIBLE);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
         builder.setTitle("Do you want to Exit?");

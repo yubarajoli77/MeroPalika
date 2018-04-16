@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.softechfoundation.municipal.StateFragment">
+    tools:context="com.softechfoundation.municipal.Fragments.StateFragment">
 
     <android.widget.RelativeLayout
         android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:background="@drawable/state_info_bg">
 
-        <com.jh.circularlist.CircularListView
+        <com.softechfoundation.municipal.CircularListViewDesign.CircularListView
             android:id="@+id/circular_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -37,7 +37,7 @@
                 android:rotation="90"
                 android:text="States" />
 
-        </com.jh.circularlist.CircularListView>
+        </com.softechfoundation.municipal.CircularListViewDesign.CircularListView>
 
     </android.widget.RelativeLayout>
 

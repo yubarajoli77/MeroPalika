@@ -1,19 +1,15 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.CheckInternet;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.animation.OvershootInterpolator;
+import android.view.animation.ScaleAnimation;
+import android.widget.RelativeLayout;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.URL;
-import java.util.function.Consumer;
+import com.softechfoundation.municipal.CircularListViewDesign.CircularListView;
 
 /**
  * Created by yubar on 3/2/2018.
@@ -22,13 +18,13 @@ import java.util.function.Consumer;
 public class CheckInternet{
 
     //private Context context;
-    protected Boolean isNetworkAvailable(Context context) {
+    public Boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
-    protected Boolean isOnline() {
+    public Boolean isOnline() {
         try {
             Process p1 = Runtime.getRuntime().exec("ping -c 1 www.google.com");
             int returnVal = p1.waitFor();
@@ -40,5 +36,6 @@ public class CheckInternet{
         }
         return false;
     }
+
 
 }

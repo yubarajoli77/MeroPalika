@@ -1,4 +1,4 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.Pojos;
 
 import android.graphics.Bitmap;
 

@@ -1,4 +1,4 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.Fragments;
 
 
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
+import com.softechfoundation.municipal.R;
 
 
 /**

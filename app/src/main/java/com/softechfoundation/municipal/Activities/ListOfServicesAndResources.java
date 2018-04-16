@@ -1,4 +1,4 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.Activities;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -6,9 +6,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.RequestQueue;
@@ -16,8 +13,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
-import com.softechfoundation.municipal.horizontalScrollMenuItem.ListItem;
-import com.softechfoundation.municipal.horizontalScrollMenuItem.ListItemAdapter;
+import com.softechfoundation.municipal.Adapters.ResourceCustomAdapter;
+import com.softechfoundation.municipal.Adapters.ServiceCustomAdapter;
+import com.softechfoundation.municipal.Pojos.ResourcePojo;
+import com.softechfoundation.municipal.Pojos.ServicePojo;
+import com.softechfoundation.municipal.R;
+import com.softechfoundation.municipal.VolleyCache.CacheRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;

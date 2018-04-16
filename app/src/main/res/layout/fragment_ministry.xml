@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#8394a3"
-    tools:context="com.softechfoundation.municipal.MinistryFragment">
+    tools:context="com.softechfoundation.municipal.Fragments.MinistryFragment">
 
   <ScrollView
       android:layout_width="match_parent"

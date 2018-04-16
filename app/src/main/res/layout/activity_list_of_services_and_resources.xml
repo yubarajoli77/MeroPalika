@@ -1,15 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.widget.RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.softechfoundation.municipal.ListOfServicesAndResources">
-<android.support.v7.widget.RecyclerView
-    android:id="@+id/state_detail_list"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    tools:context="com.softechfoundation.municipal.Activities.ListOfServicesAndResources">
 
-</android.support.v7.widget.RecyclerView>
+    <HorizontalScrollView
+        android:id="@+id/horizontal_scroll_catagories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#dedede"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/natural_resources_btn_rivers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Rivers"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/natural_resources_btn_mountains"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Mountains"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/natural_resources_btn_lakes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Lakes"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/natural_resources_btn_water_fall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Waterfalls"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/natural_resources_btn_protected_areas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Protected Areas"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/services_btn_airport"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Airports"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/services_btn_hospital"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Hospitals"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/services_btn_industry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Industries"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/services_btn_hydropower"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Hydropowers"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/state_detail_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/horizontal_scroll_catagories"
+        android:padding="4dp">
+
+    </android.support.v7.widget.RecyclerView>
 </android.widget.RelativeLayout>

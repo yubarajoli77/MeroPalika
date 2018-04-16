@@ -1,4 +1,4 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.Adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -7,11 +7,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.softechfoundation.municipal.Pojos.GridImageViewPojo;
+import com.softechfoundation.municipal.R;
 
 import java.util.Collections;
 import java.util.List;

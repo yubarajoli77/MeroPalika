@@ -1,16 +1,17 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.Fragments;
 
 
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -20,14 +21,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -37,9 +33,6 @@ import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.Display;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -49,10 +42,10 @@ import android.widget.Toast;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -61,8 +54,12 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.softechfoundation.municipal.horizontalScrollMenuItem.ListItem;
-import com.softechfoundation.municipal.horizontalScrollMenuItem.ListItemAdapter;
+
+import com.softechfoundation.municipal.Adapters.NewListItemAdapter;
+import com.softechfoundation.municipal.Adapters.OldListItemAdapter;
+import com.softechfoundation.municipal.CheckInternet.CheckInternet;
+import com.softechfoundation.municipal.Activities.MainPage;
+import com.softechfoundation.municipal.Pojos.ListItem;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,7 +69,7 @@ import java.util.Locale;
 
 import com.softechfoundation.municipal.R;
 
-import static com.softechfoundation.municipal.MainPage.navigation;
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -83,10 +80,12 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     public MainFragment() {
         // Required empty public constructor
     }
+    private static final String MY_PREFS = "SharedValues";
     private static String[] stateNames;
     private RecyclerView recyclerView;
-    private ListItemAdapter adapter;
-    public static Button stateBtn, districtBtn, vdcBtn;
+    private NewListItemAdapter NewAdapter;
+    private OldListItemAdapter OldAdapter;
+    public static Button stateBtn, districtBtn, vdcBtn,trigger;
     public static AutoCompleteTextView searchBox;
     public static TextView catagories;
     private ArrayAdapter<String> autoComAdapter;
@@ -365,25 +364,51 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         horizontalScrollViewMenu = view.findViewById(R.id.menu_horizontal_scroll_view);
         fragmentMap = view.findViewById(R.id.map_fragment);
         pathView = view.findViewById(R.id.path_view);
+        trigger=view.findViewById(R.id.trigger);
        // topDetail=view.findViewById(R.id.top_detail_view);
         //checkNetConnection();
-
-
 
         mainWork();
     }
 
     private void mainWork() {
-        adapter = new ListItemAdapter(getContext(), getData(), recyclerView);
-        autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
-        recyclerView.setAdapter(adapter);
-        searchBox.setAdapter(autoComAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+        //Ask user to choose place mapping
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setCancelable(true);
+        builder.setTitle("Choose place mapping");
+        builder.setPositiveButton("Old To New", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                OldAdapter = new OldListItemAdapter(getContext(), getData(), recyclerView);
+                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
+                recyclerView.setAdapter(OldAdapter);
+                searchBox.setAdapter(autoComAdapter);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+            }
+        });
+        builder.setNegativeButton("New To Old", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                NewAdapter = new NewListItemAdapter(getContext(), getData(), recyclerView);
+                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
+                recyclerView.setAdapter(NewAdapter);
+                searchBox.setAdapter(autoComAdapter);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+        //end of ask maping
+
+
 
         stateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recyclerView.setAdapter(adapter);
+                recyclerView.setAdapter(NewAdapter);
                 searchBox.setHint("Search States...");
                 stateBtn.setText("States");
                 districtBtn.setVisibility(View.GONE);
@@ -400,7 +425,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnAll.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnAll.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(ListItemAdapter.adapterAll);
+                recyclerView.setAdapter(NewListItemAdapter.adapterAll);
 
                 //scroll the horizontal scroll view programatically with animation and delay
                 final Handler handler = new Handler();
@@ -423,7 +448,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnMetropolitian.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnMetropolitian.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(ListItemAdapter.adapterMetroplitan);
+                recyclerView.setAdapter(NewListItemAdapter.adapterMetroplitan);
             }
         });
         btnSubMetropolitian.setOnClickListener(new View.OnClickListener() {
@@ -432,7 +457,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnSubMetropolitian.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnSubMetropolitian.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(ListItemAdapter.adapterSubMetropolitan);
+                recyclerView.setAdapter(NewListItemAdapter.adapterSubMetropolitan);
             }
         });
 
@@ -442,7 +467,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnMunicipality.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnMunicipality.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(ListItemAdapter.adapterMunicipal);
+                recyclerView.setAdapter(NewListItemAdapter.adapterMunicipal);
             }
         });
         btnRuralMunicipality.setOnClickListener(new View.OnClickListener() {
@@ -451,7 +476,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnRuralMunicipality.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnRuralMunicipality.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(ListItemAdapter.adapterRuralMunicipal);
+                recyclerView.setAdapter(NewListItemAdapter.adapterRuralMunicipal);
             }
         });
 
@@ -461,6 +486,13 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnOldVdc.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnOldVdc.setTextColor(Color.WHITE);
+            }
+        });
+
+        trigger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findPlace();
             }
         });
 
@@ -481,8 +513,8 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                         newList.add(list);
                     }
                 }
-                adapter = new ListItemAdapter(getContext(), newList, recyclerView);
-                recyclerView.setAdapter(adapter);
+                NewAdapter = new NewListItemAdapter(getContext(), newList, recyclerView);
+                recyclerView.setAdapter(NewAdapter);
             }
 
             @Override
@@ -495,8 +527,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         searchBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigation.setVisibility(View.GONE);
-                // pathView.setVisibility(View.GONE);
+
             }
         });
 
@@ -788,6 +819,31 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 //                new LatLng(26.726658, 88.242621), new LatLng(29.774378, 80.311209));
 //        // Constrain the camera target to the Adelaide bounds.
 //        mGoogleMap.setLatLngBoundsForCameraTarget(ADELAIDE);
+    }
+
+    public void findPlace(){
+        SharedPreferences pref = getActivity().getApplicationContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+
+        String location=pref.getString("location", null);
+        //location = district + ", " + vdc + ", " + "Nepal";
+        Log.d("location::", String.valueOf(location));
+
+        try {
+            List<Address> addressList = geocoder.getFromLocationName(location, 1);
+
+            if (!addressList.isEmpty()) {
+                Address address = addressList.get(0);
+                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                addMarker(latLng, address);
+            } else {
+
+                Toast.makeText(getActivity(), "No match found, Please enter the places nearby", Toast.LENGTH_SHORT).show();
+                // alternateChoice(district);
+               // googleSearchBox();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkNetConnection() {

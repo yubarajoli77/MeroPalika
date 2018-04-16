@@ -1,4 +1,4 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.CircularListViewDesign;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jh.circularlist.CircularAdapter;
+import com.softechfoundation.municipal.R;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,8 @@ public class CircularItemAdapter extends CircularAdapter {
     private LayoutInflater mInflater;
 
     private ArrayList<View> mItemViews;
-    private ImageView scrollImage;
+    private ImageView stateImage;
+    private TextView stateName;
     public static CardView cardView;
 
     public CircularItemAdapter(LayoutInflater inflater, ArrayList<String> items){
@@ -41,10 +42,10 @@ public class CircularItemAdapter extends CircularAdapter {
             //View view = mInflater.inflate(R.layout.view_circular_item, null);
             View view=mInflater.inflate(R.layout.custom_circular_item,null);
             cardView=view.findViewById(R.id.circular_card_item);
-        //    scrollImage=view.findViewById(R.id.circular_image_view);
-//            scrollImage.setImageResource(R.drawable.natural_resources);
-//            TextView itemView = view.findViewById(R.id.bt_item);
-            //itemView.setText(s);
+           stateImage=view.findViewById(R.id.circular_card_image_item);
+            stateImage.setImageResource(R.drawable.natural_resources);
+            stateName = view.findViewById(R.id.circular_description_item);
+            stateName.setText("State "+s);
             mItemViews.add(view);
 
         }

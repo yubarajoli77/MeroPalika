@@ -1,4 +1,4 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.Adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.softechfoundation.municipal.R;
+import com.softechfoundation.municipal.Pojos.ResourcePojo;
 
 import java.util.Collections;
 import java.util.List;

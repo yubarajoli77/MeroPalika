@@ -48,7 +48,7 @@ dependencies {
     implementation 'com.daimajia.slider:library:1.1.5@aar'
 
     //circular layout
-    implementation 'com.github.JungHsuan:CircularList:1.2'
+    //implementation 'com.github.JungHsuan:CircularList:1.2'
 
     //Exapandable View
     // implementation 'com.github.aakira:expandable-layout:1.6.0@aar'

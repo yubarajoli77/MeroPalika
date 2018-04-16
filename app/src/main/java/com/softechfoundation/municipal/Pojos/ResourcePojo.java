@@ -1,4 +1,4 @@
-package com.softechfoundation.municipal;
+package com.softechfoundation.municipal.Pojos;
 
 /**
  * Created by yubar on 4/9/2018.
