@@ -3,7 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/help"
         android:icon="@drawable/ic_help_black_24dp"
-        android:title="History"
+        android:title="Tutorial"
         app:showAsAction="ifRoom"/>
+    <item android:id="@+id/clear_cache"
+        android:title="Clear App Cache"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/setting"
+        android:title="Setting"
+        app:showAsAction="never"/>
 
 </menu>

@@ -1,14 +1,21 @@
 package com.softechfoundation.municipal.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.softechfoundation.municipal.Activities.ShowItemInMap;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.Pojos.ServicePojo;
 
@@ -30,7 +37,9 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
         this.context = context;
         this.dataItem = dataItem;
     }
-
+    private Context getContext(){
+        return context;
+    }
 
     @NonNull
     @Override
@@ -46,6 +55,21 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
         holder.name.setText(currentService.getName());
         holder.address.setText(currentService.getAddress());
 
+        holder.call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callNumber(currentService.getPhone());
+            }
+        });
+
+        holder.location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getContext(), ShowItemInMap.class);
+                intent.putExtra("location",currentService.getAddress());
+                getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -62,6 +86,29 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
             address=itemView.findViewById(R.id.service_list_list_address);
             location=itemView.findViewById(R.id.service_list_location);
             call=itemView.findViewById(R.id.service_list_phone);
+        }
+    }
+
+    public void callNumber(String phone) {
+        Intent callIntent = new Intent(Intent.ACTION_DIAL); //use ACTION_CALL for direct call
+        callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        callIntent.setData(Uri.parse("tel:"+phone));    //this is the phone number calling
+        //check permission
+        //If the device is running Android 6.0 (API level 23) and the app's targetSdkVersion is 23 or higher,
+        //the system asks the user to grant approval.
+        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            //request permission from user if the app hasn't got the required permission
+            ActivityCompat.requestPermissions((Activity) getContext(),
+                    new String[]{android.Manifest.permission.CALL_PHONE},   //request specific permission from user
+                    10);
+            return;
+        }else {     //have got permission
+            try{
+                getContext().startActivity(callIntent);  //call activity and make phone call
+            }
+            catch (android.content.ActivityNotFoundException ex){
+                Toast.makeText(getContext(),"yourActivity is not founded",Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

@@ -34,6 +34,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -41,7 +43,7 @@ import java.util.ArrayList;
  */
 public class StateFragment extends Fragment {
     private CircularItemAdapter adapter;
-
+    private  String stateName,area,population,website,governer,chiefMinister,capital,density;
     public StateFragment() {
         // Required empty public constructor
     }
@@ -63,13 +65,28 @@ public class StateFragment extends Fragment {
 
     private void doTask(View view) {
 
-        final ArrayList<String> itemTitles = new ArrayList<>();
-        for(int i = 1 ; i < 8 ; i ++){
-            itemTitles.add(String.valueOf(i));
+//        final ArrayList<String> itemTitles = new ArrayList<>();
+//        final ArrayList<Integer> iconLists=new ArrayList<>();
+        List<ListItem> listItems = new ArrayList<>();
+        String[] names={"State 1","State 2","State 3","State 4","State 5","State 6","State 7"};
+        int[] icons = {R.drawable.state1_logo, R.drawable.state2_logo, R.drawable.state3_logo,
+                R.drawable.state4_logo, R.drawable.state5_logo, R.drawable.state6_logo, R.drawable.state7_logo};
+
+//        for(int i = 0 ; i < 7 ; i ++){
+//            int index=i+1;
+//            itemTitles.add(String.valueOf(index));
+//            iconLists.add(icons[i]);
+//
+//        }
+        for (int i = 0; i < names.length && i<icons.length; i++) {
+            ListItem current = new ListItem();
+            current.setIcon(icons[i]);
+            current.setName(names[i]);
+            listItems.add(current);
         }
 
         final CircularListView circularListView = (CircularListView) view.findViewById(R.id.circular_list);
-        adapter = new CircularItemAdapter(getLayoutInflater(), itemTitles);
+        adapter = new CircularItemAdapter(getLayoutInflater(), (ArrayList<ListItem>) listItems);
         circularListView.setAdapter(adapter);
         circularListView.setRadius(120);
 
@@ -81,7 +98,7 @@ public class StateFragment extends Fragment {
 
                 //Start Caching
                 RequestQueue queue = Volley.newRequestQueue(getContext());
-                String url = makeFinalUrl("http://192.168.100.237:8088/localLevel/rest/states/stateDetails/",
+                String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/states/stateDetails/",
                         parameter);
 
 
@@ -89,7 +106,7 @@ public class StateFragment extends Fragment {
 
                     @Override
                     public void onResponse(NetworkResponse response) {
-                        String stateName,area,population,website,governer,chiefMinister,capital,density;
+
 
                         try {
                             final String jsonString = new String(response.data,
@@ -107,6 +124,8 @@ public class StateFragment extends Fragment {
                             density=jsonObject.getString("density");
 
                             Log.d("Total value::::",area+stateName+capital);
+
+
                             final Intent intent=new Intent(getActivity(),StateDetails.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             intent.putExtra("stateName",stateName);
@@ -119,6 +138,7 @@ public class StateFragment extends Fragment {
                             intent.putExtra("density",density);
                             startActivity(intent);
 
+
                         } catch (UnsupportedEncodingException | JSONException e) {
                             e.printStackTrace();
                         }
@@ -126,6 +146,7 @@ public class StateFragment extends Fragment {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getActivity(), "You are disconnected from internet", Toast.LENGTH_SHORT).show();
                         //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });

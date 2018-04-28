@@ -16,92 +16,202 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:weightSum="2"
+            android:layout_margin="2dp"
             android:orientation="horizontal"
-            android:layout_margin="2dp">
+            android:weightSum="2">
 
 
             <LinearLayout
                 android:id="@+id/natural_resource_layout"
                 android:layout_width="0dp"
-                android:layout_height="200dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
                 android:layout_weight="1"
+                android:background="@color/colorPrimary"
                 android:orientation="vertical"
-                android:background="@drawable/natural_resources"
-                android:layout_margin="2dp">
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:padding="8dp"
+                    android:src="@drawable/natural_resourcess" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary"
-                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:padding="4dp"
                     android:text="Natural Resources"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
 
             </LinearLayout>
+
             <LinearLayout
+                android:id="@+id/infrastructure_layout"
                 android:layout_width="0dp"
-                android:layout_height="200dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
                 android:layout_weight="1"
+                android:background="@color/colorPrimary"
                 android:orientation="vertical"
-                android:background="@drawable/stone_gray"
-                android:layout_margin="2dp">
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:padding="8dp"
+                    android:src="@drawable/infrastructure" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary"
-                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:padding="4dp"
                     android:text="Infrastructure"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
 
 
             </LinearLayout>
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:weightSum="2"
-            android:layout_margin="2dp"
-            android:orientation="horizontal">
+            android:layout_marginBottom="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
 
 
             <LinearLayout
+                android:id="@+id/main_attraction_layout"
                 android:layout_width="0dp"
-                android:layout_height="200dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
                 android:layout_weight="1"
+                android:background="@color/colorPrimary"
                 android:orientation="vertical"
-                android:background="@drawable/ux"
-                android:layout_margin="2dp">
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:padding="8dp"
+                    android:src="@drawable/main_attraction" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary"
-                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:padding="4dp"
                     android:text="Main Attaraction"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
 
             </LinearLayout>
+
             <LinearLayout
+                android:id="@+id/urgent_services_layout"
                 android:layout_width="0dp"
-                android:layout_height="200dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
                 android:layout_weight="1"
+                android:background="@color/colorPrimary"
                 android:orientation="vertical"
-                android:background="@drawable/state1"
-                android:layout_margin="2dp">
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:padding="8dp"
+                    android:src="@drawable/urgent_services" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorPrimary"
-                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:padding="4dp"
                     android:text="Urgent Services"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+
+            <LinearLayout
+                android:id="@+id/available_contacts_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:background="@color/colorPrimary"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:padding="8dp"
+                    android:src="@drawable/related_contacts" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="4dp"
+                    android:text="Available Contacts"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:background="@color/colorPrimary"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:visibility="invisible">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:padding="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="4dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
 
             </LinearLayout>
         </LinearLayout>

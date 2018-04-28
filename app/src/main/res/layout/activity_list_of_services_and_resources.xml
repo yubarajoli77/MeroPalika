@@ -10,6 +10,7 @@
         android:id="@+id/horizontal_scroll_catagories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="4dp"
         android:background="#dedede"
         android:scrollbars="none">
 
@@ -18,9 +19,19 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/natural_resources_catagory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/natural_resources_btn_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="All"
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/natural_resources_btn_rivers"
@@ -29,7 +40,7 @@
                     android:background="@color/transparent"
                     android:text="Rivers"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/natural_resources_btn_mountains"
@@ -38,7 +49,7 @@
                     android:background="@color/transparent"
                     android:text="Mountains"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/natural_resources_btn_lakes"
@@ -47,7 +58,7 @@
                     android:background="@color/transparent"
                     android:text="Lakes"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/natural_resources_btn_water_fall"
@@ -56,7 +67,7 @@
                     android:background="@color/transparent"
                     android:text="Waterfalls"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/natural_resources_btn_protected_areas"
@@ -65,14 +76,23 @@
                     android:background="@color/transparent"
                     android:text="Protected Areas"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/infrastructure_catagory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:visibility="gone">
+                <Button
+                    android:id="@+id/services_btn_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="All"
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/services_btn_airport"
@@ -81,16 +101,16 @@
                     android:background="@color/transparent"
                     android:text="Airports"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
 
                 <Button
-                    android:id="@+id/services_btn_hospital"
+                    android:id="@+id/services_btn_hotel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/transparent"
-                    android:text="Hospitals"
+                    android:text="Hotels"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/services_btn_industry"
@@ -99,7 +119,7 @@
                     android:background="@color/transparent"
                     android:text="Industries"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/services_btn_hydropower"
@@ -108,7 +128,58 @@
                     android:background="@color/transparent"
                     android:text="Hydropowers"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/urgent_services_catagory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <Button
+                    android:id="@+id/urgent_services_btn_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="All"
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/urgent_services_btn_hospital"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Hospitals"
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/urgent_services_btn_blood_bank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Blood Bank"
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/urgent_services_btn_atm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="ATM"
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/urgent_services_btn_police"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Police Station"
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
     </HorizontalScrollView>

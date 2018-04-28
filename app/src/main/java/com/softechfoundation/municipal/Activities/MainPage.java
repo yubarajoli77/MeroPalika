@@ -2,9 +2,13 @@ package com.softechfoundation.municipal.Activities;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -17,8 +21,11 @@ import android.support.v7.app.AppCompatDelegate;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.getkeepsafe.taptargetview.TapTargetView;
@@ -29,12 +36,17 @@ import com.softechfoundation.municipal.Fragments.SeperateDetailMapFragment;
 import com.softechfoundation.municipal.Fragments.StateFragment;
 import com.softechfoundation.municipal.R;
 
-public class MainPage extends AppCompatActivity {
+import java.util.Locale;
+
+public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitListener {
+    private static final int ACT_CHECK_TTS_DATA = 1001;
     public static BottomNavigationView navigation;
     private Fragment fragment;
     TapTargetSequence sequence;
+    private boolean isTutorialAlreadyShown;
     private boolean isHomeFirstTime = true;
-
+    public static Button readMessage;
+    private TextToSpeech tts=null;
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
@@ -48,8 +60,89 @@ public class MainPage extends AppCompatActivity {
         navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        helpUser();
+        readMessage= findViewById(R.id.readMessage);
+        SharedPreferences sharedPreferences=getSharedPreferences("CheckTutorialFirstTime",MODE_PRIVATE);
+        isTutorialAlreadyShown=sharedPreferences.getBoolean("isTutorialAlreadyShown",false);
+        if(!isTutorialAlreadyShown){
+            helpUser();
+            sequence.start();
+            SharedPreferences.Editor editor=getSharedPreferences("CheckTutorialFirstTime",MODE_PRIVATE).edit();
+            editor.putBoolean("isTutorialAlreadyShown",true);
+            editor.apply();
+            editor.commit();
+        }
+
+        //for text to speech intent
+        Intent ttsIntent = new Intent();
+        ttsIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(ttsIntent, ACT_CHECK_TTS_DATA);
+
+
+        readMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SharedPreferences prefs = getSharedPreferences("TTSMessage", MODE_PRIVATE);
+                String message = prefs.getString("message", "");
+
+                SharedPreferences sharedPreferences = getSharedPreferences("Setting", MODE_PRIVATE);
+                boolean onOrOff=sharedPreferences.getBoolean("switchState",true);
+                float speed=sharedPreferences.getFloat("speed", (float) 1.0);
+                float pitch=sharedPreferences.getFloat("pitch", (float) 1.0);
+
+                if(onOrOff){
+                    if(!(message.equals(""))){
+                        //tts = new TextToSpeech(StateDetails.this,this);
+                        tts.setLanguage(Locale.US);
+                        tts.speak(message, TextToSpeech.QUEUE_ADD, null);
+                        tts.setPitch(pitch);
+                        tts.setSpeechRate(speed);
+                    }
+                }
+
+            }
+        });
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent data) {
+        if (requestCode == ACT_CHECK_TTS_DATA) {
+            if (resultCode ==
+                    TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                // Data exists, so we instantiate the TTS engine
+                tts = new TextToSpeech(this, this);
+            } else {
+                // Data is missing, so we start the TTS installation
+                // process
+                Intent installIntent = new Intent();
+                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+            }
+        }
+    }
+
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            if (tts != null) {
+                int result = tts.setLanguage(Locale.US);
+                if (result == TextToSpeech.LANG_MISSING_DATA || result ==
+                        TextToSpeech.LANG_NOT_SUPPORTED) {
+                    Toast.makeText(MainPage.this, "TTS language is not supported",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    // Do something here
+                }
+            }
+        } else {
+            Toast.makeText(MainPage.this, "TTS initialization failed",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+
 
     private void requestGpsPermissions() {
 
@@ -86,7 +179,8 @@ public class MainPage extends AppCompatActivity {
             }
         }
     }
-    private void requestWritePermission(){
+
+    private void requestWritePermission() {
         if (ContextCompat.checkSelfPermission(MainPage.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(MainPage.this,
@@ -312,7 +406,6 @@ public class MainPage extends AppCompatActivity {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragmentMain, fragment);
             fragmentTransaction.commit();
-
             isHomeFirstTime = false;
         }
 
@@ -332,6 +425,36 @@ public class MainPage extends AppCompatActivity {
             helpUser();
             sequence.start();
         }
+        if (id == R.id.clear_cache) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(true);
+            builder.setIcon(getResources().getDrawable(R.drawable.ic_warning_black_24dp));
+            builder.setTitle("Delete All Cached Data");
+            builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    RequestQueue queue = Volley.newRequestQueue(MainPage.this);
+                    queue.getCache().clear();
+                    dialog.dismiss();
+                }
+            });
+            builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+
+                }
+            });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+        if(id==R.id.setting){
+            Intent intent=new Intent(MainPage.this,Setting.class);
+            startActivity(intent);
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -344,7 +467,7 @@ public class MainPage extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     fragment = new HomeFragment();
-                    getSupportActionBar().setTitle("Municipal");
+                    getSupportActionBar().setTitle("MeroPalika");
                     break;
                 case R.id.navigation_information:
                     fragment = new StateFragment();
@@ -353,15 +476,15 @@ public class MainPage extends AppCompatActivity {
                 case R.id.navigation_new_nepal:
                     requestGpsPermissions();
                     fragment = new MainFragment();
-                    getSupportActionBar().setTitle("Old To New");
+                    getSupportActionBar().setTitle("Place Mapping");
                     break;
                 case R.id.navigation_detail_map:
-                    getSupportActionBar().setTitle("Detail In Map");
-                    fragment=new SeperateDetailMapFragment();
+                    getSupportActionBar().setTitle("Separate Map");
+                    fragment = new SeperateDetailMapFragment();
                     break;
                 case R.id.navigation_ministry:
-                    getSupportActionBar().setTitle("Ministry Of Nepal");
-                    fragment=new MinistryFragment();
+                    getSupportActionBar().setTitle("Current Ministry");
+                    fragment = new MinistryFragment();
                     break;
             }
             if (fragment != null) {
@@ -400,7 +523,6 @@ public class MainPage extends AppCompatActivity {
         });
         AlertDialog alert = builder.create();
         alert.show();
+
     }
-
-
 }

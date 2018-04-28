@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.R;
 
 import java.util.ArrayList;
@@ -18,8 +19,8 @@ import java.util.ArrayList;
 
 public class CircularItemAdapter extends CircularAdapter {
 
-    private ArrayList<String> mItems;
-
+    private ArrayList<ListItem> mItems;
+    private ArrayList<Integer>mIcons;
     private LayoutInflater mInflater;
 
     private ArrayList<View> mItemViews;
@@ -27,25 +28,19 @@ public class CircularItemAdapter extends CircularAdapter {
     private TextView stateName;
     public static CardView cardView;
 
-    public CircularItemAdapter(LayoutInflater inflater, ArrayList<String> items){
+    public CircularItemAdapter(LayoutInflater inflater, ArrayList<ListItem> items){
 
         this.mItemViews = new ArrayList<>();
-
         this.mItems = items;
-
         this.mInflater = inflater;
-
-
-
-        for(final String s : mItems){
-
-            //View view = mInflater.inflate(R.layout.view_circular_item, null);
+        this.mIcons=mIcons;
+        for(final ListItem s : mItems){
             View view=mInflater.inflate(R.layout.custom_circular_item,null);
             cardView=view.findViewById(R.id.circular_card_item);
            stateImage=view.findViewById(R.id.circular_card_image_item);
-            stateImage.setImageResource(R.drawable.natural_resources);
+            stateImage.setImageResource(s.getIcon());
             stateName = view.findViewById(R.id.circular_description_item);
-            stateName.setText("State "+s);
+            stateName.setText(s.getName());
             mItemViews.add(view);
 
         }

@@ -2,6 +2,7 @@ package com.softechfoundation.municipal.Adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
@@ -13,6 +14,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
+import com.softechfoundation.municipal.Activities.MainPage;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
 import com.softechfoundation.municipal.Fragments.MainFragment;
@@ -57,6 +61,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
     private LayoutInflater inflator;
     private List<ListItem> dataItem = Collections.emptyList();
     private RecyclerView recyclerView;
+    private StringBuilder stringBuilder=new StringBuilder();
 
 
     public static String globalState,globalDistrict,globalOldVdc;
@@ -97,7 +102,9 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
     @Override
     public void onBindViewHolder(@NonNull final ListItemViewHolder holder, int position) {
         final ListItem currentItem = dataItem.get(position);
-        holder.listName.setText(currentItem.getName());
+        Drawable topDrawable=getContext().getApplicationContext().getResources().getDrawable(currentItem.getIcon());
+       holder.listName.setText(currentItem.getName());
+//        holder.listName.setCompoundDrawables(null,topDrawable,null,null);
         holder.listIcon.setImageResource(currentItem.getIcon());
         setName(currentItem.getName());
         holder.cardView.setOnClickListener(new View.OnClickListener() {
@@ -151,7 +158,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
             private void getNewDetail() {
                 //Start Caching
                 RequestQueue queue = Volley.newRequestQueue(getContext());
-                String url = makeFinalUrl("http://192.168.100.237:8088/localLevel/rest/vdcs/oldVdc/",
+                String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/vdcs/oldVdc/",
                         globalOldVdc);
 
 
@@ -165,17 +172,15 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
                             JSONArray localLevelJsonArray = new JSONArray(jsonString);
 
                             //Removing duplication of data from cache
-
+                                stringBuilder.setLength(0);
+                            stringBuilder.append(globalOldVdc+" VDC"+" lies on\n\n");
                             for (int i = 0; i < localLevelJsonArray.length(); i++) {
                                 String localLevel,type;
                                 JSONObject jsonObject1 = localLevelJsonArray.getJSONObject(i);
                                 localLevel = jsonObject1.getString("newVdc");
                                 type = jsonObject1.getString("localLevelType");
-
-                                StringBuffer stringBuffer=new StringBuffer();
-                                stringBuffer.append(globalOldVdc+", "+"lies on\n\n");
-                                stringBuffer.append(localLevel+" "+type);
-                                showMessage("Mapping Result",stringBuffer.toString());
+                                stringBuilder.append(localLevel+" "+type+"\n");
+                                showMessage("Mapping Result",stringBuilder.toString());
                             }
 
                         } catch (UnsupportedEncodingException | JSONException e) {
@@ -231,13 +236,33 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
 
     }
     private void showMessage(String title,String message){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setNegativeButton("OK", null);
-        AlertDialog dialog = builder.create();
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.show();
+        SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences("TTSMessage", MODE_PRIVATE).edit();
+        editor.clear();
+        editor.apply();
+        editor.putString("message", message);
+        editor.apply();
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View dialogView = inflater.inflate(R.layout.mapping_result_custom_design, null);
+        dialogBuilder.setView(dialogView);
+
+        TextView textView = dialogView.findViewById(R.id.mapping_place_result);
+        textView.setText(message);
+        Button okBtn=dialogView.findViewById(R.id.mapping_place_btn);
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimationLeftRight;
+        if(!alertDialog.isShowing()) {
+            alertDialog.show();
+        }
+        MainPage.readMessage.performClick();
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
     }
     private void populateOldVdcRecyclerView() {
         final String[] oldVdcNames;
@@ -249,7 +274,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.237:8088/localLevel/rest/vdcs/district/",
+        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/vdcs/district/",
                 globalDistrict);
 
 
@@ -270,7 +295,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
                         JSONObject jsonObject1 = oldVdcJsonArray.getJSONObject(i);
                         String vdcName = jsonObject1.getString("oldVdc");
                         listItem.setName(vdcName);
-                        listItem.setIcon(R.drawable.globe);
+                        listItem.setIcon(R.drawable.rural_municipal);
                         listItem.setType("oldVdc");
                         oldVdcList.add(listItem);
                     }
@@ -349,7 +374,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.237:8088/localLevel/rest/districts/state/",
+        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/districts/state/",
                 globalState);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -366,7 +391,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
                         JSONObject jsonObject1 = jsonArray.getJSONObject(i);
                         String districtName = jsonObject1.getString("district");
                         listItem.setName(districtName);
-                        listItem.setIcon(R.drawable.ministry);
+                        listItem.setIcon(R.drawable.district);
                         listItem.setType("district");
 
                         districtList.add(listItem);

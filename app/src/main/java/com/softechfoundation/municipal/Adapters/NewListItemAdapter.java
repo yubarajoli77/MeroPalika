@@ -1,7 +1,11 @@
 package com.softechfoundation.municipal.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
@@ -13,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +28,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
+import com.softechfoundation.municipal.Activities.MainPage;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
 import com.softechfoundation.municipal.Fragments.MainFragment;
@@ -38,6 +44,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.android.volley.Request.Method.GET;
@@ -50,15 +57,16 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
     private static final String MY_PREFS = "SharedValues";
     private Context context;
     private LayoutInflater inflator;
-   // public static String state,district,localLevel;
+    // public static String state,district,localLevel;
     private List<ListItem> dataItem = Collections.emptyList();
     private RecyclerView recyclerView;
-
-
-    public static String globalState,globalDistrict,globalLocalLevel;
+    private StringBuilder stringBuilder = new StringBuilder();
+    private TextToSpeech tts;
+    private int ACT_CHECK_TTS_DATA = 1000;
+    public static String globalState, globalDistrict, globalLocalLevel;
     private String name;
-    public static NewListItemAdapter adapterDistrict, adapterVdc, adapterMetroplitan,adapterAll,adapterOldVdc;
-    public static NewListItemAdapter adapterSubMetropolitan,adapterMunicipal,adapterRuralMunicipal;
+    public static NewListItemAdapter adapterDistrict, adapterVdc, adapterMetroplitan, adapterAll, adapterOldVdc;
+    public static NewListItemAdapter adapterSubMetropolitan, adapterMunicipal, adapterRuralMunicipal;
 
     private Context getContext() {
         return context;
@@ -71,7 +79,6 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
     public String getName() {
         return name;
     }
-
 
 
     public NewListItemAdapter(Context context, List<ListItem> dataItem, RecyclerView recyclerView) {
@@ -94,24 +101,28 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
     public void onBindViewHolder(@NonNull final ListItemViewHolder holder, int position) {
         final ListItem currentItem = dataItem.get(position);
         holder.listName.setText(currentItem.getName());
+//        Drawable topDrawable=getContext().getApplicationContext().getResources().getDrawable(currentItem.getIcon());
+//        holder.listName.setCompoundDrawables(null,topDrawable,null,null);
         holder.listIcon.setImageResource(currentItem.getIcon());
         setName(currentItem.getName());
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
+
+        holder.placeCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // MainPage.pathView.setVisibility(View.VISIBLE)
 
                 if ("state".equals(currentItem.getType())) {
-                    globalState=currentItem.getName();
+                    globalState = currentItem.getName();
                     populateDistrictRecyclerView();
+                    showMessage("Hey, dude you clicked me.");
 
                 }
 
                 if ("district".equals(currentItem.getType())) {
                     //Toast.makeText(context, "You clicked " + currentItem.getName(), Toast.LENGTH_SHORT).show();
-                    globalDistrict=currentItem.getName();
+                    globalDistrict = currentItem.getName();
 
-                    String location = globalDistrict+", " + "Nepal";
+                    String location = globalDistrict + ", " + "Nepal";
                     // MainFragment.findPlace(location,context);
                     SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
                     editor.clear();
@@ -119,25 +130,30 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                     editor.putString("location", location);
                     editor.apply();
                     MainFragment.trigger.performClick();
-                    populateVdcRecyclerView();
+                    populateLocalLevelRecyclerView();
 
                 }
-                if ("ruralMunicipal".equals(currentItem.getType())){clickLocalLevelMenu();}
-                else if("municipal".equals(currentItem.getType())){clickLocalLevelMenu();}
-                else if("subMetropolitan".equals(currentItem.getType())){clickLocalLevelMenu();}
-                else if("metropolitan".equals(currentItem.getType())){clickLocalLevelMenu();}
+                if ("ruralMunicipal".equals(currentItem.getType())) {
+                    clickLocalLevelMenu("RuralMunicipal");
+                } else if ("municipal".equals(currentItem.getType())) {
+                    clickLocalLevelMenu("municipal");
+                } else if ("subMetropolitan".equals(currentItem.getType())) {
+                    clickLocalLevelMenu("subMetropolitan");
+                } else if ("metropolitan".equals(currentItem.getType())) {
+                    clickLocalLevelMenu("metropolitan");
+                }
 
             }
 
-            private void clickLocalLevelMenu() {
-                globalLocalLevel=currentItem.getName();
+            private void clickLocalLevelMenu(String type) {
+                globalLocalLevel = currentItem.getName();
                 MainFragment.stateBtn.setVisibility(View.VISIBLE);
                 MainFragment.vdcBtn.setVisibility(View.VISIBLE);
                 MainFragment.districtBtn.setVisibility(View.VISIBLE);
                 MainFragment.vdcBtn.setText(currentItem.getName());
                 MainFragment.catagories.setText("VDCs");
 
-                String location = globalDistrict + ", "+ globalLocalLevel+ ", " + "Nepal";
+                String location = globalDistrict + ", " + globalLocalLevel + ", " + "Nepal";
                 SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
 
                 editor.clear();
@@ -147,7 +163,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                 editor.commit();
                 MainFragment.trigger.performClick();
 
-                getOldDetail();
+                getOldDetail(type);
             }
         });
 ////Ask user to choose place mapping
@@ -174,7 +190,6 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 //        //end of ask maping
 
 
-
         MainFragment.districtBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -194,7 +209,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
         MainFragment.vdcBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                populateVdcRecyclerView();
+                populateLocalLevelRecyclerView();
                 MainFragment.catagories.setText("VDCs");
                 MainFragment.vdcBtn.setText("VDCs");
                 MainFragment.searchBox.setHint("Search VDCs...");
@@ -209,12 +224,11 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
     }
 
-    private void getOldDetail() {
+    private void getOldDetail(final String type) {
         //Start Caching
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.237:8088/localLevel/rest/vdcs/getOldVdcList/",
+        final RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/vdcs/OldVdcList/",
                 globalLocalLevel);
-
 
         CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
             @Override
@@ -224,18 +238,16 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                             HttpHeaderParser.parseCharset(response.headers));
 
                     JSONArray localLevelJsonArray = new JSONArray(jsonString);
-
-                    //Removing duplication of data from cache
-                    StringBuffer stringBuffer=new StringBuffer();
-                    stringBuffer.append(globalLocalLevel+", "+"includes\n\n");
+                    stringBuilder.setLength(0);
+                    stringBuilder.append(type + " " + globalLocalLevel + " includes following VDCs:\n\n");
                     for (int i = 0; i < localLevelJsonArray.length(); i++) {
-                       String localLevel,type;
+                        String localLevel;
+                        int j = i + 1;
                         JSONObject jsonObject1 = localLevelJsonArray.getJSONObject(i);
-                       localLevel = jsonObject1.getString("oldVdc");
-
-                        stringBuffer.append(localLevel+"\n");
+                        localLevel = jsonObject1.getString("oldVdc");
+                        stringBuilder.append(j + ". " + localLevel + "\n");
                     }
-                    showMessage("Mapping Result",stringBuffer.toString());
+                    showMessage(stringBuilder.toString());
                 } catch (UnsupportedEncodingException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -249,29 +261,47 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
         // Add the request to the RequestQueue.
         queue.add(cacheRequest);
-
         //End of Caching
 
 
     }
-    private void showMessage(String title,String message){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setNegativeButton("OK", null);
-        AlertDialog dialog = builder.create();
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.show();
+
+    private void showMessage(String message) {
+        SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences("TTSMessage", MODE_PRIVATE).edit();
+        editor.clear();
+        editor.apply();
+        editor.putString("message", "Play voice is on so I am able to speak. If you want to stop voice go to setting and disable the play sound");
+        editor.apply();
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View dialogView = inflater.inflate(R.layout.mapping_result_custom_design, null);
+        dialogBuilder.setView(dialogView);
+
+        TextView textView = dialogView.findViewById(R.id.mapping_place_result);
+        textView.setText(message);
+        Button okBtn = dialogView.findViewById(R.id.mapping_place_btn);
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimationLeftRight;
+        alertDialog.show();
+        MainPage.readMessage.performClick();
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
     }
 
-    private void populateVdcRecyclerView() {
-        final String[] allNames,ruralMunicipalNames,municipalNames,metropolitanNames,subMetropolitanNames;
-       // final List<ListItem> vdcList=new ArrayList<>();
-        final List<ListItem>allList=new ArrayList<>();
-        final List<ListItem>metropolitanList=new ArrayList<>();
-        final List<ListItem> subMetropolitanList=new ArrayList<>();
-        final List<ListItem>municipalList=new ArrayList<>();
-        final List<ListItem> ruralMunicipalList=new ArrayList<>();
+
+    private void populateLocalLevelRecyclerView() {
+        final String[] allNames, ruralMunicipalNames, municipalNames, metropolitanNames, subMetropolitanNames;
+        // final List<ListItem> vdcList=new ArrayList<>();
+        final List<ListItem> allList = new ArrayList<>();
+        final List<ListItem> metropolitanList = new ArrayList<>();
+        final List<ListItem> subMetropolitanList = new ArrayList<>();
+        final List<ListItem> municipalList = new ArrayList<>();
+        final List<ListItem> ruralMunicipalList = new ArrayList<>();
 
         MainFragment.searchBox.setHint("Search VDC");
         MainFragment.searchBox.setText("");
@@ -286,7 +316,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.237:8088/localLevel/rest/districts/localLevel/",
+        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/districts/localLevel/",
                 globalDistrict);
 
 
@@ -298,9 +328,9 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                             HttpHeaderParser.parseCharset(response.headers));
                     JSONObject jsonObject = new JSONObject(jsonString);
                     JSONArray ruralMuniJsonArray = jsonObject.getJSONArray("ruralMunicipal");
-                    JSONArray municipalJsonArray=jsonObject.getJSONArray("municipal");
-                    JSONArray metropolitanJsonArray=jsonObject.getJSONArray("metropolitan");
-                    JSONArray subMetropolitanJsonArray=jsonObject.getJSONArray("subMetropolitan");
+                    JSONArray municipalJsonArray = jsonObject.getJSONArray("municipal");
+                    JSONArray metropolitanJsonArray = jsonObject.getJSONArray("metropolitan");
+                    JSONArray subMetropolitanJsonArray = jsonObject.getJSONArray("subMetropolitan");
 
                     //Removing duplication of data from cache
                     allList.clear();
@@ -311,59 +341,59 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
                     //for ruralMunicipal
                     for (int i = 0; i < ruralMuniJsonArray.length(); i++) {
-                        ListItem listItem=new ListItem();
+                        ListItem listItem = new ListItem();
                         JSONObject jsonObject1 = ruralMuniJsonArray.getJSONObject(i);
                         String vdcName = jsonObject1.getString("ruralMunicipal");
                         listItem.setName(vdcName);
-                        listItem.setIcon(R.drawable.globe);
+                        listItem.setIcon(R.drawable.rural_municipal);
                         listItem.setType("ruralMunicipal");
                         ruralMunicipalList.add(listItem);
                         allList.add(listItem);
                     }
-                    adapterRuralMunicipal=new NewListItemAdapter(getContext(),ruralMunicipalList,recyclerView);
+                    adapterRuralMunicipal = new NewListItemAdapter(getContext(), ruralMunicipalList, recyclerView);
                     //for municipal
                     for (int i = 0; i < municipalJsonArray.length(); i++) {
-                        ListItem listItem=new ListItem();
+                        ListItem listItem = new ListItem();
                         JSONObject jsonObject1 = municipalJsonArray.getJSONObject(i);
                         String municipalName = jsonObject1.getString("municipal");
                         listItem.setName(municipalName);
-                        listItem.setIcon(R.drawable.ministry);
+                        listItem.setIcon(R.drawable.municipal);
                         listItem.setType("municipal");
                         municipalList.add(listItem);
                         allList.add(listItem);
                     }
-                    adapterMunicipal=new NewListItemAdapter(getContext(),municipalList,recyclerView);
+                    adapterMunicipal = new NewListItemAdapter(getContext(), municipalList, recyclerView);
                     //for metropolitan
                     for (int i = 0; i < metropolitanJsonArray.length(); i++) {
-                        ListItem listItem=new ListItem();
+                        ListItem listItem = new ListItem();
                         JSONObject jsonObject1 = metropolitanJsonArray.getJSONObject(i);
                         String metropolitanName = jsonObject1.getString("metropolitan");
                         listItem.setName(metropolitanName);
-                        listItem.setIcon(R.drawable.ministry);
+                        listItem.setIcon(R.drawable.metropolitan);
                         listItem.setType("metropolitan");
                         metropolitanList.add(listItem);
                         allList.add(listItem);
                     }
-                    adapterMetroplitan=new NewListItemAdapter(getContext(),metropolitanList,recyclerView);
+                    adapterMetroplitan = new NewListItemAdapter(getContext(), metropolitanList, recyclerView);
                     //for subMetropolitan
                     for (int i = 0; i < subMetropolitanJsonArray.length(); i++) {
-                        ListItem listItem=new ListItem();
+                        ListItem listItem = new ListItem();
                         JSONObject jsonObject1 = subMetropolitanJsonArray.getJSONObject(i);
                         String subMetropolitanName = jsonObject1.getString("subMetropolitan");
                         listItem.setName(subMetropolitanName);
-                        listItem.setIcon(R.drawable.ministry);
+                        listItem.setIcon(R.drawable.sub_metropolitan);
                         listItem.setType("subMetropolitan");
                         subMetropolitanList.add(listItem);
                         allList.add(listItem);
                     }
-                    adapterSubMetropolitan=new NewListItemAdapter(getContext(),subMetropolitanList,recyclerView);
+                    adapterSubMetropolitan = new NewListItemAdapter(getContext(), subMetropolitanList, recyclerView);
 
-                    adapterAll=new NewListItemAdapter(getContext(),allList,recyclerView);
+                    adapterAll = new NewListItemAdapter(getContext(), allList, recyclerView);
 
-                    if(adapterAll!=null){
+                    if (adapterAll != null) {
                         recyclerView.setAdapter(adapterAll);
                         MainFragment.btnAll.performClick();
-                    }else {
+                    } else {
                         Toast.makeText(context, "No value in all Adapter", Toast.LENGTH_SHORT).show();
                     }
 
@@ -386,7 +416,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
         //End of Caching
 
-         allNames= new String[allList.size()];
+        allNames = new String[allList.size()];
         int j = 0;
         for (ListItem names : ruralMunicipalList) {
             allNames[j] = names.getName();
@@ -412,9 +442,9 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                     }
                 }
                 NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView);
-                if(filteredAdapter!=null){
+                if (filteredAdapter != null) {
                     recyclerView.setAdapter(filteredAdapter);
-                }else {
+                } else {
                     recyclerView.setAdapter(adapterDistrict);
                 }
             }
@@ -428,8 +458,8 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
 
     private void populateDistrictRecyclerView() {
-       final String[] districtNames;
-        final List<ListItem> districtList=new ArrayList<>();
+        final String[] districtNames;
+        final List<ListItem> districtList = new ArrayList<>();
 
         MainFragment.searchBox.setHint("Search District");
         MainFragment.searchBox.setText("");
@@ -443,7 +473,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.237:8088/localLevel/rest/districts/state/",
+        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/districts/state/",
                 globalState);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -456,22 +486,22 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                     JSONArray jsonArray = new JSONArray(jsonString);
                     districtList.clear();
                     for (int i = 0; i < jsonArray.length(); i++) {
-                        ListItem listItem=new ListItem();
+                        ListItem listItem = new ListItem();
                         JSONObject jsonObject1 = jsonArray.getJSONObject(i);
                         String districtName = jsonObject1.getString("district");
                         listItem.setName(districtName);
-                        listItem.setIcon(R.drawable.ministry);
+                        listItem.setIcon(R.drawable.district);
                         listItem.setType("district");
 
                         districtList.add(listItem);
                     }
 
 
-                    adapterDistrict=new NewListItemAdapter(getContext(),districtList,recyclerView);
+                    adapterDistrict = new NewListItemAdapter(getContext(), districtList, recyclerView);
 
-                    if(adapterDistrict!=null){
+                    if (adapterDistrict != null) {
                         recyclerView.setAdapter(adapterDistrict);
-                    }else {
+                    } else {
                         Toast.makeText(context, "No value in district Adapter", Toast.LENGTH_SHORT).show();
                     }
 
@@ -484,7 +514,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-               // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -523,9 +553,9 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                     }
                 }
                 NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView);
-                if(filteredAdapter!=null){
+                if (filteredAdapter != null) {
                     recyclerView.setAdapter(filteredAdapter);
-                }else {
+                } else {
                     recyclerView.setAdapter(adapterDistrict);
                 }
             }
@@ -545,13 +575,13 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
     public class ListItemViewHolder extends RecyclerView.ViewHolder {
         TextView listName;
         ImageView listIcon;
-        CardView cardView;
+        CardView placeCardView;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
             listIcon = itemView.findViewById(R.id.list_icon);
             listName = itemView.findViewById(R.id.list_name);
-            cardView = itemView.findViewById(R.id.card_botton);
+            placeCardView = itemView.findViewById(R.id.card_botton);
 
         }
     }
@@ -589,10 +619,11 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
             encodedUrl = String.valueOf(URL);
         }
 
-        Log.d("Final Url: ",encodedUrl.toString());
+        Log.d("Final Url: ", encodedUrl.toString());
         return encodedUrl;
 
 
     }
+
 
 }

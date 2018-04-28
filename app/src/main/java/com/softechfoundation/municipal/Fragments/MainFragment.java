@@ -86,6 +86,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     private NewListItemAdapter NewAdapter;
     private OldListItemAdapter OldAdapter;
     public static Button stateBtn, districtBtn, vdcBtn,trigger;
+    public static Button readMessage;
     public static AutoCompleteTextView searchBox;
     public static TextView catagories;
     private ArrayAdapter<String> autoComAdapter;
@@ -95,7 +96,9 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     public static View pathView;
     private View topDetail;
 
-    View fragmentMap;
+
+
+        View fragmentMap;
     private GoogleMap mGoogleMap;
     private Marker marker;
     private Geocoder geocoder;
@@ -372,14 +375,24 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     }
 
     private void mainWork() {
-        //Ask user to choose place mapping
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setCancelable(true);
-        builder.setTitle("Choose place mapping");
-        builder.setPositiveButton("Old To New", new DialogInterface.OnClickListener() {
 
+        //Ask user to choose place mapping
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View dialogView = inflater.inflate(R.layout.choose_place_dialog, null);
+        dialogBuilder.setView(dialogView);
+
+        Button oldToNew=dialogView.findViewById(R.id.old_to_new_btn);
+        Button newToOld=dialogView.findViewById(R.id.new_to_old_btn);
+
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimationUpBottom;
+        alertDialog.show();
+        alertDialog.setCancelable(true);
+        oldToNew.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(View v) {
+                alertDialog.dismiss();
                 OldAdapter = new OldListItemAdapter(getContext(), getData(), recyclerView);
                 autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
                 recyclerView.setAdapter(OldAdapter);
@@ -387,10 +400,11 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
             }
         });
-        builder.setNegativeButton("New To Old", new DialogInterface.OnClickListener() {
-
+        newToOld.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(View v) {
+
+                alertDialog.dismiss();
                 NewAdapter = new NewListItemAdapter(getContext(), getData(), recyclerView);
                 autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
                 recyclerView.setAdapter(NewAdapter);
@@ -399,10 +413,6 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
             }
         });
-        AlertDialog alert = builder.create();
-        alert.show();
-        //end of ask maping
-
 
 
         stateBtn.setOnClickListener(new View.OnClickListener() {
@@ -532,6 +542,8 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         });
 
 
+
+
 //        //Start Caching
 //        RequestQueue queue = Volley.newRequestQueue(this);
 //        String url = "https://jsonplaceholder.typicode.com/posts/1";
@@ -583,10 +595,11 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
     public static List<ListItem> getData() {
         List<ListItem> listItems = new ArrayList<>();
-        int[] icons = {R.drawable.map, R.drawable.ministry, R.drawable.globe, R.drawable.map, R.drawable.map, R.drawable.ministry, R.drawable.globe};
+        int[] icons = {R.drawable.state1_logo, R.drawable.state2_logo, R.drawable.state3_logo,
+                R.drawable.state4_logo, R.drawable.state5_logo, R.drawable.state6_logo, R.drawable.state7_logo};
         String[] names = {"State 1", "State 2", "State 3", "State 4", "State 5", "State 6", "State 7"};
         stateNames = names;
-        for (int i = 0; i < names.length && i < icons.length; i++) {
+        for (int i = 0; i < names.length && i<icons.length; i++) {
             ListItem current = new ListItem();
             current.setIcon(icons[i]);
             current.setName(names[i]);

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="What do you want to do?"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Large"
+            android:textColor="@color/white"
+            android:background="@color/colorPrimaryDark"
+            android:gravity="center"
+            android:padding="8dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#bcbbbb"
+            android:padding="16dp">
+
+            <Button
+                android:id="@+id/old_to_new_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VDC -> LocalLevel"
+                android:textColor="@color/black"
+                android:background="@drawable/button_style_mapping_result"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp"/>
+            <Button
+                android:id="@+id/new_to_old_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LocalLevel -> VDC"
+                android:textColor="@color/black"
+                android:background="@drawable/button_style_mapping_result"
+                android:padding="8dp"
+               android:layout_marginStart="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
