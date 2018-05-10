@@ -5,14 +5,17 @@
     android:layout_height="match_parent"
     tools:context="com.softechfoundation.municipal.Fragments.HomeFragment">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="2">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/home_app_bar_layout"
             android:layout_width="match_parent"
-            android:layout_height="300dp">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <com.daimajia.slider.library.SliderLayout
                 android:id="@+id/home_slider"
@@ -25,7 +28,8 @@
         <LinearLayout
             android:id="@+id/home_demographics"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_alignParentStart="true"
             android:layout_below="@id/home_app_bar_layout"
             android:orientation="vertical">
@@ -36,7 +40,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <TextView
@@ -52,8 +56,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
                         android:orientation="horizontal"
+                        android:gravity="center_horizontal"
                         android:padding="5dp">
 
                         <RelativeLayout
@@ -150,8 +154,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:padding="4dp"
-                        android:text="Live Population Count"
+                        android:padding="2dp"
+                        android:text="Live Population Prediction"
                         android:textColor="@color/black"
                         android:textStyle="bold" />
 
@@ -159,7 +163,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
-                        android:padding="6dp">
+                        android:padding="4dp">
 
                         <RelativeLayout
                             android:layout_width="wrap_content"
@@ -167,7 +171,7 @@
                             android:layout_alignParentStart="true"
                             android:layout_marginStart="32dp"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="10dp">
 
                             <TextView
                                 android:id="@+id/home_today_population"
@@ -175,7 +179,6 @@
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentStart="true"
                                 android:layout_alignParentTop="true"
-                                android:text="5967474"
                                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Widget.PopupMenu.Large"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
@@ -195,7 +198,7 @@
                             android:layout_alignParentTop="true"
                             android:layout_marginEnd="32dp"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="10dp">
 
                             <TextView
                                 android:id="@+id/home_tomorrow_population"
@@ -203,7 +206,6 @@
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentStart="true"
                                 android:layout_alignParentTop="true"
-                                android:text="5967689"
                                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Widget.PopupMenu.Large"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
@@ -221,6 +223,6 @@
 
         </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </FrameLayout>

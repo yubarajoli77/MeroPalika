@@ -5,12 +5,18 @@
         android:icon="@drawable/ic_help_black_24dp"
         android:title="Tutorial"
         app:showAsAction="ifRoom"/>
+    <item android:id="@+id/feedback"
+        android:title="Feedback"
+        app:showAsAction="never"/>
     <item android:id="@+id/clear_cache"
         android:title="Clear App Cache"
         app:showAsAction="never"/>
 
     <item android:id="@+id/setting"
         android:title="Setting"
+        app:showAsAction="never"/>
+    <item android:id="@+id/check_update"
+        android:title="Check Update"
         app:showAsAction="never"/>
 
 </menu>

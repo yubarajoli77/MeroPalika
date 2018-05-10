@@ -76,6 +76,9 @@ public class MinistryCustomAdapter extends RecyclerView.Adapter<MinistryCustomAd
     @Override
     public void onBindViewHolder(@NonNull final MinistryViewHolder holder, int position) {
         final MinistryPojo currentItem = dataItem.get(position);
+        if(position==0){
+            holder.ministryName.setBackgroundColor(context.getResources().getColor(R.color.bottn_nav_color));
+        }
         holder.ministryName.setText(currentItem.getMinistryName());
         holder.ministerName.setText(currentItem.getMinisterName()+" (Minister)");
         holder.party.setText(currentItem.getParty());

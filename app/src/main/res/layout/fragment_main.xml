@@ -10,23 +10,7 @@
         android:background="#cfd8dc">
         <!--tools:contecom.softechfoundation.municipal.Activities.MainPagePage">-->
 
-        <android.widget.AutoCompleteTextView
-            android:id="@+id/search_box"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_alignEnd="@+id/top_resullt_view"
-            android:layout_alignStart="@+id/top_resullt_view"
-            android:layout_alignTop="@+id/catagory"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/search_box_design"
-            android:drawableStart="@drawable/ic_search_black_layer_24"
-            android:elevation="3dp"
-            android:focusableInTouchMode="true"
-            android:gravity="center"
-            android:hint="Search State..."
-            android:iconifiedByDefault="false"
-            android:padding="16dp" />
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -113,7 +97,14 @@
                 android:layout_weight="3"
                 android:orientation="vertical"
                 android:weightSum="2">
-
+                <TextView
+                    android:id="@+id/choose_an_option"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Choose an option"
+                    android:textSize="17sp"
+                    android:textColor="@color/black"
+                    android:gravity="center"/>
                 <HorizontalScrollView
                     android:id="@+id/menu_horizontal_scroll_view"
                     android:layout_width="match_parent"
@@ -200,9 +191,44 @@
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1.6"
-                    android:scrollbars="none">
+                    android:scrollbars="none"
+                    android:visibility="gone">
 
                 </android.support.v7.widget.RecyclerView>
+
+                <LinearLayout
+                    android:id="@+id/choose_mapping_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="16dp"
+                    android:padding="4dp">
+
+                    <Button
+                        android:id="@+id/vdc_to_local_level"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_style_mapping_result"
+                        android:padding="6dp"
+                        android:layout_marginStart="10dp"
+                        android:text="VDC To LocalLevel"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white" />
+                    <Space
+                        android:layout_width="35dp"
+                        android:layout_height="wrap_content" />
+
+                    <Button
+                        android:id="@+id/local_level_to_vdc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_style_mapping_result"
+                        android:padding="6dp"
+                        android:text="LocalLevel To VDC"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white" />
+                </LinearLayout>
                 <Button
                     android:id="@+id/trigger"
                     android:layout_width="0dp"
@@ -212,5 +238,33 @@
         </LinearLayout>
 
     </android.widget.RelativeLayout>
+    <android.widget.AutoCompleteTextView
+        android:id="@+id/search_box"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:background="@drawable/search_box_design"
+        android:drawableStart="@drawable/ic_search_black_layer_24"
+        android:focusableInTouchMode="true"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:gravity="center"
+        android:hint="Search State..."
+        android:iconifiedByDefault="false"
+        android:padding="8dp" />
+    <com.eyalbira.loadingdots.LoadingDots
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/dotted_place_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:LoadingDots_auto_play="true"
+        app:LoadingDots_dots_color="@color/colorPrimary"
+        app:LoadingDots_dots_count="4"
+        app:LoadingDots_dots_size="16dp"
+        app:LoadingDots_dots_space="4dp"
+        app:LoadingDots_jump_duration="200"
+        app:LoadingDots_jump_height="16dp"
+        app:LoadingDots_loop_duration="800"
+        app:LoadingDots_loop_start_delay="100"
+        android:visibility="gone"/>
 
 </FrameLayout>

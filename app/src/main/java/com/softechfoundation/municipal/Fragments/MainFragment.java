@@ -1,11 +1,9 @@
 package com.softechfoundation.municipal.Fragments;
 
 
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,10 +93,13 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     public static HorizontalScrollView horizontalScrollViewMenu;
     public static View pathView;
     private View topDetail;
+    private Button vdcToLocalLevel,localLevelToVdc;
+    private View mappingOptionView;
+    public static TextView chooseMappingOpt;
+    public static View loadingPlaces;
 
 
-
-        View fragmentMap;
+    private View fragmentMap;
     private GoogleMap mGoogleMap;
     private Marker marker;
     private Geocoder geocoder;
@@ -349,6 +350,12 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     @Override
     public void onStart() {
         super.onStart();
+        mappingOptionView.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+        chooseMappingOpt.setVisibility(View.VISIBLE);
+        pathView.setVisibility(View.GONE);
+        searchBox.setHint("Choose Option first");
+        searchBox.setEnabled(false);
     }
 
     private void initialization(View view ) {
@@ -368,6 +375,12 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         fragmentMap = view.findViewById(R.id.map_fragment);
         pathView = view.findViewById(R.id.path_view);
         trigger=view.findViewById(R.id.trigger);
+
+        localLevelToVdc=view.findViewById(R.id.local_level_to_vdc);
+        vdcToLocalLevel=view.findViewById(R.id.vdc_to_local_level);
+        mappingOptionView=view.findViewById(R.id.choose_mapping_view);
+        chooseMappingOpt=view.findViewById(R.id.choose_an_option);
+        loadingPlaces=view.findViewById(R.id.dotted_place_loading);
        // topDetail=view.findViewById(R.id.top_detail_view);
         //checkNetConnection();
 
@@ -376,43 +389,77 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
     private void mainWork() {
 
-        //Ask user to choose place mapping
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View dialogView = inflater.inflate(R.layout.choose_place_dialog, null);
-        dialogBuilder.setView(dialogView);
-
-        Button oldToNew=dialogView.findViewById(R.id.old_to_new_btn);
-        Button newToOld=dialogView.findViewById(R.id.new_to_old_btn);
-
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimationUpBottom;
-        alertDialog.show();
-        alertDialog.setCancelable(true);
-        oldToNew.setOnClickListener(new View.OnClickListener() {
+        localLevelToVdc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                alertDialog.dismiss();
-                OldAdapter = new OldListItemAdapter(getContext(), getData(), recyclerView);
-                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
-                recyclerView.setAdapter(OldAdapter);
-                searchBox.setAdapter(autoComAdapter);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
-            }
-        });
-        newToOld.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                alertDialog.dismiss();
+                mappingOptionView.setVisibility(View.GONE);
+                chooseMappingOpt.setVisibility(View.GONE);
+                searchBox.setEnabled(true);
+                searchBox.setHint("Search States...");
+                pathView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.VISIBLE);
                 NewAdapter = new NewListItemAdapter(getContext(), getData(), recyclerView);
                 autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
                 recyclerView.setAdapter(NewAdapter);
                 searchBox.setAdapter(autoComAdapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+            }
+        });
+
+        vdcToLocalLevel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mappingOptionView.setVisibility(View.GONE);
+                chooseMappingOpt.setVisibility(View.GONE);
+                searchBox.setEnabled(true);
+                searchBox.setHint("Search States...");
+                pathView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.VISIBLE);
+                OldAdapter = new OldListItemAdapter(getContext(), getData(), recyclerView);
+                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
+                recyclerView.setAdapter(OldAdapter);
+                searchBox.setAdapter(autoComAdapter);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
             }
         });
+//        //Ask user to choose place mapping
+//        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+//        LayoutInflater inflater = LayoutInflater.from(getActivity());
+//        View dialogView = inflater.inflate(R.layout.choose_place_dialog, null);
+//        dialogBuilder.setView(dialogView);
+//
+//        Button oldToNew=dialogView.findViewById(R.id.old_to_new_btn);
+//        Button newToOld=dialogView.findViewById(R.id.new_to_old_btn);
+//
+//        final AlertDialog alertDialog = dialogBuilder.create();
+//        alertDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimationUpBottom;
+//        alertDialog.show();
+//        alertDialog.setCancelable(true);
+//        oldToNew.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                alertDialog.dismiss();
+//                OldAdapter = new OldListItemAdapter(getContext(), getData(), recyclerView);
+//                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
+//                recyclerView.setAdapter(OldAdapter);
+//                searchBox.setAdapter(autoComAdapter);
+//                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+//            }
+//        });
+//        newToOld.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                alertDialog.dismiss();
+//                NewAdapter = new NewListItemAdapter(getContext(), getData(), recyclerView);
+//                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
+//                recyclerView.setAdapter(NewAdapter);
+//                searchBox.setAdapter(autoComAdapter);
+//                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+//
+//            }
+//        });
 
 
         stateBtn.setOnClickListener(new View.OnClickListener() {
@@ -761,8 +808,8 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         // marker.showInfoWindow();
         goToLocationZoom(point.latitude, point.longitude, 10);
 
-        Toast.makeText(getContext(), locality + "\n" + adminArea + ","
-                + subAdminArea + ", " + ", " + country, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getContext(), locality + "\n" + adminArea + ","
+//                + subAdminArea + ", " + ", " + country, Toast.LENGTH_SHORT).show();
 
 
         mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -850,7 +897,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 addMarker(latLng, address);
             } else {
 
-                Toast.makeText(getActivity(), "No match found, Please enter the places nearby", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Sorry,Unable to locate in Map", Toast.LENGTH_SHORT).show();
                 // alternateChoice(district);
                // googleSearchBox();
             }

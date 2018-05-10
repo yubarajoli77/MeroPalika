@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.softechfoundation.municipal.Pojos.GridImageViewPojo;
 import com.softechfoundation.municipal.R;
 
@@ -47,7 +48,12 @@ public class MapImageCustomAdapter extends RecyclerView.Adapter<MapImageCustomAd
     public void onBindViewHolder(@NonNull MapImageCustomAdapter.GridImageViewPojoViewHolder holder, int position) {
         final GridImageViewPojo currentResource=dataItem.get(position);
         holder.name.setText(currentResource.getName());
-        holder.imageView.setImageResource(currentResource.getImage());
+
+        Glide
+                .with(context)
+                .load(currentResource.getImage())
+                .into(holder.imageView);
+        //holder.imageView.setImageResource(currentResource.getImage());
 
     }
 

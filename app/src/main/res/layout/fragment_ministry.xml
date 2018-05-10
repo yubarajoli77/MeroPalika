@@ -4,13 +4,28 @@
     android:layout_height="match_parent"
     tools:context="com.softechfoundation.municipal.Fragments.MinistryFragment">
 
-  <android.support.v7.widget.RecyclerView
-      android:id="@+id/ministry_recycler_view"
-      android:layout_width="match_parent"
-      android:layout_margin="4dp"
-      android:padding="4dp"
-      android:layout_height="wrap_content">
 
-  </android.support.v7.widget.RecyclerView>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/ministry_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:padding="4dp">
 
+    </android.support.v7.widget.RecyclerView>
+    <com.eyalbira.loadingdots.LoadingDots
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/dotted_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:LoadingDots_auto_play="true"
+        app:LoadingDots_dots_color="@color/colorPrimary"
+        app:LoadingDots_dots_count="4"
+        app:LoadingDots_dots_size="16dp"
+        app:LoadingDots_dots_space="4dp"
+        app:LoadingDots_jump_duration="200"
+        app:LoadingDots_jump_height="16dp"
+        app:LoadingDots_loop_duration="800"
+        app:LoadingDots_loop_start_delay="100" />
 </FrameLayout>

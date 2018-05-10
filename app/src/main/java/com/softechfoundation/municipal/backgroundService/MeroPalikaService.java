@@ -3,12 +3,14 @@ package com.softechfoundation.municipal.backgroundService;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.RequestQueue;
@@ -18,6 +20,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.softechfoundation.municipal.Activities.ListOfServicesAndResources;
 import com.softechfoundation.municipal.Adapters.ResourceCustomAdapter;
+import com.softechfoundation.municipal.Fragments.HomeFragment;
 import com.softechfoundation.municipal.Pojos.PopulationPojo;
 import com.softechfoundation.municipal.Pojos.ResourcePojo;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
@@ -48,7 +51,6 @@ public class MeroPalikaService extends Service {
     private boolean isRandomNumberGeneratorOn;
     private int totalPop;
     private int tomorrow;
-    private boolean is24HourPassed=true;
 
     public class MeroPalikaServiceBinder extends Binder {
         public MeroPalikaService getService() {
@@ -74,22 +76,22 @@ public class MeroPalikaService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         isRandomNumberGeneratorOn = true;
+     getPopulationByDate(getDate());
         new Thread(new Runnable() {
             @Override
             public void run() {
                 calculateTodayPopulation();
-                //getPopulationByDate(getDate());
             }
         }).start();
         return START_STICKY;
+
     }
 
     private void getPopulationByDate(String parameter) {
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl("http://api.population.io:80/1.0/population/Nepal/",parameter);
+        String url = makeFinalUrl("http://api.population.io:80/1.0/population/Nepal/", parameter);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
             @Override
@@ -97,16 +99,16 @@ public class MeroPalikaService extends Service {
                 try {
                     final String jsonString = new String(response.data,
                             HttpHeaderParser.parseCharset(response.headers));
-                    JSONObject jsonObject=new JSONObject(jsonString);
-                    JSONObject jsonObject1=jsonObject.getJSONObject("total_population");
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    JSONObject jsonObject1 = jsonObject.getJSONObject("total_population");
 
                     String date = jsonObject1.getString("date");
-                    String population=jsonObject1.getString("population");
-                    Log.d("Pop============",population+", "+date);
-                    if(date.equals(getDate())){
-                        totalPop=Integer.valueOf(population);
-                    }else {
-                        tomorrow=Integer.valueOf(population);
+                    String population = jsonObject1.getString("population");
+                    Log.d("Pop============", population + ", " + date);
+                    if (date.equals(getDate())) {
+                        totalPop = Integer.valueOf(population);
+                    } else {
+                        tomorrow = Integer.valueOf(population);
                     }
                 } catch (UnsupportedEncodingException | JSONException e) {
                     e.printStackTrace();
@@ -125,30 +127,32 @@ public class MeroPalikaService extends Service {
         //End of Caching
 
     }
-    private String getDate(){
+
+    private String getDate() {
 
         Calendar c = Calendar.getInstance();
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
         String date = dateformat.format(c.getTime());
-        Log.d("CurrentDate:::",date);
+        Log.d("CurrentDate:::", date);
 
         return date;
     }
-    private String getTomorrowDate(){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar c = Calendar.getInstance();
-        try {
-            c.setTime(sdf.parse(getDate()));
-            c.add(Calendar.DATE, 1);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date resultdate = new Date(c.getTimeInMillis());
-        Log.d("Tomorrow Date::",sdf.format(resultdate));
-        return sdf.format(resultdate);
-    }
+//
+//    private String getTomorrowDate() {
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        Calendar c = Calendar.getInstance();
+//        try {
+//            c.setTime(sdf.parse(getDate()));
+//            c.add(Calendar.DATE, 1);
+//
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//        sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        Date resultdate = new Date(c.getTimeInMillis());
+//        Log.d("Tomorrow Date::", sdf.format(resultdate));
+//        return sdf.format(resultdate);
+//    }
 
     public int getRandomNumber() {
         Random r = new Random();
@@ -161,7 +165,10 @@ public class MeroPalikaService extends Service {
     public int getTotalPop() {
         return totalPop;
     }
-    public int getTomorrow(){return tomorrow;}
+
+    public int getTomorrow() {
+        return tomorrow;
+    }
 
     private void stopRandomNumberGenerator() {
         isRandomNumberGeneratorOn = false;
@@ -169,29 +176,23 @@ public class MeroPalikaService extends Service {
 
     private void calculateTodayPopulation() {
 
-
         while (isRandomNumberGeneratorOn) {
-            String date=getTomorrowDate();
             try {
-                    if(is24HourPassed){
-                    getPopulationByDate(getDate());
-                    getPopulationByDate(getTomorrowDate());
-                    is24HourPassed=false;
-                }
-                Thread.sleep(1000);
+                Thread.sleep(getRandomNumber());
                 totalPop = totalPop + 1;
+                Intent intent1 = new Intent("livePopulation");
+                intent1.putExtra("todayPopulation", getTotalPop());
+                intent1.putExtra("tomorrowPopulation", getTomorrow());
+                sendBroadcast(intent1);
                 Log.i("Thread Log: ", "ThreadId:" + Thread.currentThread().getId());
                 Log.i("Live Birth Log: ", "Birth Number:" + getTotalPop() + ", " + getRandomNumber());
-                Intent intent = new Intent("livePopulation");
-                intent.putExtra("todayPopulation", getTotalPop());
-                intent.putExtra("tomorrowPopulation",getTomorrow());
-                sendBroadcast(intent);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         stopSelf();
     }
+
     private String makeFinalUrl(String baseUrl, String param) {
         String parameter = param;
         String urlWithParameter = null;
@@ -225,29 +226,11 @@ public class MeroPalikaService extends Service {
             encodedUrl = String.valueOf(URL);
         }
 
-        Log.d("Final Url: ",encodedUrl.toString());
+        Log.d("Final Url: ", encodedUrl.toString());
         return encodedUrl;
 
 
     }
 
-    Thread t= new Thread(new Runnable()
-    {
-        public void run()
-        {
-            while(true)
-            {
-                try
-                {
-                    Thread.sleep(24 * 60 * 60 * 1000);
-                    is24HourPassed=true;
-                    getPopulationByDate(getDate());
-                }
-                catch (InterruptedException e)
-                {
 
-                }
-            }
-        }
-    });
 }

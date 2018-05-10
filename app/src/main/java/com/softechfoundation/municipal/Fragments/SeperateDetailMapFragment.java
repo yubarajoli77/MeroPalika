@@ -17,6 +17,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.softechfoundation.municipal.Pojos.GridImageViewPojo;
 import com.softechfoundation.municipal.R;
 
@@ -31,6 +33,7 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 public class SeperateDetailMapFragment extends Fragment {
 
 private GridView gridView;
+private View imageLoading;
 ImageAdapter mapImageCustomAdapter;
     public SeperateDetailMapFragment() {
         // Required empty public constructor
@@ -48,6 +51,7 @@ ImageAdapter mapImageCustomAdapter;
 
     private void defineView(View view) {
         gridView=view.findViewById(R.id.detail_map_gird_view);
+        imageLoading=view.findViewById(R.id.dotted_image_loading);
        // callServerForImages();
         showImagesInGrid();
     }
@@ -66,6 +70,7 @@ ImageAdapter mapImageCustomAdapter;
         }
 
         mapImageCustomAdapter= new ImageAdapter(getActivity(),gridImageList);
+        imageLoading.setVisibility(View.GONE);
         gridView.setAdapter(mapImageCustomAdapter);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -161,6 +166,7 @@ ImageAdapter mapImageCustomAdapter;
                 convertView=inflater.inflate(R.layout.custom_design_grid_item,null);
 
                 ImageView image=convertView.findViewById(R.id.grid_image);
+
                 TextView name=convertView.findViewById(R.id.grid_image_name);
 
                 final ViewHolder viewHolder=new ViewHolder(image,name);
@@ -168,7 +174,12 @@ ImageAdapter mapImageCustomAdapter;
             }
            final ViewHolder viewHolder= (ViewHolder) convertView.getTag();
             viewHolder.name.setText(gridImageViewPojo.getName());
-            viewHolder.imageView.setImageResource(gridImageViewPojo.getImage());
+          //  viewHolder.imageView.setImageResource(gridImageViewPojo.getImage());
+
+            Glide
+                    .with(getActivity().getApplicationContext())
+                    .load(gridImageViewPojo.getImage())
+                    .into(viewHolder.imageView);
 
             return convertView;
         }
@@ -200,9 +211,16 @@ ImageAdapter mapImageCustomAdapter;
         dialog.setContentView(layout);
         dialog.setCanceledOnTouchOutside(true);
         if (pic != null) {
-            image.setImageResource(pic);
+            Glide
+                    .with(getActivity())
+                    .load(pic)
+                    .into(image);
+            //image.setImageResource(pic);
         } else {
-            image.setImageResource(R.drawable.state1);
+            Glide
+                    .with(getActivity())
+                    .load(R.drawable.state1)
+                    .into(image);
         }
 
         dialog.show();

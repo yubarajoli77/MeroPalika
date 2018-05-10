@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.softechfoundation.municipal.Activities.ListOfServicesAndResources;
+import com.softechfoundation.municipal.Activities.ResourcesAndServicesDetail;
 import com.softechfoundation.municipal.Activities.ShowItemInMap;
 import com.softechfoundation.municipal.Manifest;
 import com.softechfoundation.municipal.R;
@@ -59,12 +61,25 @@ public class ResourceCustomAdapter extends RecyclerView.Adapter<ResourceCustomAd
         final ResourcePojo currentResource=dataItem.get(position);
         holder.name.setText(currentResource.getName());
         holder.address.setText(currentResource.getAddress());
+        holder.info.setText(currentResource.getInfo());
 
-        holder.location.setOnClickListener(new View.OnClickListener() {
+//        holder.location.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent=new Intent(getContext(), ShowItemInMap.class);
+//                intent.putExtra("location",currentResource.getAddress());
+//                intent.putExtra("name",currentResource.getName());
+//                getContext().startActivity(intent);
+//            }
+//        });
+
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(getContext(), ShowItemInMap.class);
+                Intent intent=new Intent(getContext(), ResourcesAndServicesDetail.class);
+                intent.putExtra("name",currentResource.getName());
                 intent.putExtra("location",currentResource.getAddress());
+                intent.putExtra("phone","NOPHONE");
                 getContext().startActivity(intent);
             }
         });
@@ -77,13 +92,16 @@ public class ResourceCustomAdapter extends RecyclerView.Adapter<ResourceCustomAd
 
 
     public class ResourcePojoViewHolder extends RecyclerView.ViewHolder{
-        TextView name, address;
+        TextView name, address,info;
         ImageButton location;
+        CardView cardView;
         public ResourcePojoViewHolder(View itemView) {
             super(itemView);
             name=itemView.findViewById(R.id.resource_list_list_name);
             address=itemView.findViewById(R.id.resource_list_list_address);
-            location=itemView.findViewById(R.id.resource_list_location);
+           // location=itemView.findViewById(R.id.resource_list_location);
+            info=itemView.findViewById(R.id.resource_list_info);
+            cardView=itemView.findViewById(R.id.resource_card_view);
         }
     }
 

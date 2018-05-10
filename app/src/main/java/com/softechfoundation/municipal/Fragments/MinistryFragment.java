@@ -39,6 +39,7 @@ import java.util.List;
 public class MinistryFragment extends Fragment {
 private RecyclerView recyclerView;
 private MinistryCustomAdapter adapter;
+private View loading;
     public MinistryFragment() {
         // Required empty public constructor
     }
@@ -57,7 +58,7 @@ private MinistryCustomAdapter adapter;
     private void executePorcess() {
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url ="http://192.168.100.178:8080/locallevel/rest/ministry";
+        String url ="http://103.198.9.242:8080/locallevel/rest/ministry";
 
         final List<MinistryPojo> ministryPojoList=new ArrayList<>();
         CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
@@ -87,6 +88,7 @@ private MinistryCustomAdapter adapter;
                     }
 
                     adapter=new MinistryCustomAdapter(getActivity().getApplicationContext(),ministryPojoList);
+                    loading.setVisibility(View.GONE);
                     recyclerView.setAdapter(adapter);
                     recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.VERTICAL, false));
 
@@ -97,6 +99,7 @@ private MinistryCustomAdapter adapter;
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                loading.setVisibility(View.GONE);
 
             }
         });
@@ -108,6 +111,7 @@ private MinistryCustomAdapter adapter;
     }
 
     private void defineView(View view) {
+        loading=view.findViewById(R.id.dotted_loading);
         recyclerView=view.findViewById(R.id.ministry_recycler_view);
     }
 

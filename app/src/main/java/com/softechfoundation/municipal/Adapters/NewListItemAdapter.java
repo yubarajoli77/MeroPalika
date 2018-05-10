@@ -28,6 +28,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.softechfoundation.municipal.Activities.MainPage;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
@@ -103,18 +104,22 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
         holder.listName.setText(currentItem.getName());
 //        Drawable topDrawable=getContext().getApplicationContext().getResources().getDrawable(currentItem.getIcon());
 //        holder.listName.setCompoundDrawables(null,topDrawable,null,null);
-        holder.listIcon.setImageResource(currentItem.getIcon());
+//        holder.listIcon.setImageResource(currentItem.getIcon());
+
+        Glide
+                .with(context)
+                .load(currentItem.getIcon())
+                .into( holder.listIcon);
         setName(currentItem.getName());
 
         holder.placeCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // MainPage.pathView.setVisibility(View.VISIBLE)
-
+                MainFragment.loadingPlaces.setVisibility(View.VISIBLE);
                 if ("state".equals(currentItem.getType())) {
                     globalState = currentItem.getName();
                     populateDistrictRecyclerView();
-                    showMessage("Hey, dude you clicked me.");
 
                 }
 
@@ -201,8 +206,8 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                 MainFragment.districtBtn.setVisibility(View.VISIBLE);
                 MainFragment.districtBtn.setText("Districts");
                 MainFragment.vdcBtn.setVisibility(View.GONE);
-                MainFragment.catagories.setVisibility(View.GONE);
-                MainFragment.horizontalScrollViewMenu.setVisibility(View.VISIBLE);
+                MainFragment.catagories.setVisibility(View.VISIBLE);
+                MainFragment.horizontalScrollViewMenu.setVisibility(View.GONE);
             }
         });
 
@@ -211,8 +216,8 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
             public void onClick(View v) {
                 populateLocalLevelRecyclerView();
                 MainFragment.catagories.setText("VDCs");
-                MainFragment.vdcBtn.setText("VDCs");
-                MainFragment.searchBox.setHint("Search VDCs...");
+                MainFragment.vdcBtn.setText("Local Levels");
+                MainFragment.searchBox.setHint("Search Local gov");
                 MainFragment.stateBtn.setVisibility(View.VISIBLE);
                 MainFragment.stateBtn.setVisibility(View.VISIBLE);
                 MainFragment.districtBtn.setVisibility(View.VISIBLE);
@@ -227,7 +232,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
     private void getOldDetail(final String type) {
         //Start Caching
         final RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/vdcs/OldVdcList/",
+        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/vdcs/OldVdcList/",
                 globalLocalLevel);
 
         CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
@@ -270,7 +275,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
         SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences("TTSMessage", MODE_PRIVATE).edit();
         editor.clear();
         editor.apply();
-        editor.putString("message", "Play voice is on so I am able to speak. If you want to stop voice go to setting and disable the play sound");
+        editor.putString("message", message);
         editor.apply();
 
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
@@ -283,6 +288,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
         Button okBtn = dialogView.findViewById(R.id.mapping_place_btn);
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimationLeftRight;
+        MainFragment.loadingPlaces.setVisibility(View.GONE);
         alertDialog.show();
         MainPage.readMessage.performClick();
         okBtn.setOnClickListener(new View.OnClickListener() {
@@ -303,7 +309,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
         final List<ListItem> municipalList = new ArrayList<>();
         final List<ListItem> ruralMunicipalList = new ArrayList<>();
 
-        MainFragment.searchBox.setHint("Search VDC");
+        MainFragment.searchBox.setHint("Search Local gov");
         MainFragment.searchBox.setText("");
         MainFragment.catagories.setText("VDCs");
         MainFragment.catagories.setVisibility(View.GONE);
@@ -312,11 +318,12 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
         MainFragment.stateBtn.setVisibility(View.VISIBLE);
         MainFragment.vdcBtn.setVisibility(View.VISIBLE);
+        MainFragment.vdcBtn.setText("Local Levels");
         MainFragment.districtBtn.setVisibility(View.VISIBLE);
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/districts/localLevel/",
+        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/districts/localLevel/",
                 globalDistrict);
 
 
@@ -389,13 +396,9 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                     adapterSubMetropolitan = new NewListItemAdapter(getContext(), subMetropolitanList, recyclerView);
 
                     adapterAll = new NewListItemAdapter(getContext(), allList, recyclerView);
-
-                    if (adapterAll != null) {
-                        recyclerView.setAdapter(adapterAll);
-                        MainFragment.btnAll.performClick();
-                    } else {
-                        Toast.makeText(context, "No value in all Adapter", Toast.LENGTH_SHORT).show();
-                    }
+                    MainFragment.loadingPlaces.setVisibility(View.GONE);
+                    recyclerView.setAdapter(adapterAll);
+                    MainFragment.btnAll.performClick();
 
                     //mainPageToSetAdapter.setAdapters(adapterAll,adapterMetroplitan,adapterSubMetropolitan,adapterMunicipal,adapterRuralMunicipal);
 
@@ -407,6 +410,8 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                MainFragment.loadingPlaces.setVisibility(View.GONE);
+                Toast.makeText(context, "No value in district Adapter", Toast.LENGTH_SHORT).show();
                 //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -418,7 +423,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
         allNames = new String[allList.size()];
         int j = 0;
-        for (ListItem names : ruralMunicipalList) {
+        for (ListItem names : allList) {
             allNames[j] = names.getName();
             j++;
         }
@@ -442,11 +447,8 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                     }
                 }
                 NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView);
-                if (filteredAdapter != null) {
                     recyclerView.setAdapter(filteredAdapter);
-                } else {
-                    recyclerView.setAdapter(adapterDistrict);
-                }
+
             }
 
             @Override
@@ -473,7 +475,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/districts/state/",
+        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/districts/state/",
                 globalState);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -500,8 +502,10 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                     adapterDistrict = new NewListItemAdapter(getContext(), districtList, recyclerView);
 
                     if (adapterDistrict != null) {
+                        MainFragment.loadingPlaces.setVisibility(View.GONE);
                         recyclerView.setAdapter(adapterDistrict);
                     } else {
+                        MainFragment.loadingPlaces.setVisibility(View.GONE);
                         Toast.makeText(context, "No value in district Adapter", Toast.LENGTH_SHORT).show();
                     }
 
@@ -514,6 +518,9 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                MainFragment.loadingPlaces.setVisibility(View.GONE);
+                Toast.makeText(context, "No Internet Available", Toast.LENGTH_SHORT).show();
+
                 // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -553,11 +560,7 @@ public class NewListItemAdapter extends RecyclerView.Adapter<NewListItemAdapter.
                     }
                 }
                 NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView);
-                if (filteredAdapter != null) {
                     recyclerView.setAdapter(filteredAdapter);
-                } else {
-                    recyclerView.setAdapter(adapterDistrict);
-                }
             }
 
             @Override

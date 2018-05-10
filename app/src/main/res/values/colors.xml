@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <color name="colorPrimary">#A9A9A9</color>
-    <color name="colorPrimaryDark">#646262</color>
+    <color name="colorPrimaryDark">#0d555b</color>
+    <color name="colorPrimary">#117881</color>
     <color name="colorAccent">#474847</color>
     <color name="greisBlue">#5076d2</color>
     <color name="transparent">#00ffffff</color>
@@ -25,11 +25,11 @@
     <color name="navy">#000080</color>
     <color name="black">#000000</color>
     <color name="washBlue">#263238</color>
-
-
-    <color name="targetOuterCircleColor">#43a047</color>
-
+    <color name="targetOuterCircleColor">#79e4e4</color>
     <color name="black_overlay">#66000000</color>
+
+    <color name="bottn_nav_color">#b2117881</color>
+    <color name="botton_nav_bg_color">#eaeded</color>
 
 
 </resources>

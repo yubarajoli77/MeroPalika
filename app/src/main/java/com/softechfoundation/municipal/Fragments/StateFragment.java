@@ -44,6 +44,7 @@ import java.util.List;
 public class StateFragment extends Fragment {
     private CircularItemAdapter adapter;
     private  String stateName,area,population,website,governer,chiefMinister,capital,density;
+    private View stateDetailLoading;
     public StateFragment() {
         // Required empty public constructor
     }
@@ -59,6 +60,7 @@ public class StateFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_state, container, false);
+        stateDetailLoading=view.findViewById(R.id.dotted_state_detail_loading);
         doTask(view);
         return view;
     }
@@ -86,19 +88,20 @@ public class StateFragment extends Fragment {
         }
 
         final CircularListView circularListView = (CircularListView) view.findViewById(R.id.circular_list);
-        adapter = new CircularItemAdapter(getLayoutInflater(), (ArrayList<ListItem>) listItems);
+        adapter = new CircularItemAdapter(getLayoutInflater(), (ArrayList<ListItem>) listItems,getActivity());
         circularListView.setAdapter(adapter);
-        circularListView.setRadius(120);
+        circularListView.setRadius(100);
 
         circularListView.setOnItemClickListener(new  CircularTouchListener.CircularItemClickListener() {
             @Override
             public void onItemClick(View view, int index) {
+                stateDetailLoading.setVisibility(View.VISIBLE);
                 int position=index+1;
                 final String parameter="State "+(position);
 
                 //Start Caching
                 RequestQueue queue = Volley.newRequestQueue(getContext());
-                String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/states/stateDetails/",
+                String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/states/stateDetails/",
                         parameter);
 
 
@@ -138,7 +141,7 @@ public class StateFragment extends Fragment {
                             intent.putExtra("density",density);
                             startActivity(intent);
 
-
+                            stateDetailLoading.setVisibility(View.GONE);
                         } catch (UnsupportedEncodingException | JSONException e) {
                             e.printStackTrace();
                         }
@@ -146,7 +149,8 @@ public class StateFragment extends Fragment {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getActivity(), "You are disconnected from internet", Toast.LENGTH_SHORT).show();
+                        stateDetailLoading.setVisibility(View.GONE);
+//                        Toast.makeText(getActivity().getApplicationContext(), "You are disconnected from internet", Toast.LENGTH_SHORT).show();
                         //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });

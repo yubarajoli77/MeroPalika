@@ -10,8 +10,8 @@
         android:id="@+id/horizontal_scroll_catagories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
         android:background="#dedede"
+        android:padding="4dp"
         android:scrollbars="none">
 
         <LinearLayout
@@ -40,7 +40,8 @@
                     android:background="@color/transparent"
                     android:text="Rivers"
                     android:textAllCaps="false"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:visibility="gone"/>
 
                 <Button
                     android:id="@+id/natural_resources_btn_mountains"
@@ -85,6 +86,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:visibility="gone">
+
                 <Button
                     android:id="@+id/services_btn_all"
                     android:layout_width="wrap_content"
@@ -130,12 +132,14 @@
                     android:textAllCaps="false"
                     android:textSize="12sp" />
             </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/urgent_services_catagory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:visibility="gone">
+
                 <Button
                     android:id="@+id/urgent_services_btn_all"
                     android:layout_width="wrap_content"
@@ -193,4 +197,25 @@
         android:padding="4dp">
 
     </android.support.v7.widget.RecyclerView>
+
+    <com.eyalbira.loadingdots.LoadingDots
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/dotted_res_ser_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="clip_vertical"
+        android:layout_marginRight="70dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        app:LoadingDots_auto_play="true"
+        app:LoadingDots_dots_color="@color/colorPrimary"
+        app:LoadingDots_dots_count="4"
+        app:LoadingDots_dots_size="16dp"
+        app:LoadingDots_dots_space="4dp"
+        app:LoadingDots_jump_duration="200"
+        app:LoadingDots_jump_height="16dp"
+        app:LoadingDots_loop_duration="800"
+        app:LoadingDots_loop_start_delay="100" />
+
+
 </android.widget.RelativeLayout>

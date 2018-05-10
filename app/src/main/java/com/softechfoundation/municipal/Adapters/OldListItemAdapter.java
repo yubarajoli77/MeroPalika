@@ -26,6 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.softechfoundation.municipal.Activities.MainPage;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
@@ -105,19 +106,24 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
         Drawable topDrawable=getContext().getApplicationContext().getResources().getDrawable(currentItem.getIcon());
        holder.listName.setText(currentItem.getName());
 //        holder.listName.setCompoundDrawables(null,topDrawable,null,null);
-        holder.listIcon.setImageResource(currentItem.getIcon());
+//        holder.listIcon.setImageResource(currentItem.getIcon());
+        Glide
+                .with(context)
+                .load(currentItem.getIcon())
+                .into( holder.listIcon);
+        setName(currentItem.getName());
         setName(currentItem.getName());
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                MainFragment.loadingPlaces.setVisibility(View.VISIBLE);
                 if ("state".equals(currentItem.getType())) {
                     globalState=currentItem.getName();
-                    populateDistrictRecyclerView();
+                    populateOldDistrictRecyclerView();
 
                 }
 
-                if ("district".equals(currentItem.getType())) {
+                if ("oldDistrict".equals(currentItem.getType())) {
                     //Toast.makeText(context, "You clicked " + currentItem.getName(), Toast.LENGTH_SHORT).show();
                     globalDistrict=currentItem.getName();
 
@@ -143,7 +149,6 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
 
                     String location = globalDistrict + ", "+ globalOldVdc+ ", " + "Nepal";
                     SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
-
                     editor.clear();
                     editor.apply();
                     editor.putString("location", location);
@@ -158,7 +163,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
             private void getNewDetail() {
                 //Start Caching
                 RequestQueue queue = Volley.newRequestQueue(getContext());
-                String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/vdcs/oldVdc/",
+                String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/vdcs/oldVdc/",
                         globalOldVdc);
 
 
@@ -205,7 +210,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
         MainFragment.districtBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                populateDistrictRecyclerView();
+                populateOldDistrictRecyclerView();
                 //Toast.makeText(context, "Inside pathDistrictBtn: "+state, Toast.LENGTH_SHORT).show();
                 MainFragment.catagories.setText("Districts");
                 MainFragment.searchBox.setHint("Search Districts...");
@@ -252,6 +257,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
         Button okBtn=dialogView.findViewById(R.id.mapping_place_btn);
         final AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimationLeftRight;
+        MainFragment.loadingPlaces.setVisibility(View.GONE);
         if(!alertDialog.isShowing()) {
             alertDialog.show();
         }
@@ -270,11 +276,15 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
 
         MainFragment.stateBtn.setVisibility(View.VISIBLE);
         MainFragment.vdcBtn.setVisibility(View.VISIBLE);
+        MainFragment.vdcBtn.setText("VDCs");
         MainFragment.districtBtn.setVisibility(View.VISIBLE);
+        MainFragment.districtBtn.setText(globalDistrict);
+        MainFragment.searchBox.setHint("Search VDCs");
+        MainFragment.catagories.setText("VDCs");
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/vdcs/district/",
+        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/vdcs/district/",
                 globalDistrict);
 
 
@@ -300,6 +310,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
                         oldVdcList.add(listItem);
                     }
                     adapterOldVdc=new OldListItemAdapter(getContext(),oldVdcList,recyclerView);
+                    MainFragment.loadingPlaces.setVisibility(View.GONE);
                     recyclerView.setAdapter(adapterOldVdc);
                 } catch (UnsupportedEncodingException | JSONException e) {
                     e.printStackTrace();
@@ -358,7 +369,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
     }
 
 
-    private void populateDistrictRecyclerView() {
+    private void populateOldDistrictRecyclerView() {
         final String[] districtNames;
         final List<ListItem> districtList=new ArrayList<>();
 
@@ -371,10 +382,11 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
         MainFragment.vdcBtn.setVisibility(View.GONE);
         MainFragment.districtBtn.setText("Districts");
         MainFragment.districtBtn.setVisibility(View.VISIBLE);
+        MainFragment.horizontalScrollViewMenu.setVisibility(View.GONE);
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://192.168.100.178:8080/locallevel/rest/districts/state/",
+        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/districts/state/",
                 globalState);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -392,7 +404,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
                         String districtName = jsonObject1.getString("district");
                         listItem.setName(districtName);
                         listItem.setIcon(R.drawable.district);
-                        listItem.setType("district");
+                        listItem.setType("oldDistrict");
 
                         districtList.add(listItem);
                     }
@@ -401,6 +413,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
                     adapterDistrict=new OldListItemAdapter(getContext(),districtList,recyclerView);
 
                     if(null != adapterDistrict){
+                        MainFragment.loadingPlaces.setVisibility(View.GONE);
                         recyclerView.setAdapter(adapterDistrict);
                     }else {
                         Toast.makeText(context, "No value in district Adapter", Toast.LENGTH_SHORT).show();

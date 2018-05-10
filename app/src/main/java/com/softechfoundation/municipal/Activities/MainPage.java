@@ -4,10 +4,14 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -18,6 +22,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,9 +32,12 @@ import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.getkeepsafe.taptargetview.TapTargetView;
+import com.softechfoundation.municipal.BuildConfig;
 import com.softechfoundation.municipal.Fragments.HomeFragment;
 import com.softechfoundation.municipal.Fragments.MainFragment;
 import com.softechfoundation.municipal.Fragments.MinistryFragment;
@@ -37,10 +46,11 @@ import com.softechfoundation.municipal.Fragments.StateFragment;
 import com.softechfoundation.municipal.R;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitListener {
     private static final int ACT_CHECK_TTS_DATA = 1001;
-    public static BottomNavigationView navigation;
+    private static BottomNavigationView bottomNavigationView;
     private Fragment fragment;
     TapTargetSequence sequence;
     private boolean isTutorialAlreadyShown;
@@ -55,10 +65,85 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
+
         requestWritePermission();
         fragment = null;
-        navigation = findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        AHBottomNavigation bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
+        // Create items
+        AHBottomNavigationItem item1 = new AHBottomNavigationItem(R.string.bottom_nav_home, R.drawable.ic_home_black_24dp, R.color.bottn_nav_color);
+        AHBottomNavigationItem item2 = new AHBottomNavigationItem(R.string.bottom_nav_new_place_mapping, R.drawable.place_mapping, R.color.blue);
+        AHBottomNavigationItem item3 = new AHBottomNavigationItem(R.string.bottom_nav_state_detail, R.drawable.state_detail, R.color.yellow);
+        AHBottomNavigationItem item4 = new AHBottomNavigationItem(R.string.bottom_nav_map_gallery, R.drawable.ic_collections_black_24dp, R.color.red);
+        AHBottomNavigationItem item5 = new AHBottomNavigationItem(R.string.bottom_nav_ministry, R.drawable.ic_group_black_24dp, R.color.green);
+
+// Add items
+        bottomNavigation.addItem(item1);
+        bottomNavigation.addItem(item2);
+        bottomNavigation.addItem(item3);
+        bottomNavigation.addItem(item4);
+        bottomNavigation.addItem(item5);
+
+        bottomNavigation.setDefaultBackgroundColor(getResources().getColor(R.color.botton_nav_bg_color));
+       bottomNavigation.setBehaviorTranslationEnabled(false);
+        //bottomNavigation.setColored(true);
+        bottomNavigation.setAccentColor(getResources().getColor(R.color.colorPrimaryDark));
+        bottomNavigation.setInactiveColor(getResources().getColor(R.color.black));
+
+
+
+
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+           @Override
+           public boolean onTabSelected(int position, boolean wasSelected) {
+               if(position==0){
+                   getSupportActionBar().setTitle("MeroPalika");
+                   loadFragment("HOME");
+                   return true;
+               }
+               if(position==1){
+                   requestGpsPermissions();
+                   getSupportActionBar().setTitle("Place Mapping");
+                   loadFragment("PLACEMAPPING");
+                   return true;
+               }
+               if(position==2){
+                   getSupportActionBar().setTitle("State Info");
+                   loadFragment("STATEINFO");
+                   return true;
+               }
+               if(position==3){
+                   getSupportActionBar().setTitle("Map Gallery");
+                   loadFragment("MAPGALLERY");
+                   return  true;
+               }
+               if(position==4){
+                   getSupportActionBar().setTitle("Current Ministry");
+                   loadFragment("MINISTRY");
+                   return true;
+               }
+
+               return false;
+           }
+       });
+
+        final Display display = getWindowManager().getDefaultDisplay();
+
+        // Load our little droid guy
+
+        final Drawable droid = ContextCompat.getDrawable(this, R.drawable.ic_home_black_24dp);
+
+        // Tell our droid buddy where we want him to appear
+
+        final Rect droidTarget = new Rect(0, 0, droid.getIntrinsicWidth(), droid.getIntrinsicHeight() * display.getHeight());
+
+        // Using deprecated methods makes you look way cool
+        droidTarget.offset(display.getWidth(), display.getHeight() /display.getHeight());
+
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation2);
+       // BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
+       // bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         readMessage= findViewById(R.id.readMessage);
         SharedPreferences sharedPreferences=getSharedPreferences("CheckTutorialFirstTime",MODE_PRIVATE);
@@ -102,6 +187,42 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
 
             }
         });
+
+
+        checkAppUpdate();
+
+    }
+
+    private boolean checkAppUpdate() {
+        String latestVersion = getLatestVersion();
+        String currentVersion=getCurrentVersion();
+        Toast.makeText(this, "Current: "+currentVersion+" Latest: "+latestVersion, Toast.LENGTH_SHORT).show();
+        if(Float.valueOf(latestVersion)>Float.valueOf(currentVersion)){
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("An Update is Available");
+            builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //Click button action
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.softechfoundation.municipal")));
+                    dialog.dismiss();
+                }
+            });
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //Cancel button action
+                }
+            });
+
+            builder.setCancelable(false);
+            builder.show();
+            return true;
+
+        }else{
+            return false;
+        }
     }
 
     @Override
@@ -205,57 +326,91 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
 
         sequence = new TapTargetSequence(this)
                 .targets(
-                        TapTarget.forView(findViewById(R.id.navigation_home), "Home", "Go to Home page")
+                        TapTarget.forView(findViewById(R.id.navigation_home), "Home", "Return back to homepage")
                                 .dimColor(android.R.color.black)
                                 .outerCircleColor(R.color.targetOuterCircleColor)
-                                .targetCircleColor(R.color.red)
-                                .outerCircleAlpha(0.77f)
+                                .targetCircleColor(R.color.white)
+                                .outerCircleAlpha(0.88f)
                                 .cancelable(true)
                                 .textColor(R.color.black)
                                 .descriptionTextColor(R.color.black)
                                 .titleTypeface(Typeface.DEFAULT_BOLD)
                                 .id(0),
-                        TapTarget.forView(findViewById(R.id.navigation_new_nepal), "Old To New", "Know the local level from old places")
+                        TapTarget.forView(findViewById(R.id.navigation_new_nepal), "Place Mapping", "Know the local level from VDC and vice-versa")
                                 .dimColor(android.R.color.black)
                                 .outerCircleColor(R.color.targetOuterCircleColor)
-                                .targetCircleColor(R.color.red)
-                                .outerCircleAlpha(0.77f)
+                                .targetCircleColor(R.color.white)
+                                .outerCircleAlpha(0.88f)
                                 .cancelable(true)
                                 .textColor(R.color.black)
                                 .descriptionTextColor(R.color.black)
                                 .titleTypeface(Typeface.DEFAULT_BOLD)
                                 .id(1),
-                        TapTarget.forView(findViewById(R.id.navigation_information), "State Information", "Know more information about state")
+                        TapTarget.forView(findViewById(R.id.navigation_information), "State Information",
+                                "Know more information about state such as capital, natural resources, urgent services, etc ")
                                 .dimColor(android.R.color.black)
                                 .outerCircleColor(R.color.targetOuterCircleColor)
-                                .targetCircleColor(R.color.red)
-                                .outerCircleAlpha(0.77f)
+                                .targetCircleColor(R.color.white)
+                                .outerCircleAlpha(0.88f)
                                 .cancelable(true)
                                 .textColor(R.color.black)
                                 .descriptionTextColor(R.color.black)
                                 .titleTypeface(Typeface.DEFAULT_BOLD)
                                 .id(2),
-                        TapTarget.forView(findViewById(R.id.navigation_detail_map), "Detail Map of States", "Detail and separate map of States")
+                        TapTarget.forView(findViewById(R.id.navigation_detail_map), "Map Gallery", "Image gallery of maps, such as detail and separate maps of states, districts, etc")
                                 .dimColor(android.R.color.black)
                                 .outerCircleColor(R.color.targetOuterCircleColor)
-                                .targetCircleColor(R.color.red)
-                                .outerCircleAlpha(0.77f)
+                                .targetCircleColor(R.color.white)
+                                .outerCircleAlpha(0.88f)
                                 .cancelable(true)
                                 .textColor(R.color.black)
                                 .descriptionTextColor(R.color.black)
                                 .titleTypeface(Typeface.DEFAULT_BOLD)
                                 .id(3),
-                        TapTarget.forView(findViewById(R.id.navigation_ministry), "Ministries Of Nepal", "Know the ministers of different ministries")
+                        TapTarget.forView(findViewById(R.id.navigation_ministry), "Ministry",
+                                "Know the current minister of different ministries")
                                 .dimColor(android.R.color.black)
                                 .outerCircleColor(R.color.targetOuterCircleColor)
-                                .targetCircleColor(R.color.red)
-                                .outerCircleAlpha(0.77f)
+                                .targetCircleColor(R.color.white)
+                                .outerCircleAlpha(0.88f)
                                 .cancelable(true)
                                 .textColor(R.color.black)
                                 .descriptionTextColor(R.color.black)
                                 .titleTypeface(Typeface.DEFAULT_BOLD)
                                 .id(4)
-                )
+//                        TapTarget.forView(findViewById(R.id.help), "Help", "Find the help to operate application")
+//                                .dimColor(android.R.color.black)
+//                                .outerCircleColor(R.color.targetOuterCircleColor)
+//                                .targetCircleColor(R.color.white)
+//                                .outerCircleAlpha(0.88f)
+//                                .cancelable(true)
+//                                .textColor(R.color.black)
+//                                .descriptionTextColor(R.color.black)
+//                                .titleTypeface(Typeface.DEFAULT_BOLD)
+//                                .id(5)
+//                        TapTarget.forToolbarOverflow(toolbar, "This will show more options", "But they're not useful :(").id(6)
+//                        TapTarget.forView(findViewById(R.id.clear_cache), "Clear app cache", "You can clear the app cache from here")
+//                                .dimColor(android.R.color.black)
+//                                .outerCircleColor(R.color.targetOuterCircleColor)
+//                                .targetCircleColor(R.color.white)
+//                                .outerCircleAlpha(0.77f)
+//                                .cancelable(true)
+//                                .textColor(R.color.black)
+//                                .descriptionTextColor(R.color.black)
+//                                .titleTypeface(Typeface.DEFAULT_BOLD)
+//                                .id(6),
+//                        TapTarget.forView(findViewById(R.id.setting), "Application Setting", "Manage your setting from here")
+//                                .dimColor(android.R.color.black)
+//                                .outerCircleColor(R.color.targetOuterCircleColor)
+//                                .targetCircleColor(R.color.white)
+//                                .outerCircleAlpha(0.77f)
+//                                .cancelable(true)
+//                                .textColor(R.color.black)
+//                                .descriptionTextColor(R.color.black)
+//                                .titleTypeface(Typeface.DEFAULT_BOLD)
+//                                .id(7)
+
+                        )
                 .listener(new TapTargetSequence.Listener() {
                     // This listener will tell us when interesting(tm) events happen in regards
                     // to the sequence
@@ -286,8 +441,6 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
 //                               }).show();
                         android.support.v7.app.AlertDialog.Builder builder = new AlertDialog.Builder(MainPage.this);
                         builder.setCancelable(true);
-                        builder.setTitle("Oops!");
-                        builder.setMessage("You canceled the help tutorial");
                         builder.setPositiveButton("Restart Tutorial", null);
 
                         final AlertDialog alert = builder.create();
@@ -295,12 +448,13 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
                         alert.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.white));
                         TapTargetView.showFor(alert,
 
-                                TapTarget.forView(alert.getButton(DialogInterface.BUTTON_POSITIVE), "Uh oh!", "You canceled the sequence at step " + lastTarget.id())
+                                TapTarget.forView(alert.getButton(DialogInterface.BUTTON_POSITIVE), "Uh oh!",
+                                        "You canceled the help tutorial. Click restart to restart tutorial or click outside blue circle to exit.")
 
                                         .dimColor(android.R.color.black)
                                         .outerCircleColor(R.color.targetOuterCircleColor)
                                         .targetCircleColor(R.color.maroon)
-                                        .outerCircleAlpha(0.88f)
+                                        .outerCircleAlpha(0.95f)
                                         .cancelable(true)
                                         .targetRadius(70)
                                         .descriptionTextColor(R.color.black)
@@ -455,6 +609,15 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
             Intent intent=new Intent(MainPage.this,Setting.class);
             startActivity(intent);
         }
+        if(id==R.id.feedback){
+            Intent intent=new Intent(MainPage.this,Feedback.class);
+            startActivity(intent);
+        }
+        if(id==R.id.check_update){
+            if(!checkAppUpdate()){
+                Toast.makeText(this, "Mero Palika is Upto date", Toast.LENGTH_SHORT).show();
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -498,6 +661,31 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
 
 
     };
+   private void loadFragment(String fragmentChooser){
+       switch (fragmentChooser) {
+           case "HOME":
+               fragment = new HomeFragment();
+               break;
+           case "STATEINFO":
+               fragment = new StateFragment();
+               break;
+           case "PLACEMAPPING":
+               fragment = new MainFragment();
+               break;
+           case "MAPGALLERY":
+               fragment = new SeperateDetailMapFragment();
+               break;
+           case "MINISTRY":
+               fragment = new MinistryFragment();
+               break;
+       }
+       if (fragment != null) {
+           FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+           fragmentTransaction.replace(R.id.fragmentMain, fragment);
+           fragmentTransaction.commit();
+
+       }
+   }
 
     // Ask user to exit or not
     @Override
@@ -524,5 +712,24 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
         AlertDialog alert = builder.create();
         alert.show();
 
+    }
+//Start
+
+    private String getCurrentVersion(){
+        PackageManager pm = this.getPackageManager();
+        PackageInfo pInfo = null;
+
+        try {
+            pInfo =  pm.getPackageInfo(this.getPackageName(),0);
+
+        } catch (PackageManager.NameNotFoundException e1) {
+            e1.printStackTrace();
+        }
+
+        return pInfo.versionName;
+    }
+    private String getLatestVersion(){
+
+        return "3.0";
     }
 }

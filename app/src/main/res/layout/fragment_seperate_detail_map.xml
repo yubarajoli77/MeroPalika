@@ -14,5 +14,19 @@
         android:verticalSpacing="10dp"
         android:horizontalSpacing="10dp"
         />
-
+    <com.eyalbira.loadingdots.LoadingDots
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/dotted_image_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:LoadingDots_auto_play="true"
+        app:LoadingDots_dots_color="@color/colorPrimary"
+        app:LoadingDots_dots_count="4"
+        app:LoadingDots_dots_size="16dp"
+        app:LoadingDots_dots_space="4dp"
+        app:LoadingDots_jump_duration="200"
+        app:LoadingDots_jump_height="16dp"
+        app:LoadingDots_loop_duration="800"
+        app:LoadingDots_loop_start_delay="100" />
 </FrameLayout>

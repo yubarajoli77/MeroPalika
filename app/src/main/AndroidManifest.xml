@@ -58,7 +58,13 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_show_item_in_map"
             android:theme="@style/FullscreenTheme" />
-        <activity android:name=".Activities.Setting"></activity>
+        <activity android:name=".Activities.Setting" />
+        <activity android:name=".Activities.Feedback" />
+        <activity
+            android:name=".Activities.ResourcesAndServicesDetail"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activities.PhotoViewer"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

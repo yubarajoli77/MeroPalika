@@ -24,22 +24,28 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="222dp"
-                android:rotation="180"
                 android:src="@drawable/circle"
                 android:id="@+id/imageView" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignEnd="@+id/imageView"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="24dp"
-                android:rotation="90"
-                android:text="States" />
 
         </com.softechfoundation.municipal.CircularListViewDesign.CircularListView>
 
     </android.widget.RelativeLayout>
 
-
+    <com.eyalbira.loadingdots.LoadingDots
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/dotted_state_detail_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:LoadingDots_auto_play="true"
+        android:layout_marginRight="70dp"
+        app:LoadingDots_dots_color="@color/colorPrimary"
+        app:LoadingDots_dots_count="4"
+        app:LoadingDots_dots_size="16dp"
+        app:LoadingDots_dots_space="4dp"
+        app:LoadingDots_jump_duration="200"
+        app:LoadingDots_jump_height="16dp"
+        app:LoadingDots_loop_duration="800"
+        app:LoadingDots_loop_start_delay="100"
+        android:visibility="gone"/>
 </FrameLayout>

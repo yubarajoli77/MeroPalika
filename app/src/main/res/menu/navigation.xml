@@ -2,28 +2,39 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_home_black_24dp"
-        android:title="Home"/>
+        android:title="Home"
+        android:enabled="true"
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/navigation_new_nepal"
-        android:icon="@drawable/globe"
-        android:title="@string/bottom_nav_new_nepal"/>
+        android:icon="@drawable/place_mapping"
+        android:title="@string/bottom_nav_new_place_mapping"
+        android:enabled="true"
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/navigation_information"
-        android:title="Know More"
-        android:icon="@drawable/ic_visibility_black_24dp"/>
+        android:title="State Details"
+        android:enabled="true"
+        android:icon="@drawable/state_detail"
+        app:showAsAction="ifRoom"/>
+
     <item
         android:id="@+id/navigation_detail_map"
-        android:icon="@drawable/ic_map_black_24dp"
-        android:title="@string/bottom_nav_detail_map" />
+        android:icon="@drawable/ic_collections_black_24dp"
+        android:title="@string/bottom_nav_map_gallery"
+        android:enabled="true"
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/navigation_ministry"
         android:icon="@drawable/ic_group_black_24dp"
-        android:title="@string/bottom_nav_ministry" />
+        android:title="@string/bottom_nav_ministry"
+        android:enabled="true"
+        app:showAsAction="ifRoom"/>
 
 </menu>
+
