@@ -48,7 +48,7 @@ public class StateFragment extends Fragment {
     public StateFragment() {
         // Required empty public constructor
     }
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
