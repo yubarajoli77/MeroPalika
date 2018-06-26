@@ -21,6 +21,7 @@ import com.softechfoundation.municipal.Adapters.OldListItemAdapter;
 import com.softechfoundation.municipal.CircularListViewDesign.CircularItemAdapter;
 import com.softechfoundation.municipal.CircularListViewDesign.CircularListView;
 import com.softechfoundation.municipal.CircularListViewDesign.CircularTouchListener;
+import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.Activities.StateDetails;
@@ -101,7 +102,7 @@ public class StateFragment extends Fragment {
 
                 //Start Caching
                 RequestQueue queue = Volley.newRequestQueue(getContext());
-                String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/states/stateDetails/",
+                String url = makeFinalUrl(CommonUrl.BaseUrl+"states/stateDetails/",
                         parameter);
 
 

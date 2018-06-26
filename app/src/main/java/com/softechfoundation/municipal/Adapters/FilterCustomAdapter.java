@@ -22,6 +22,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.softechfoundation.municipal.Activities.StateDetails;
+import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
@@ -52,7 +53,7 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
     private List<ListItem> dataItem = Collections.emptyList();
     private RecyclerView recyclerView;
     private StringBuilder stringBuilder = new StringBuilder();
-   
+
     public static String globalState, globalDistrict, globalLocalLevel;
     private String name;
     public static FilterCustomAdapter adapterDistrict, adapterVdc, adapterMetroplitan, adapterAll, adapterOldVdc;
@@ -69,14 +70,13 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
     public String getName() {
         return name;
     }
-
-
-    public FilterCustomAdapter(Context context, List<ListItem> dataItem, RecyclerView recyclerView) {
+    public FilterCustomAdapter(Context context, List<ListItem> dataItem,RecyclerView recyclerView) {
         inflator = LayoutInflater.from(context);
         this.dataItem = dataItem;
         this.context = context;
         this.recyclerView = recyclerView;
     }
+
 
     @NonNull
     @Override
@@ -91,12 +91,7 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
     public void onBindViewHolder(@NonNull final FilterCustomAdapterHolder holder, int position) {
         final ListItem currentItem = dataItem.get(position);
         holder.listName.setText(currentItem.getName());
-//        Drawable topDrawable=getContext().getApplicationContext().getResources().getDrawable(currentItem.getIcon());
-//        holder.listName.setCompoundDrawables(null,topDrawable,null,null);
-//        holder.listIcon.setImageResource(currentItem.getIcon());
-
-        Glide
-                .with(context)
+        Glide.with(context)
                 .load(currentItem.getIcon())
                 .into( holder.listIcon);
         setName(currentItem.getName());
@@ -109,19 +104,148 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
                 if ("district".equals(currentItem.getType())) {
                    StateDetails.filterRviewTitle.setText("Local Levels");
                     globalDistrict = currentItem.getName();
+                    StateDetails.selectedFilter=currentItem.getName();
+                    StateDetails.selectedFilterType=currentItem.getType();
+                    showDistrictDetail(globalDistrict);
                     populateLocalLevelRecyclerView();
-                }
-                if ("ruralMunicipal".equals(currentItem.getType())) {
+                }else if ("ruralMunicipal".equals(currentItem.getType())) {
+                    showLocalLevelDetail(currentItem.getName());
+                    StateDetails.selectedFilter=currentItem.getName();
+                    StateDetails.selectedFilterType=currentItem.getType();
                 } else if ("municipal".equals(currentItem.getType())) {
+                    showLocalLevelDetail(currentItem.getName());
+                    StateDetails.selectedFilter=currentItem.getName();
+                    StateDetails.selectedFilterType=currentItem.getType();
                 } else if ("subMetropolitan".equals(currentItem.getType())) {
+                    showLocalLevelDetail(currentItem.getName());
+                    StateDetails.selectedFilter=currentItem.getName();
+                    StateDetails.selectedFilterType=currentItem.getType();
                 } else if ("metropolitan".equals(currentItem.getType())) {
+                    showLocalLevelDetail(currentItem.getName());
+                    StateDetails.selectedFilter=currentItem.getName();
+                    StateDetails.selectedFilterType=currentItem.getType();
                 }
 
             }
         });
-
     }
 
+    private void showLocalLevelDetail(final String name) {
+        //Start Caching
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = makeFinalUrl(CommonUrl.BaseUrl2+"locallevels/",
+                name);
+
+        CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    JSONObject jsonObject = new JSONObject(jsonString);
+
+                    String chairMan = jsonObject.getString("chairmen");
+                    String chairManContact=jsonObject.getString("chairmenContact");
+                    String chairManEmail=jsonObject.getString("chairmenEmail");
+                    String viceChairMan=jsonObject.getString("viceChairmen");
+                    String viceChairManContact=jsonObject.getString("viceChairmenContact");
+                    String viceChairManEmail=jsonObject.getString("viceChairmenEmail");
+                    String area=jsonObject.getString("area");
+                    String population =jsonObject.getString("population");
+                    String website=jsonObject.getString("website");
+                    String density=jsonObject.getString("density");
+                    String localLevelType=jsonObject.getString("localLevelType");
+
+
+
+                    StateDetails.stateName.setText(name);
+                    StateDetails.chiefMinisterLabel.setVisibility(View.VISIBLE);
+                    StateDetails.chiefMinister.setVisibility(View.VISIBLE);
+                    if("RURAL".equals(localLevelType)){
+                       StateDetails.capitalCityLabel.setText("(Chairman)");
+                       StateDetails.chiefMinisterLabel.setText(" (Vice-Chairman)");
+                    }else{
+                        StateDetails.capitalCityLabel.setText("(Mayor)");
+                        StateDetails.chiefMinisterLabel.setText(" (Deputy-Mayor)");
+                    }
+                    StateDetails.capitalName.setText(chairMan);
+                    StateDetails.chiefMinister.setText(viceChairMan);
+                    StateDetails.area.setText(area);
+                    StateDetails.population.setText(population);
+                    StateDetails.density.setText(density);
+                    StateDetails.collapsingToolbarLayout.setTitle("Detail about" + " " + name);
+                    StateDetails.collapsingToolbarLayout.setExpandedTitleColor(context.getResources().getColor(R.color.white));
+                    StateDetails.filterLoading.setVisibility(View.GONE);
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, "No Internet Available", Toast.LENGTH_SHORT).show();
+
+                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+    }
+
+    private void showDistrictDetail(final String globalDistrict) {
+        //Start Caching
+        final List<ListItem> districtList=new ArrayList<>(Collections.<ListItem>emptyList());
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/district/",
+                globalDistrict);
+
+        CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    districtList.clear();
+
+                    String area=jsonObject.getString("area");
+                    String population =jsonObject.getString("population");
+                    String headquater =jsonObject.getString("headquater");
+                    String state = jsonObject.getString("state");
+                    String districtPicture=jsonObject.getString("districtPicture");
+
+                    StateDetails.stateName.setText(globalDistrict);
+                    StateDetails.capitalName.setText(headquater);
+                    StateDetails.capitalCityLabel.setText("(Headquarter)");
+                    StateDetails.chiefMinisterLabel.setVisibility(View.INVISIBLE);
+                    StateDetails.chiefMinister.setVisibility(View.INVISIBLE);
+                    StateDetails.area.setText(area);
+                    StateDetails.population.setText(population);
+                    StateDetails.collapsingToolbarLayout.setTitle("Detail about" + " " + globalDistrict);
+                    StateDetails.collapsingToolbarLayout.setExpandedTitleColor(context.getResources().getColor(R.color.white));
+
+
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, "No Internet Available", Toast.LENGTH_SHORT).show();
+
+                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+    }
 
     private void populateLocalLevelRecyclerView() {
         final String[] allNames, ruralMunicipalNames, municipalNames, metropolitanNames, subMetropolitanNames;
@@ -134,7 +258,7 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/districts/localLevel/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/localLevel/",
                 globalDistrict);
 
 
@@ -168,7 +292,7 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
                         ruralMunicipalList.add(listItem);
                         allList.add(listItem);
                     }
-                    adapterRuralMunicipal = new FilterCustomAdapter(getContext(), ruralMunicipalList, recyclerView);
+                   // adapterRuralMunicipal = new FilterCustomAdapter(getContext(), ruralMunicipalList, recyclerView);
                     //for municipal
                     for (int i = 0; i < municipalJsonArray.length(); i++) {
                         ListItem listItem = new ListItem();
@@ -180,7 +304,7 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
                         municipalList.add(listItem);
                         allList.add(listItem);
                     }
-                    adapterMunicipal = new FilterCustomAdapter(getContext(), municipalList, recyclerView);
+                    //adapterMunicipal = new FilterCustomAdapter(getContext(), municipalList, recyclerView);
                     //for metropolitan
                     for (int i = 0; i < metropolitanJsonArray.length(); i++) {
                         ListItem listItem = new ListItem();
@@ -192,7 +316,7 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
                         metropolitanList.add(listItem);
                         allList.add(listItem);
                     }
-                    adapterMetroplitan = new FilterCustomAdapter(getContext(), metropolitanList, recyclerView);
+                    //adapterMetroplitan = new FilterCustomAdapter(getContext(), metropolitanList, recyclerView);
                     //for subMetropolitan
                     for (int i = 0; i < subMetropolitanJsonArray.length(); i++) {
                         ListItem listItem = new ListItem();
@@ -204,9 +328,9 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
                         subMetropolitanList.add(listItem);
                         allList.add(listItem);
                     }
-                    adapterSubMetropolitan = new FilterCustomAdapter(getContext(), subMetropolitanList, recyclerView);
+                  //  adapterSubMetropolitan = new FilterCustomAdapter(getContext(), subMetropolitanList, recyclerView);
 
-                    adapterAll = new FilterCustomAdapter(getContext(), allList, recyclerView);
+                   adapterAll = new FilterCustomAdapter(getContext(), allList, recyclerView);
                     StateDetails.filterLoading.setVisibility(View.GONE);
                     recyclerView.setAdapter(adapterAll);
 
@@ -237,7 +361,7 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
         return dataItem.size();
     }
 
-    public class FilterCustomAdapterHolder extends RecyclerView.ViewHolder {
+    public class FilterCustomAdapterHolder extends RecyclerView.ViewHolder{
         TextView listName;
         ImageView listIcon;
         CardView placeCardView;
@@ -249,6 +373,7 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
             placeCardView = itemView.findViewById(R.id.card_botton);
 
         }
+
     }
 
     private String makeFinalUrl(String baseUrl, String param) {
@@ -289,6 +414,4 @@ public class FilterCustomAdapter  extends RecyclerView.Adapter<FilterCustomAdapt
 
 
     }
-
-
 }

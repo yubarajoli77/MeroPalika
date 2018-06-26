@@ -23,26 +23,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginStart="40dp"
+                android:layout_marginStart="25dp"
                 android:drawableStart="@drawable/layer_ic_arrow_back_black_24dp"
                 android:visibility="gone" />
 
-            <com.eyalbira.loadingdots.LoadingDots xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/dotted_filter_loading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:visibility="gone"
-                app:LoadingDots_auto_play="true"
-                app:LoadingDots_dots_color="@color/colorPrimary"
-                app:LoadingDots_dots_count="4"
-                app:LoadingDots_dots_size="16dp"
-                app:LoadingDots_dots_space="4dp"
-                app:LoadingDots_jump_duration="200"
-                app:LoadingDots_jump_height="16dp"
-                app:LoadingDots_loop_duration="800"
-                app:LoadingDots_loop_start_delay="100" />
 
             <TextView
                 android:id="@+id/filter_recyclerview_title"
@@ -50,9 +34,17 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:text="Districts"
+                android:text="Filter information"
                 android:textColor="@color/black"
                 android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/filter_on_off"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="25dp"
+                app:srcCompat="@drawable/ic_keyboard_arrow_down_black_24dp"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/filter_recycleriew"
@@ -63,7 +55,10 @@
                 android:layout_below="@+id/filter_recyclerview_title"
                 android:layout_marginTop="8dp"
                 android:padding="4dp"
-                android:scrollbars="none" />
+                android:background="@color/colorPrimaryDark"
+                android:scrollbars="none"
+                android:visibility="gone"/>
+
         </RelativeLayout>
 
         <LinearLayout

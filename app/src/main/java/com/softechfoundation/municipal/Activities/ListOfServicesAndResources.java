@@ -27,6 +27,8 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.softechfoundation.municipal.Adapters.ResourceCustomAdapter;
 import com.softechfoundation.municipal.Adapters.ServiceCustomAdapter;
+import com.softechfoundation.municipal.CommonUrl;
+import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.Pojos.ResourcePojo;
 import com.softechfoundation.municipal.Pojos.ServicePojo;
 import com.softechfoundation.municipal.R;
@@ -51,7 +53,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
     private ResourceCustomAdapter resourceCustomAdapter,mountainCustomAdapter,
             riverCustomAdapter,lakeCustomAdapter,protectedAreaCustomAdapter,waterFallCustomAdapter;
     private ServiceCustomAdapter serviceCustomAdapter,hydroCustomAdapter,
-            airportCustomAdapter,industryCustomAdapter,hotelCustomAdapter;
+            airportCustomAdapter,industryCustomAdapter,hotelCustomAdapter,academicInstiAdapter;
     private ServiceCustomAdapter urgentAllCustomAdapter,urgentHospitalCustomAdapter,
             urgentBloodBankCustomAdapter,urgentAtmCustomAdapter,urgentPoliceCustomAdapter;
     private ResourceCustomAdapter mainAttractionCustomAdapter;
@@ -60,7 +62,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
 
     private Button nResourceRiverBtn,nResourceMountainBtn,
             nResourceLakeBtn,nResourceWaterfallsBtn,nResourceProtectedAreaBtn,nReaourceAllBtn;
-    private Button infraAirportBtn,infraHotelBtn,infraIndustryBtn,infraHydropowerBtn,infraAllBtn;
+    private Button infraAirportBtn,infraHotelBtn,infraIndustryBtn,infraHydropowerBtn,infraAllBtn,infraAcademicInstiBtn;
     private Button urgentHospitalBtn,urgentBloodBankBtn,urgentAtmBtn,urgentPoliceBtn,urgentAllBtn;
     private HorizontalScrollView horizontalScrollViewMenu;
     private View resourceServiceLoading;
@@ -82,19 +84,21 @@ public class ListOfServicesAndResources extends AppCompatActivity {
         Intent intent= getIntent();
         String catagory=intent.getStringExtra("catagory");
         String state =intent.getStringExtra("state");
+        String selectedFilter=intent.getStringExtra("selectedFilter");
+        String selectedFilterType=intent.getStringExtra("selectedFilterType");
         if("URGENTSERVICES".equals(catagory)){
             urgentServicesMenu.setVisibility(View.VISIBLE);
             naturalResourceMenu.setVisibility(View.GONE);
             infraStructureMenu.setVisibility(View.GONE);
             getSupportActionBar().setTitle("Urgent Servicces");
-            getUrgentServices(state);
+            getUrgentServices(state,selectedFilter,selectedFilterType);
         }
         else if("RESOURCES".equals(catagory)){
             naturalResourceMenu.setVisibility(View.VISIBLE);
             urgentServicesMenu.setVisibility(View.GONE);
             infraStructureMenu.setVisibility(View.GONE);
             getSupportActionBar().setTitle("Natural Resources");
-            getResources(state);
+            getResources(state,selectedFilter,selectedFilterType);
         }
         else if ("INFRASTRUCTURES".equals(catagory)){
 
@@ -102,14 +106,14 @@ public class ListOfServicesAndResources extends AppCompatActivity {
             naturalResourceMenu.setVisibility(View.GONE);
             urgentServicesMenu.setVisibility(View.GONE);
             getSupportActionBar().setTitle("Infrastructures");
-            getInfrastructure(state);
+            getInfrastructure(state,selectedFilter,selectedFilterType);
         }
         else if("MAINATTRACTIONS".equals(catagory)){
             infraStructureMenu.setVisibility(View.GONE);
             naturalResourceMenu.setVisibility(View.GONE);
             urgentServicesMenu.setVisibility(View.GONE);
             getSupportActionBar().setTitle("Main Attractions");
-            getMainAttraction(state);
+            getMainAttraction(state,selectedFilter,selectedFilterType);
 
         }
         else if("AVALIABLECONTACTS".equals(catagory)){
@@ -181,6 +185,16 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                 infraHotelBtn.setTextColor(Color.WHITE);
                 Toast.makeText(ListOfServicesAndResources.this, "Comming Soon :) ", Toast.LENGTH_SHORT).show();
                 resourceRecyclerView.setAdapter(hotelCustomAdapter);
+            }
+        });
+        infraAcademicInstiBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setAllInfraButtonTransparent();
+                infraAcademicInstiBtn.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
+                infraAcademicInstiBtn.setTextColor(Color.WHITE);
+                Toast.makeText(ListOfServicesAndResources.this, "Comming Soon :) ", Toast.LENGTH_SHORT).show();
+                resourceRecyclerView.setAdapter(academicInstiAdapter);
             }
         });
 
@@ -322,11 +336,11 @@ public class ListOfServicesAndResources extends AppCompatActivity {
 
     }
 
-    private void getMainAttraction(String parameter) {
+    private void getMainAttraction(String parameter, final String selectedFilter, final String selectedFilterType) {
         final List<ResourcePojo> mainAttractionList=new ArrayList<>();
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/famousFor/getAttraction/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"famousFor/getAttraction/",
                 parameter);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -350,10 +364,25 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         mainAttractionList.add(listItem);
                     }
 
-                    mainAttractionCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this,mainAttractionList);
-                    resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
-                    resourceServiceLoading.setVisibility(View.GONE);
-                    resourceRecyclerView.setAdapter(mainAttractionCustomAdapter);
+                    if("state".equals(selectedFilterType)) {
+                        mainAttractionCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this,mainAttractionList);
+                        resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(mainAttractionCustomAdapter);
+                    }
+                    else if("district".equals(selectedFilterType)){
+                        List<ResourcePojo> filteredList=new ArrayList<>();
+                        for(ResourcePojo item:mainAttractionList){
+                            if(item.getDistrict().equals(selectedFilter)){
+                                filteredList.add(item);
+                            }
+                        }
+                        mainAttractionCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredList);
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(mainAttractionCustomAdapter);
+                    }
+                    infraAllBtn.performClick();
+
                 } catch (UnsupportedEncodingException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -420,6 +449,8 @@ public class ListOfServicesAndResources extends AppCompatActivity {
 
     private void defineView() {
         resourceRecyclerView=findViewById(R.id.state_detail_list);
+        resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+
         naturalResourceMenu=findViewById(R.id.natural_resources_catagory);
         urgentServicesMenu=findViewById(R.id.urgent_services_catagory);
         infraStructureMenu=findViewById(R.id.infrastructure_catagory);
@@ -436,6 +467,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
         infraIndustryBtn=findViewById(R.id.services_btn_industry);
         infraHydropowerBtn=findViewById(R.id.services_btn_hydropower);
         infraAllBtn=findViewById(R.id.services_btn_all);
+        infraAcademicInstiBtn=findViewById(R.id.services_btn_academic_insti);
 
         urgentHospitalBtn=findViewById(R.id.urgent_services_btn_hospital);
         urgentAtmBtn=findViewById(R.id.urgent_services_btn_atm);
@@ -449,14 +481,14 @@ public class ListOfServicesAndResources extends AppCompatActivity {
         
     }
 
-    private void getInfrastructure(String parameter) {
+    private void getInfrastructure(String parameter, final String selectedFilter, final String selectedFilterType) {
         final List<ServicePojo> allInfrastructureList=new ArrayList<>();
         final List<ServicePojo>airportList=new ArrayList<>();
         final List<ServicePojo>hydropowerList=new ArrayList<>();
         final List<ServicePojo>industryList=new ArrayList<>();
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/states/Infrastructure/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"states/Infrastructure/",
                 parameter);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -480,6 +512,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String airportDistrict=jsonObject1.getString("disrict");
  //                       String  airportPhone=jsonObject1.getString("hospitalContactNumber");
                         String airportAddress=jsonObject1.getString("airportAddress");
+                        listItem.setDistrict(airportDistrict);
                         listItem.setName(airportName);
                         listItem.setAddress(airportAddress+", "+airportDistrict+", "+"Nepal");
                         listItem.setPhone("");
@@ -494,6 +527,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String  hydroCapacity=jsonObject1.getString("capacity");
                         String hydroAddress=jsonObject1.getString("address");
                         String hydroStatus=jsonObject1.getString("hydroStatus");
+                        listItem.setDistrict(hydroDistrict);
                         listItem.setName(hydroName);
                         listItem.setAddress(hydroAddress+", "+hydroDistrict+", "+"Nepal");
                         listItem.setInfo(hydroCapacity+"\n"+hydroStatus);
@@ -507,19 +541,33 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String industryName = jsonObject1.getString("industry");
                         String industryDistrict=jsonObject1.getString("district");
                         String industryAddress=jsonObject1.getString("address");
+                        listItem.setDistrict(industryDistrict);
                         listItem.setName(industryName);
                         listItem.setAddress(industryAddress+", "+industryDistrict+", "+"Nepal");
                         listItem.setPhone("");
                         hydropowerList.add(listItem);
                         allInfrastructureList.add(listItem);
                     }
-                    hydroCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,hydropowerList);
-                    airportCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,airportList);
-                    industryCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,industryList);
-                    serviceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,allInfrastructureList);
-                    resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
-                    resourceServiceLoading.setVisibility(View.GONE);
-                    resourceRecyclerView.setAdapter(serviceCustomAdapter);
+                    if("state".equals(selectedFilterType)) {
+                        hydroCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,hydropowerList);
+                        airportCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,airportList);
+                        industryCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,industryList);
+                        serviceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,allInfrastructureList);
+                        resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(serviceCustomAdapter);
+                    }
+                    else if("district".equals(selectedFilterType)){
+                        List<ServicePojo> filteredList=new ArrayList<>();
+                        for(ServicePojo item:allInfrastructureList){
+                            if(item.getDistrict().equals(selectedFilter)){
+                                filteredList.add(item);
+                            }
+                        }
+                        serviceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, filteredList);
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(serviceCustomAdapter);
+                    }
                     infraAllBtn.performClick();
                 } catch (UnsupportedEncodingException | JSONException e) {
                     e.printStackTrace();
@@ -539,7 +587,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
         //End of Caching
     }
 
-    public void getResources(String parameter) {
+    public void getResources(String parameter, final String selectedFilter, final String selectedFilterType) {
 
         final List<ResourcePojo> allResourceList=new ArrayList<>();
         final List<ResourcePojo>mountainList=new ArrayList<>();
@@ -550,7 +598,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/states/naturalResources/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"states/naturalResources/",
                 parameter);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -578,6 +626,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String mountainName = jsonObject1.getString("mountain");
                         String mountainDistrict=jsonObject1.getString("district");
                         String mountainHeight=jsonObject1.getString("mountainHeight");
+                        listItem.setDistrict(mountainDistrict);
                         listItem.setName(mountainName);
                         listItem.setInfo(mountainHeight );
                         listItem.setAddress(mountainDistrict+", "+"Nepal");
@@ -589,6 +638,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         JSONObject jsonObject1 = jsonRiverArray.getJSONObject(i);
                         String riverName = jsonObject1.getString("river");
                         String riverDistrict=jsonObject1.getString("district");
+                        listItem.setDistrict(riverDistrict);
                         listItem.setName(riverName);
                         listItem.setAddress(riverDistrict+", "+"Nepal");
                         riverList.add(listItem);
@@ -600,6 +650,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String lakeName = jsonObject1.getString("lake");
                         String lakeDistrict=jsonObject1.getString("district");
 //                        String lakeAddress=jsonObject1.getString("address");
+                        listItem.setDistrict(lakeDistrict);
                         listItem.setName(lakeName);
                         listItem.setAddress(lakeDistrict+", "+"Nepal");
                         lakeList.add(listItem);
@@ -610,6 +661,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         JSONObject jsonObject1 = jsonWaterFallArray.getJSONObject(i);
                         String waterfallName = jsonObject1.getString("waterfall");
                         String waterfallDistrict=jsonObject1.getString("district");
+                        listItem.setDistrict(waterfallDistrict);
                         listItem.setName(waterfallName);
                         listItem.setAddress(waterfallDistrict+", "+"Nepal");
                         waterFallList.add(listItem);
@@ -621,23 +673,36 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String protectedAreaName = jsonObject1.getString("protectedAreas");
                         String protectedAreaDistrict=jsonObject1.getString("district");
                         String protectedAreasArea=jsonObject1.getString("area");
+                        listItem.setDistrict(protectedAreaDistrict);
                         listItem.setName(protectedAreaName);
                         listItem.setAddress(protectedAreaDistrict+", "+"Nepal\n"+protectedAreasArea);
                         protectedAreaList.add(listItem);
                         allResourceList.add(listItem);
                     }
-                    resourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this,allResourceList);
-                    mountainCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this,mountainList);
-                    riverCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this,riverList);
-                    lakeCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this,lakeList);
-                    waterFallCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this,waterFallList);
-                    protectedAreaCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this,protectedAreaList);
 
-                    resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
-                    resourceServiceLoading.setVisibility(View.GONE);
-                    resourceRecyclerView.setAdapter(resourceCustomAdapter);
+                    if("state".equals(selectedFilterType)) {
+                        resourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, allResourceList);
+                        mountainCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, mountainList);
+                        riverCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, riverList);
+                        lakeCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, lakeList);
+                        waterFallCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, waterFallList);
+                        protectedAreaCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, protectedAreaList);
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(resourceCustomAdapter);
+                    }
+                    else if("district".equals(selectedFilterType)){
+                        List<ResourcePojo> filteredList=new ArrayList<>();
+                        for(ResourcePojo item:allResourceList){
+                            if(item.getDistrict().equals(selectedFilter)){
+                                filteredList.add(item);
+
+                            }
+                        }
+                        resourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredList);
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(resourceCustomAdapter);
+                    }
                     nReaourceAllBtn.performClick();
-
                 } catch (UnsupportedEncodingException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -654,7 +719,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
         queue.add(cacheRequest);
         //End of Caching
 }
-    public void getUrgentServices(String parameter) {
+    public void getUrgentServices(String parameter, final String selectedFilter, final String selectedFilterType) {
         final List<ServicePojo> allUrgentServices=new ArrayList<>();
         final List<ServicePojo>atmList=new ArrayList<>();
         final List<ServicePojo>bloodBankList=new ArrayList<>();
@@ -663,7 +728,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/states/UrgentService/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"states/UrgentService/",
                 parameter);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -705,6 +770,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String policeDistrict=jsonObject1.getString("district");
                         listItem.setName(policeStationName);
                         listItem.setPhone(policeContact);
+                        listItem.setDistrict(policeDistrict);
                         listItem.setAddress(policeLocalAddress+", "+policeDistrict+", "+"Nepal");
                         policeStationList.add(listItem);
                         allUrgentServices.add(listItem);
@@ -726,23 +792,37 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String hospitalName = jsonObject1.getString("hospital");
                         String hospitalContactNumber=jsonObject1.getString("hospitalContactNumber");
                         String hospitalDistrict=jsonObject1.getString("district");
-
+                        listItem.setDistrict(hospitalDistrict);
                         listItem.setName(hospitalName);
                         listItem.setPhone(hospitalContactNumber);
                         listItem.setAddress(hospitalDistrict+", "+"Nepal");
                         hospitalList.add(listItem);
                         allUrgentServices.add(listItem);
                     }
-                    urgentAllCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,allUrgentServices);
-                    urgentBloodBankCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,bloodBankList);
-                    urgentAtmCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,atmList);
-                    urgentHospitalCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,hospitalList);
-                    urgentPoliceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,policeStationList);
 
-                    resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
-                    resourceServiceLoading.setVisibility(View.GONE);
-                    resourceRecyclerView.setAdapter(urgentAllCustomAdapter);
-                    urgentAllBtn.performClick();
+                    if("state".equals(selectedFilterType)){
+                        urgentAllCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,allUrgentServices);
+                        urgentBloodBankCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,bloodBankList);
+                        urgentAtmCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,atmList);
+                        urgentHospitalCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,hospitalList);
+                        urgentPoliceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,policeStationList);
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(urgentAllCustomAdapter);
+                        urgentAllBtn.performClick();
+                    }
+                    else if("district".equals(selectedFilterType)){
+                        List<ServicePojo>filteredServices=new ArrayList<>();
+                        for(ServicePojo item: allUrgentServices){
+                            if(item.getDistrict().equals(selectedFilter)){
+                                filteredServices.add(item);
+                            }
+                        }
+                        urgentAllCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,filteredServices);
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(urgentAllCustomAdapter);
+                        urgentAllBtn.performClick();
+                    }
+
 
                 } catch (UnsupportedEncodingException | JSONException e) {
                     e.printStackTrace();

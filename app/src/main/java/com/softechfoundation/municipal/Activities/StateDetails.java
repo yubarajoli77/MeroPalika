@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.softechfoundation.municipal.Adapters.FilterCustomAdapter;
+import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.Fragments.MainFragment;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.R;
@@ -45,15 +47,19 @@ import java.util.Locale;
 
 import static com.android.volley.Request.Method.GET;
 
-public class StateDetails extends AppCompatActivity{
-    private LinearLayout naturalResources,infrastructure,mainAttraction,urgentServices,avaliableContacts;
-private TextView stateName,capitalName,area,population,density,governer,chiefMinister,website;
-private  CollapsingToolbarLayout collapsingToolbarLayout;
-private RecyclerView filterRecyclerview;
-private FilterCustomAdapter adapter;
-public static TextView filterRviewTitle,filterBackButton;
-public static View filterLoading;
-private static final String MY_PREFS = "districtOrPalika";
+public class StateDetails extends AppCompatActivity implements View.OnClickListener {
+    private LinearLayout naturalResources, infrastructure, mainAttraction, urgentServices, avaliableContacts;
+    public static TextView stateName, capitalName, area, population, density, governer, chiefMinister, website, chiefMinisterLabel, capitalCityLabel;
+    public static CollapsingToolbarLayout collapsingToolbarLayout;
+    private RecyclerView filterRecyclerview;
+    private FilterCustomAdapter adapter;
+    public static TextView filterRviewTitle, filterBackButton;
+    private ImageView filterOnOff;
+    public static View filterLoading;
+    private boolean isFilterExpand = false;
+    private static final String MY_PREFS = "districtOrPalika";
+    private String gorvernerName, websiteName, state, capitalCity, areaValue, populationValue, densityValue, chiefMinisterName;
+    public static String selectedFilter,selectedFilterType;
 
 
     @Override
@@ -67,52 +73,54 @@ private static final String MY_PREFS = "districtOrPalika";
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
 
-        collapsingToolbarLayout=findViewById(R.id.state_detail_collapsing_tool_bar_layout);
-        stateName=findViewById(R.id.detail_top_state_name);
-        capitalName=findViewById(R.id.detail_top_capital_name);
-        area=findViewById(R.id.area);
-        population=findViewById(R.id.population);
-        density=findViewById(R.id.density);
-//        governer=findViewById(R.id.detail_top_state_governer);
-//        website=findViewById(R.id.detail_top_state_website);
-        chiefMinister=findViewById(R.id.detail_top_state_chiefMinister);
+        collapsingToolbarLayout = findViewById(R.id.state_detail_collapsing_tool_bar_layout);
+        stateName = findViewById(R.id.detail_top_state_name);
+        capitalCityLabel = findViewById(R.id.detail_capital_city_label);
+        chiefMinisterLabel = findViewById(R.id.detail_top_chiefMinister_label);
+        capitalName = findViewById(R.id.detail_top_capital_name);
+        area = findViewById(R.id.area);
+        population = findViewById(R.id.population);
+        density = findViewById(R.id.density);
+        chiefMinister = findViewById(R.id.detail_top_state_chiefMinister);
 
-        avaliableContacts=findViewById(R.id.available_contacts_layout);
-        naturalResources=findViewById(R.id.natural_resource_layout);
-        infrastructure=findViewById(R.id.infrastructure_layout);
-        mainAttraction=findViewById(R.id.main_attraction_layout);
-        urgentServices=findViewById(R.id.urgent_services_layout);
+        avaliableContacts = findViewById(R.id.available_contacts_layout);
+        naturalResources = findViewById(R.id.natural_resource_layout);
+        infrastructure = findViewById(R.id.infrastructure_layout);
+        mainAttraction = findViewById(R.id.main_attraction_layout);
+        urgentServices = findViewById(R.id.urgent_services_layout);
 
-        filterRecyclerview=findViewById(R.id.filter_recycleriew);
+        filterRecyclerview = findViewById(R.id.filter_recycleriew);
         filterRecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        filterRviewTitle=findViewById(R.id.filter_recyclerview_title);
-        filterBackButton=findViewById(R.id.filter_back);
-        filterLoading=findViewById(R.id.dotted_filter_loading);
+        filterRviewTitle = findViewById(R.id.filter_recyclerview_title);
+        filterBackButton = findViewById(R.id.filter_back);
+        filterLoading = findViewById(R.id.dotted_filter_loading);
+        filterOnOff = findViewById(R.id.filter_on_off);
 
 
+        Intent intentGetValue = getIntent();
+        gorvernerName = intentGetValue.getStringExtra("governer");
+        chiefMinisterName = intentGetValue.getStringExtra("chiefMinister");
+        websiteName = intentGetValue.getStringExtra("website");
+        state = intentGetValue.getStringExtra("stateName");
+        capitalCity = intentGetValue.getStringExtra("capital");
+        areaValue = intentGetValue.getStringExtra("area");
+        populationValue = intentGetValue.getStringExtra("population");
+        densityValue = intentGetValue.getStringExtra("density");
+        selectedFilter=state;
+        selectedFilterType="state";
+        showStateDetail();
 
-        Intent intentGetValue=getIntent();
-        String gorvernerName=intentGetValue.getStringExtra("governer");
-        String chiefMinisterName=intentGetValue.getStringExtra("chiefMinister");
-        String websiteName=intentGetValue.getStringExtra("website");
-        final String state=intentGetValue.getStringExtra("stateName");
-        stateName.setText(state);
-        String capitalCity=intentGetValue.getStringExtra("capital");
-        capitalName.setText(capitalCity);
-        area.setText(intentGetValue.getStringExtra("area"));
-        population.setText(intentGetValue.getStringExtra("population"));
-        density.setText(intentGetValue.getStringExtra("density"));
-        chiefMinister.setText(chiefMinisterName);
 //        getSupportActionBar().setTitle("Detail about"+" "+state);
-        collapsingToolbarLayout.setTitle("Detail about"+" "+state);
-        collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(R.color.white));
+
 
         naturalResources.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(StateDetails.this,ListOfServicesAndResources.class);
-                intent.putExtra("catagory","RESOURCES");
-                intent.putExtra("state",state);
+                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                intent.putExtra("catagory", "RESOURCES");
+                intent.putExtra("state", state);
+                intent.putExtra("selectedFilter",selectedFilter);
+                intent.putExtra("selectedFilterType",selectedFilterType);
                 startActivity(intent);
 
             }
@@ -121,9 +129,11 @@ private static final String MY_PREFS = "districtOrPalika";
         infrastructure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(StateDetails.this,ListOfServicesAndResources.class);
-                intent.putExtra("catagory","INFRASTRUCTURES");
-                intent.putExtra("state",state);
+                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                intent.putExtra("catagory", "INFRASTRUCTURES");
+                intent.putExtra("state", state);
+                intent.putExtra("selectedFilter",selectedFilter);
+                intent.putExtra("selectedFilterType",selectedFilterType);
                 startActivity(intent);
             }
         });
@@ -131,9 +141,11 @@ private static final String MY_PREFS = "districtOrPalika";
         urgentServices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(StateDetails.this,ListOfServicesAndResources.class);
-                intent.putExtra("catagory","URGENTSERVICES");
-                intent.putExtra("state",state);
+                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                intent.putExtra("catagory", "URGENTSERVICES");
+                intent.putExtra("state", state);
+                intent.putExtra("selectedFilter",selectedFilter);
+                intent.putExtra("selectedFilterType",selectedFilterType);
                 startActivity(intent);
             }
         });
@@ -141,9 +153,11 @@ private static final String MY_PREFS = "districtOrPalika";
         mainAttraction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(StateDetails.this,ListOfServicesAndResources.class);
-                intent.putExtra("catagory","MAINATTRACTIONS");
-                intent.putExtra("state",state);
+                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                intent.putExtra("catagory", "MAINATTRACTIONS");
+                intent.putExtra("state", state);
+                intent.putExtra("selectedFilter",selectedFilter);
+                intent.putExtra("selectedFilterType",selectedFilterType);
                 startActivity(intent);
             }
         });
@@ -151,31 +165,83 @@ private static final String MY_PREFS = "districtOrPalika";
         avaliableContacts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(StateDetails.this,ListOfServicesAndResources.class);
-                intent.putExtra("catagory","AVALIABLECONTACTS");
-                intent.putExtra("state",state);
+                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                intent.putExtra("catagory", "AVALIABLECONTACTS");
+                intent.putExtra("state", state);
+                intent.putExtra("selectedFilter",selectedFilter);
+                intent.putExtra("selectedFilterType",selectedFilterType);
                 startActivity(intent);
             }
         });
-        getDistricts(state);
 
         filterBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    filterRviewTitle.setText("Districts");
-                    getDistricts(state);
-                    filterBackButton.setVisibility(View.GONE);
+                filterRviewTitle.setText("Districts");
+                getDistricts(state);
+                selectedFilterType="state";
+                selectedFilter=state;
+                showStateDetail();
+                filterBackButton.setVisibility(View.GONE);
+            }
+        });
+
+        filterOnOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                expandOrHideFilter();
+            }
+        });
+        filterRviewTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                expandOrHideFilter();
             }
         });
 
     }
 
+    private void expandOrHideFilter() {
+        if (!isFilterExpand) {
+            filterOnOff.setImageResource(R.drawable.layer_ic_keyboard_arrow_up_black_24dp);
+            isFilterExpand = true;
+            filterRecyclerview.setVisibility(View.VISIBLE);
+            getDistricts(state);
+            filterRviewTitle.setText("Districts");
+            return;
+        }
+        if (isFilterExpand) {
+            filterOnOff.setImageResource(R.drawable.layer_ic_keyboard_arrow_down_black_24dp);
+            isFilterExpand = false;
+            filterRecyclerview.setVisibility(View.GONE);
+            filterRviewTitle.setText("Filter information");
+            showStateDetail();
+            selectedFilterType="state";
+            selectedFilter=state;
+        }
+    }
+
+    private void showStateDetail() {
+        chiefMinister.setVisibility(View.VISIBLE);
+        chiefMinisterLabel.setVisibility(View.VISIBLE);
+        stateName.setText(state);
+        area.setText(areaValue);
+        capitalName.setText(capitalCity);
+        population.setText(populationValue);
+        density.setText(densityValue);
+        chiefMinister.setText(chiefMinisterName);
+        capitalCityLabel.setText("(Capital");
+        chiefMinisterLabel.setText("(Chief Minister)");
+        collapsingToolbarLayout.setTitle("Detail about" + " " + state);
+        collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(R.color.white));
+    }
+
     private void getDistricts(String state) {
         //Start Caching
         filterLoading.setVisibility(View.VISIBLE);
-        final List<ListItem> districtList=new ArrayList<>(Collections.<ListItem>emptyList());
+        final List<ListItem> districtList = new ArrayList<>(Collections.<ListItem>emptyList());
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/districts/state/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "districts/state/",
                 state);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -198,7 +264,6 @@ private static final String MY_PREFS = "districtOrPalika";
                         districtList.add(listItem);
                     }
 
-
                     adapter = new FilterCustomAdapter(StateDetails.this, districtList, filterRecyclerview);
                     filterLoading.setVisibility(View.GONE);
                     filterRecyclerview.setAdapter(adapter);
@@ -210,7 +275,7 @@ private static final String MY_PREFS = "districtOrPalika";
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                MainFragment.loadingPlaces.setVisibility(View.GONE);
+                filterLoading.setVisibility(View.GONE);
                 Toast.makeText(StateDetails.this, "No Internet Available", Toast.LENGTH_SHORT).show();
 
                 // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
@@ -265,6 +330,12 @@ private static final String MY_PREFS = "districtOrPalika";
         Log.d("Final Url: ", encodedUrl.toString());
         return encodedUrl;
 
+
+    }
+
+
+    @Override
+    public void onClick(View v) {
 
     }
 

@@ -95,6 +95,14 @@
                     android:text="All"
                     android:textAllCaps="false"
                     android:textSize="12sp" />
+                <Button
+                    android:id="@+id/services_btn_academic_insti"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:text="Educational Institutions"
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/services_btn_airport"

@@ -9,6 +9,15 @@ public class ServicePojo {
     private String address;
     private String phone;
     private String info;
+    private String district;
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
 
     public void setInfo(String info) {
         this.info = info;

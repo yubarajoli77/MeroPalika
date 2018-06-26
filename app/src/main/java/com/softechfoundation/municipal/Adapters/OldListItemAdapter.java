@@ -28,7 +28,9 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.softechfoundation.municipal.Activities.MainPage;
+import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.Pojos.ListItem;
+import com.softechfoundation.municipal.RecyclerViewOnItemClickListener;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
 import com.softechfoundation.municipal.Fragments.MainFragment;
 import com.softechfoundation.municipal.R;
@@ -61,13 +63,9 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
     private Context context;
     private LayoutInflater inflator;
     private List<ListItem> dataItem = Collections.emptyList();
-    private RecyclerView recyclerView;
-    private StringBuilder stringBuilder=new StringBuilder();
-
-
-    public static String globalState,globalDistrict,globalOldVdc;
+    private RecyclerViewOnItemClickListener mOnItemClickListener;
     private String name;
-    public static OldListItemAdapter adapterOldVdc, adapterDistrict;
+
 
 
     private Context getContext() {
@@ -84,11 +82,11 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
 
 
 
-    public OldListItemAdapter(Context context, List<ListItem> dataItem, RecyclerView recyclerView) {
+    public OldListItemAdapter(Context context, List<ListItem> dataItem,RecyclerViewOnItemClickListener onItemClickListener) {
         inflator = LayoutInflater.from(context);
         this.dataItem = dataItem;
         this.context = context;
-        this.recyclerView = recyclerView;
+        this.mOnItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -103,10 +101,7 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
     @Override
     public void onBindViewHolder(@NonNull final ListItemViewHolder holder, int position) {
         final ListItem currentItem = dataItem.get(position);
-        Drawable topDrawable=getContext().getApplicationContext().getResources().getDrawable(currentItem.getIcon());
        holder.listName.setText(currentItem.getName());
-//        holder.listName.setCompoundDrawables(null,topDrawable,null,null);
-//        holder.listIcon.setImageResource(currentItem.getIcon());
         Glide
                 .with(context)
                 .load(currentItem.getIcon())
@@ -116,369 +111,10 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainFragment.loadingPlaces.setVisibility(View.VISIBLE);
-                if ("state".equals(currentItem.getType())) {
-                    globalState=currentItem.getName();
-                    populateOldDistrictRecyclerView();
-
-                }
-
-                if ("oldDistrict".equals(currentItem.getType())) {
-                    //Toast.makeText(context, "You clicked " + currentItem.getName(), Toast.LENGTH_SHORT).show();
-                    globalDistrict=currentItem.getName();
-
-                    String location = globalDistrict+", " + "Nepal";
-                    // MainFragment.findPlace(location,context);
-                    SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
-                    editor.clear();
-                    editor.apply();
-                    editor.putString("location", location);
-                    editor.apply();
-                    MainFragment.trigger.performClick();
-                    populateOldVdcRecyclerView();
-
-                }
-                if ("oldVdc".equals(currentItem.getType())) {
-
-                    globalOldVdc=currentItem.getName();
-                    MainFragment.stateBtn.setVisibility(View.VISIBLE);
-                    MainFragment.vdcBtn.setVisibility(View.VISIBLE);
-                    MainFragment.districtBtn.setVisibility(View.VISIBLE);
-                    MainFragment.vdcBtn.setText(currentItem.getName());
-                    MainFragment.catagories.setText("VDCs");
-
-                    String location = globalDistrict + ", "+ globalOldVdc+ ", " + "Nepal";
-                    SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
-                    editor.clear();
-                    editor.apply();
-                    editor.putString("location", location);
-                    editor.apply();
-                    editor.commit();
-                    MainFragment.trigger.performClick();
-                    getNewDetail();
-                }
-
-            }
-
-            private void getNewDetail() {
-                //Start Caching
-                RequestQueue queue = Volley.newRequestQueue(getContext());
-                String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/vdcs/oldVdc/",
-                        globalOldVdc);
-
-
-                CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
-                    @Override
-                    public void onResponse(NetworkResponse response) {
-                        try {
-                            final String jsonString = new String(response.data,
-                                    HttpHeaderParser.parseCharset(response.headers));
-
-                            JSONArray localLevelJsonArray = new JSONArray(jsonString);
-
-                            //Removing duplication of data from cache
-                                stringBuilder.setLength(0);
-                            stringBuilder.append(globalOldVdc+" VDC"+" lies on\n\n");
-                            for (int i = 0; i < localLevelJsonArray.length(); i++) {
-                                String localLevel,type;
-                                JSONObject jsonObject1 = localLevelJsonArray.getJSONObject(i);
-                                localLevel = jsonObject1.getString("newVdc");
-                                type = jsonObject1.getString("localLevelType");
-                                stringBuilder.append(localLevel+" "+type+"\n");
-                                showMessage("Mapping Result",stringBuilder.toString());
-                            }
-
-                        } catch (UnsupportedEncodingException | JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                // Add the request to the RequestQueue.
-                queue.add(cacheRequest);
-
-                //End of Caching
+                mOnItemClickListener.onItemClickListener(holder.getAdapterPosition(),v);
             }
         });
 
-
-        MainFragment.districtBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                populateOldDistrictRecyclerView();
-                //Toast.makeText(context, "Inside pathDistrictBtn: "+state, Toast.LENGTH_SHORT).show();
-                MainFragment.catagories.setText("Districts");
-                MainFragment.searchBox.setHint("Search Districts...");
-                MainFragment.stateBtn.setVisibility(View.VISIBLE);
-                MainFragment.districtBtn.setVisibility(View.VISIBLE);
-                MainFragment.districtBtn.setText("Districts");
-                MainFragment.vdcBtn.setVisibility(View.GONE);
-                MainFragment.catagories.setVisibility(View.VISIBLE);
-                MainFragment.horizontalScrollViewMenu.setVisibility(View.GONE);
-            }
-        });
-
-        MainFragment.vdcBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                populateOldVdcRecyclerView();
-                MainFragment.catagories.setText("VDCs");
-                MainFragment.vdcBtn.setText("VDCs");
-                MainFragment.searchBox.setHint("Search VDCs...");
-                MainFragment.stateBtn.setVisibility(View.VISIBLE);
-                MainFragment.stateBtn.setVisibility(View.VISIBLE);
-                MainFragment.districtBtn.setVisibility(View.VISIBLE);
-                MainFragment.catagories.setVisibility(View.VISIBLE);
-                MainFragment.horizontalScrollViewMenu.setVisibility(View.GONE);
-            }
-        });
-
-
-    }
-    private void showMessage(String title,String message){
-        SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences("TTSMessage", MODE_PRIVATE).edit();
-        editor.clear();
-        editor.apply();
-        editor.putString("message", message);
-        editor.apply();
-
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View dialogView = inflater.inflate(R.layout.mapping_result_custom_design, null);
-        dialogBuilder.setView(dialogView);
-
-        TextView textView = dialogView.findViewById(R.id.mapping_place_result);
-        textView.setText(message);
-        Button okBtn=dialogView.findViewById(R.id.mapping_place_btn);
-        final AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimationLeftRight;
-        MainFragment.loadingPlaces.setVisibility(View.GONE);
-        if(!alertDialog.isShowing()) {
-            alertDialog.show();
-        }
-        MainPage.readMessage.performClick();
-        okBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
-
-    }
-    private void populateOldVdcRecyclerView() {
-        final String[] oldVdcNames;
-        final List<ListItem>oldVdcList=new ArrayList<>();
-
-        MainFragment.stateBtn.setVisibility(View.VISIBLE);
-        MainFragment.vdcBtn.setVisibility(View.VISIBLE);
-        MainFragment.vdcBtn.setText("VDCs");
-        MainFragment.districtBtn.setVisibility(View.VISIBLE);
-        MainFragment.districtBtn.setText(globalDistrict);
-        MainFragment.searchBox.setHint("Search VDCs");
-        MainFragment.catagories.setText("VDCs");
-
-        //Start Caching
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/vdcs/district/",
-                globalDistrict);
-
-
-        CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
-            @Override
-            public void onResponse(NetworkResponse response) {
-                try {
-                    final String jsonString = new String(response.data,
-                            HttpHeaderParser.parseCharset(response.headers));
-                   // JSONObject jsonObject = new JSONObject(jsonString);
-                   // JSONArray oldVdcJsonArray = jsonObject.getJSONArray("oldVdcs");
-                    JSONArray oldVdcJsonArray = new JSONArray(jsonString);
-                    //Removing duplication of data from cache
-                    oldVdcList.clear();
-
-                    for (int i = 0; i < oldVdcJsonArray.length(); i++) {
-                        ListItem listItem=new ListItem();
-                        JSONObject jsonObject1 = oldVdcJsonArray.getJSONObject(i);
-                        String vdcName = jsonObject1.getString("oldVdc");
-                        listItem.setName(vdcName);
-                        listItem.setIcon(R.drawable.rural_municipal);
-                        listItem.setType("oldVdc");
-                        oldVdcList.add(listItem);
-                    }
-                    adapterOldVdc=new OldListItemAdapter(getContext(),oldVdcList,recyclerView);
-                    MainFragment.loadingPlaces.setVisibility(View.GONE);
-                    recyclerView.setAdapter(adapterOldVdc);
-                } catch (UnsupportedEncodingException | JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Add the request to the RequestQueue.
-        queue.add(cacheRequest);
-
-        //End of Caching
-
-        oldVdcNames= new String[oldVdcList.size()];
-        int j = 0;
-        for (ListItem names : oldVdcList) {
-            oldVdcNames[j] = names.getName();
-            j++;
-        }
-
-        final ArrayAdapter<String> autoComAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, oldVdcNames);
-        MainFragment.searchBox.setAdapter(autoComAdapter);
-        MainFragment.searchBox.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String typedText = s.toString().toLowerCase();
-                List<ListItem> newList = new ArrayList<>();
-                for (ListItem list : oldVdcList) {
-                    String stateName = list.getName().toLowerCase();
-                    if (stateName.contains(typedText)) {
-                        newList.add(list);
-                    }
-                }
-                NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView);
-                if(null != filteredAdapter){
-                    recyclerView.setAdapter(filteredAdapter);
-                }else {
-                    recyclerView.setAdapter(adapterDistrict);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-    }
-
-
-    private void populateOldDistrictRecyclerView() {
-        final String[] districtNames;
-        final List<ListItem> districtList=new ArrayList<>();
-
-        MainFragment.searchBox.setHint("Search District");
-        MainFragment.searchBox.setText("");
-        MainFragment.catagories.setText("Districts");
-        MainFragment.stateBtn.setText(globalState);
-
-        MainFragment.stateBtn.setVisibility(View.VISIBLE);
-        MainFragment.vdcBtn.setVisibility(View.GONE);
-        MainFragment.districtBtn.setText("Districts");
-        MainFragment.districtBtn.setVisibility(View.VISIBLE);
-        MainFragment.horizontalScrollViewMenu.setVisibility(View.GONE);
-
-        //Start Caching
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl("http://103.198.9.242:8080/locallevel/rest/districts/state/",
-                globalState);
-
-        CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
-            @Override
-            public void onResponse(NetworkResponse response) {
-                try {
-                    final String jsonString = new String(response.data,
-                            HttpHeaderParser.parseCharset(response.headers));
-                    //JSONObject jsonObject = new JSONObject(jsonString);
-                    JSONArray jsonArray = new JSONArray(jsonString);
-                    districtList.clear();
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        ListItem listItem=new ListItem();
-                        JSONObject jsonObject1 = jsonArray.getJSONObject(i);
-                        String districtName = jsonObject1.getString("district");
-                        listItem.setName(districtName);
-                        listItem.setIcon(R.drawable.district);
-                        listItem.setType("oldDistrict");
-
-                        districtList.add(listItem);
-                    }
-
-
-                    adapterDistrict=new OldListItemAdapter(getContext(),districtList,recyclerView);
-
-                    if(null != adapterDistrict){
-                        MainFragment.loadingPlaces.setVisibility(View.GONE);
-                        recyclerView.setAdapter(adapterDistrict);
-                    }else {
-                        Toast.makeText(context, "No value in district Adapter", Toast.LENGTH_SHORT).show();
-                    }
-
-
-                    //Toast.makeText(getContext(), "onResponse:\n\n" + jsonObject.toString(), Toast.LENGTH_SHORT).show();
-                } catch (UnsupportedEncodingException | JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Add the request to the RequestQueue.
-        queue.add(cacheRequest);
-
-        //End of Caching
-
-
-        districtNames = new String[districtList.size()];
-        int j = 0;
-        for (ListItem names : districtList) {
-            districtNames[j] = names.getName();
-            j++;
-        }
-        final ArrayAdapter<String> autoComAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, districtNames);
-        MainFragment.searchBox.setAdapter(autoComAdapter);
-
-//        adapterDistrict = new NewListItemAdapter(getContext(), districtList, recyclerView);
-//        recyclerView.setAdapter(adapterDistrict);
-
-        MainFragment.searchBox.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String typedText = s.toString().toLowerCase();
-                List<ListItem> newList = new ArrayList<>();
-                for (ListItem list : districtList) {
-                    String stateName = list.getName().toLowerCase();
-                    if (stateName.contains(typedText)) {
-                        newList.add(list);
-                    }
-                }
-                NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView);
-                if(filteredAdapter!=null){
-                    recyclerView.setAdapter(filteredAdapter);
-                }else {
-                    recyclerView.setAdapter(adapterDistrict);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
     }
 
     @Override
@@ -498,45 +134,6 @@ public class OldListItemAdapter extends RecyclerView.Adapter<OldListItemAdapter.
             cardView = itemView.findViewById(R.id.card_botton);
 
         }
-    }
-
-    private String makeFinalUrl(String baseUrl, String param) {
-        String parameter = param;
-        String urlWithParameter = null;
-        String encodedUrl = null;
-        if (param != null) {
-            if (param.contains(" ")) {
-
-                parameter = param.replaceAll(" ", "%20");
-            }
-            try {
-                urlWithParameter = baseUrl + java.net.URLEncoder.encode(parameter, "UTF-8");
-                Log.d("Pre URL::", urlWithParameter);
-                urlWithParameter = urlWithParameter.replaceAll("%2520", "%20");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            try {
-                URL URL = new URL(urlWithParameter);
-                encodedUrl = String.valueOf(URL);
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        } else {
-            URL URL = null;
-            try {
-                URL = new URL(baseUrl);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            encodedUrl = String.valueOf(URL);
-        }
-
-        Log.d("Final Url: ",encodedUrl.toString());
-        return encodedUrl;
-
-
     }
 
 }

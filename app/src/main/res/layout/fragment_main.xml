@@ -43,7 +43,7 @@
                 android:id="@+id/path_view"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="0.8"
+                android:layout_weight="0.9"
                 android:gravity="bottom"
                 android:orientation="horizontal"
                 android:visibility="visible">
@@ -190,6 +190,7 @@
                     android:id="@+id/list_recycleriew"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
+                    android:layout_marginTop="4dp"
                     android:layout_weight="1.6"
                     android:scrollbars="none"
                     android:visibility="gone">
@@ -201,19 +202,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
-                    android:gravity="center_horizontal"
-                    android:layout_marginTop="16dp"
+                    android:gravity="center_horizontal|center_vertical"
                     android:padding="4dp">
 
                     <Button
                         android:id="@+id/vdc_to_local_level"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="40dp"
                         android:background="@drawable/button_style_mapping_result"
                         android:padding="6dp"
                         android:layout_marginStart="10dp"
                         android:text="VDC To LocalLevel"
                         android:textAllCaps="false"
+                        android:textSize="14sp"
                         android:textColor="@color/white" />
                     <Space
                         android:layout_width="35dp"
@@ -222,10 +223,11 @@
                     <Button
                         android:id="@+id/local_level_to_vdc"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="40dp"
                         android:background="@drawable/button_style_mapping_result"
                         android:padding="6dp"
                         android:text="LocalLevel To VDC"
+                        android:textSize="14sp"
                         android:textAllCaps="false"
                         android:textColor="@color/white" />
                 </LinearLayout>
