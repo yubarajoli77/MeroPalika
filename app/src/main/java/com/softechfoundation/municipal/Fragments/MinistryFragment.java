@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.softechfoundation.municipal.Adapters.MinistryCustomAdapter;
+import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.Pojos.MinistryPojo;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
@@ -58,7 +59,7 @@ private View loading;
     private void executePorcess() {
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url ="http://103.198.9.242:8080/locallevel/rest/ministry";
+        String url = CommonUrl.BaseUrl+"ministry";
 
         final List<MinistryPojo> ministryPojoList=new ArrayList<>();
         CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {

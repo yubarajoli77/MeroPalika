@@ -56,34 +56,34 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
         final ServicePojo currentService=dataItem.get(position);
         holder.name.setText(currentService.getName());
         holder.address.setText(currentService.getAddress());
-//        if(currentService.getPhone().equals("")){
-//            holder.call.setVisibility(View.GONE);
-//        }
-//        if(currentService.getPhone() == null){
-//            holder.call.setVisibility(View.GONE);
-//        }
+        if(currentService.getPhone().equals("")){
+            holder.call.setVisibility(View.GONE);
+        }
+        if(currentService.getPhone() == null){
+            holder.call.setVisibility(View.GONE);
+        }
         if(currentService.getInfo()!=null){
             holder.info.setText(currentService.getInfo());
         } else {
             holder.info.setVisibility(View.GONE);
         }
-//        holder.call.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                callNumber(currentService.getPhone());
-//            }
-//        });
-//
-//        holder.location.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent=new Intent(getContext(), ShowItemInMap.class);
-//                intent.putExtra("location",currentService.getAddress());
-//                intent.putExtra("name",currentService.getName());
-//
-//                getContext().startActivity(intent);
-//            }
-//        });
+        holder.call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callNumber(currentService.getPhone());
+            }
+        });
+
+        holder.location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getContext(), ShowItemInMap.class);
+                intent.putExtra("location",currentService.getAddress());
+                intent.putExtra("name",currentService.getName());
+
+                getContext().startActivity(intent);
+            }
+        });
 
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,8 +110,8 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
             super(itemView);
             name=itemView.findViewById(R.id.service_list_list_name);
             address=itemView.findViewById(R.id.service_list_list_address);
-//            location=itemView.findViewById(R.id.service_list_location);
-//            call=itemView.findViewById(R.id.service_list_phone);
+            location=itemView.findViewById(R.id.service_list_location);
+            call=itemView.findViewById(R.id.service_list_phone);
             info=itemView.findViewById(R.id.service_list_list_info);
             cardView=itemView.findViewById(R.id.service_card_view);
         }

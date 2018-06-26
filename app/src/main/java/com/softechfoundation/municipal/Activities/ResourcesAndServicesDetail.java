@@ -18,17 +18,23 @@ import com.softechfoundation.municipal.Pojos.RSImageGalleryPojo;
 import com.softechfoundation.municipal.R;
 
 public class ResourcesAndServicesDetail extends AppCompatActivity {
-    private TextView name;
+    private TextView name,description,more;
     private ImageView address,phone;
+    private boolean isExpanded;
+    private View longDescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resources_and_services_detail);
 
+
         name=findViewById(R.id.rs_detail_name);
         address=findViewById(R.id.rs_detail_location);
         phone=findViewById(R.id.rs_detail_call);
+        description=findViewById(R.id.rs_description);
+        more=findViewById(R.id.rs_more_expand);
+        longDescription=findViewById(R.id.rs_long_description);
 
         Intent intent=getIntent();
         final String rsName=intent.getStringExtra("name");
@@ -68,6 +74,23 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
         });
 
 
+        more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isExpanded){
+                    longDescription.setVisibility(View.VISIBLE);
+                    more.setText("Less...");
+                    isExpanded=true;
+                }
+                else if(isExpanded){
+                    longDescription.setVisibility(View.GONE);
+                    more.setText("More...");
+                    isExpanded=false;
+                }
+            }
+        });
+
+
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 3);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_images);
         recyclerView.setHasFixedSize(true);
@@ -101,7 +124,9 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
         }
     }
 
-
-    //ImageGallery Adapter
-
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 }

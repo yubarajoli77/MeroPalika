@@ -30,7 +30,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -38,15 +46,26 @@ import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.softechfoundation.municipal.BuildConfig;
+import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.Fragments.HomeFragment;
 import com.softechfoundation.municipal.Fragments.MainFragment;
 import com.softechfoundation.municipal.Fragments.MinistryFragment;
 import com.softechfoundation.municipal.Fragments.SeperateDetailMapFragment;
 import com.softechfoundation.municipal.Fragments.StateFragment;
 import com.softechfoundation.municipal.R;
+import com.softechfoundation.municipal.VolleyCache.CacheRequest;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+
+import static com.android.volley.Request.Method.GET;
 
 public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitListener {
     private static final int ACT_CHECK_TTS_DATA = 1001;
@@ -57,6 +76,7 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
     private boolean isHomeFirstTime = true;
     public static Button readMessage;
     private TextToSpeech tts=null;
+
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
@@ -189,40 +209,65 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
         });
 
 
-        checkAppUpdate();
+        checkAppUpdate("fromAppStart");
 
     }
 
-    private boolean checkAppUpdate() {
-        String latestVersion = getLatestVersion();
-        String currentVersion=getCurrentVersion();
-        Toast.makeText(this, "Current: "+currentVersion+" Latest: "+latestVersion, Toast.LENGTH_SHORT).show();
-        if(Float.valueOf(latestVersion)>Float.valueOf(currentVersion)){
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("An Update is Available");
-            builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    //Click button action
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.softechfoundation.municipal")));
-                    dialog.dismiss();
+    private void checkAppUpdate(final String from) {
+        final String currentVersion=getCurrentVersion();
+        final String[] latestVersion = new String[1];
+        //Start Caching
+        String url = CommonUrl.BaseUrl2+"versions";
+        Log.d("VersionURL: ",url);
+        final RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                latestVersion[0] = response;
+                Log.d("latestVersion::", latestVersion[0]);
+
+                if(Float.valueOf(latestVersion[0])>Float.valueOf(currentVersion)){
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(MainPage.this);
+                    builder.setTitle("An Update is Available");
+                    builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //Click button action
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.softechfoundation.municipal")));
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //Cancel button action
+                        }
+                    });
+
+                    builder.setCancelable(false);
+                    builder.show();
+                    return;
                 }
-            });
-
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    //Cancel button action
+                if("fromMenu".equals(from)){
+                    Toast.makeText(MainPage.this, "Mero Palika is upto date", Toast.LENGTH_SHORT).show();
                 }
-            });
 
-            builder.setCancelable(false);
-            builder.show();
-            return true;
+                requestQueue.stop();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                requestQueue.stop();
+            }
+        });
 
-        }else{
-            return false;
-        }
+        int socketTimeout = 300;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        stringRequest.setRetryPolicy(policy);
+        requestQueue.add(stringRequest);
     }
 
     @Override
@@ -614,9 +659,7 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
             startActivity(intent);
         }
         if(id==R.id.check_update){
-            if(!checkAppUpdate()){
-                Toast.makeText(this, "Mero Palika is Upto date", Toast.LENGTH_SHORT).show();
-            }
+            checkAppUpdate("fromMenu");
         }
         return super.onOptionsItemSelected(item);
     }
@@ -728,8 +771,5 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
 
         return pInfo.versionName;
     }
-    private String getLatestVersion(){
 
-        return "3.0";
-    }
 }

@@ -39,6 +39,9 @@
                 android:layout_below="@+id/circular_card_image_item"
                 android:layout_gravity="center"
                 android:text="State 1"
+                android:layout_marginBottom="6dp"
+                android:textSize="14sp"
+                android:textStyle="bold"
                 android:textColor="@color/black" />
 
         </RelativeLayout>

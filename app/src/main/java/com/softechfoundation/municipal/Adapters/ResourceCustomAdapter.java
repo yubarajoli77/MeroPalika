@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.softechfoundation.municipal.Activities.ListOfServicesAndResources;
 import com.softechfoundation.municipal.Activities.ResourcesAndServicesDetail;
 import com.softechfoundation.municipal.Activities.ShowItemInMap;
-import com.softechfoundation.municipal.Manifest;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.Pojos.ResourcePojo;
 

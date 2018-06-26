@@ -3,7 +3,9 @@ package com.softechfoundation.municipal.Fragments;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +40,12 @@ import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.Volley;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 
@@ -57,17 +65,28 @@ import com.softechfoundation.municipal.Adapters.NewListItemAdapter;
 import com.softechfoundation.municipal.Adapters.OldListItemAdapter;
 import com.softechfoundation.municipal.CheckInternet.CheckInternet;
 import com.softechfoundation.municipal.Activities.MainPage;
+import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.Pojos.ListItem;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 
 import com.softechfoundation.municipal.R;
+import com.softechfoundation.municipal.RecyclerViewOnItemClickListener;
+import com.softechfoundation.municipal.VolleyCache.CacheRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.android.volley.Request.Method.GET;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -78,27 +97,37 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     public MainFragment() {
         // Required empty public constructor
     }
-    private static final String MY_PREFS = "SharedValues";
-    private static String[] stateNames;
+    private String MY_PREFS = "SharedValues";
+    private String[] stateNames;
     private RecyclerView recyclerView;
-    private NewListItemAdapter NewAdapter;
-    private OldListItemAdapter OldAdapter;
-    public static Button stateBtn, districtBtn, vdcBtn,trigger;
-    public static Button readMessage;
-    public static AutoCompleteTextView searchBox;
-    public static TextView catagories;
+    private NewListItemAdapter newAdapter;
+    private OldListItemAdapter oldAdapter;
+    private Button stateBtn, districtBtn, vdcBtn,trigger;
+    private Button readMessage;
+    private AutoCompleteTextView searchBox;
+    private TextView catagories;
     private ArrayAdapter<String> autoComAdapter;
     private Button btnOldVdc, btnMetropolitian, btnSubMetropolitian, btnMunicipality, btnRuralMunicipality;
-    public static Button btnAll;
-    public static HorizontalScrollView horizontalScrollViewMenu;
-    public static View pathView;
+    private  Button btnAll;
+    private HorizontalScrollView horizontalScrollViewMenu;
+    private View pathView;
     private View topDetail;
     private Button vdcToLocalLevel,localLevelToVdc;
     private View mappingOptionView;
-    public static TextView chooseMappingOpt;
-    public static View loadingPlaces;
+    private TextView chooseMappingOpt;
+    private View loadingPlaces;
+    
+    
+    private String globalState, globalDistrict, globalLocalLevel,globalOldVdc;
+    private NewListItemAdapter adapterDistrict, adapterVdc, adapterMetroplitan, adapterAll;
+    private OldListItemAdapter adapterOldVdc;
+    private boolean isLocalToOldClicked=false;
 
-
+    private NewListItemAdapter adapterSubMetropolitan, adapterMunicipal, adapterRuralMunicipal;
+    private StringBuilder stringBuilder = new StringBuilder();
+    private TextToSpeech tts;
+    private int ACT_CHECK_TTS_DATA = 1000;
+    
     private View fragmentMap;
     private GoogleMap mGoogleMap;
     private Marker marker;
@@ -108,7 +137,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     private List<Address> addresses = new ArrayList<>();
 
     private boolean isInfoWindowShown = false;
-    private static final String TAG = MainPage.class.getSimpleName();
+    private String TAG = MainPage.class.getSimpleName();
     static
     {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -392,15 +421,25 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         localLevelToVdc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isLocalToOldClicked=true;
                 mappingOptionView.setVisibility(View.GONE);
                 chooseMappingOpt.setVisibility(View.GONE);
                 searchBox.setEnabled(true);
                 searchBox.setHint("Search States...");
                 pathView.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.VISIBLE);
-                NewAdapter = new NewListItemAdapter(getContext(), getData(), recyclerView);
+                newAdapter = new NewListItemAdapter(getContext(), getData(), recyclerView, new RecyclerViewOnItemClickListener() {
+                    @Override
+                    public void onItemClickListener(int position, View view) {
+                        // MainPage.pathView.setVisibility(View.VISIBLE)
+                        loadingPlaces.setVisibility(View.VISIBLE);
+                        globalState=getData().get(position).getName();
+                        populateDistrictRecyclerView("new");
+                        
+                    }
+                });
                 autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
-                recyclerView.setAdapter(NewAdapter);
+                recyclerView.setAdapter(newAdapter);
                 searchBox.setAdapter(autoComAdapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
             }
@@ -409,15 +448,23 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         vdcToLocalLevel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isLocalToOldClicked=false;
                 mappingOptionView.setVisibility(View.GONE);
                 chooseMappingOpt.setVisibility(View.GONE);
                 searchBox.setEnabled(true);
                 searchBox.setHint("Search States...");
                 pathView.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.VISIBLE);
-                OldAdapter = new OldListItemAdapter(getContext(), getData(), recyclerView);
+                oldAdapter = new OldListItemAdapter(getContext(), getData(), new RecyclerViewOnItemClickListener() {
+                    @Override
+                    public void onItemClickListener(int position, View view) {
+                        globalState=getData().get(position).getName();
+                        loadingPlaces.setVisibility(View.VISIBLE);
+                        populateDistrictRecyclerView("old");
+                    }
+                });
                 autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
-                recyclerView.setAdapter(OldAdapter);
+                recyclerView.setAdapter(oldAdapter);
                 searchBox.setAdapter(autoComAdapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
 
@@ -465,7 +512,11 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         stateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recyclerView.setAdapter(NewAdapter);
+                if(isLocalToOldClicked){
+                    recyclerView.setAdapter(newAdapter);
+                }else{
+                    recyclerView.setAdapter(oldAdapter);
+                }
                 searchBox.setHint("Search States...");
                 stateBtn.setText("States");
                 districtBtn.setVisibility(View.GONE);
@@ -476,13 +527,57 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 horizontalScrollViewMenu.setVisibility(View.GONE);
             }
         });
+
+        districtBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                populateDistrictRecyclerView("old");
+                //Toast.makeText(context, "Inside pathDistrictBtn: "+state, Toast.LENGTH_SHORT).show();
+                catagories.setText("Districts");
+                searchBox.setHint("Search Districts...");
+                stateBtn.setVisibility(View.VISIBLE);
+                districtBtn.setVisibility(View.VISIBLE);
+                districtBtn.setText("Districts");
+                vdcBtn.setVisibility(View.GONE);
+                catagories.setVisibility(View.VISIBLE);
+                horizontalScrollViewMenu.setVisibility(View.GONE);
+            }
+        });
+
+        vdcBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isLocalToOldClicked){
+                    populateLocalLevelRecyclerView();
+                    catagories.setText("Local Levels");
+                    vdcBtn.setText("Local Levels");
+                    searchBox.setHint("Search Local gov");
+                    stateBtn.setVisibility(View.VISIBLE);
+                    stateBtn.setVisibility(View.VISIBLE);
+                    districtBtn.setVisibility(View.VISIBLE);
+                    catagories.setVisibility(View.GONE);
+                    horizontalScrollViewMenu.setVisibility(View.VISIBLE);
+                }else {
+                    populateOldVdcRecyclerView();
+                    catagories.setText("VDCs");
+                    vdcBtn.setText("VDCs");
+                    searchBox.setHint("Search VDCs...");
+                    stateBtn.setVisibility(View.VISIBLE);
+                    stateBtn.setVisibility(View.VISIBLE);
+                    districtBtn.setVisibility(View.VISIBLE);
+                    catagories.setVisibility(View.VISIBLE);
+                    horizontalScrollViewMenu.setVisibility(View.GONE);   
+                }
+            }
+        });
+
         btnAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 SetAllBtnColorToDefault();
                 btnAll.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnAll.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(NewListItemAdapter.adapterAll);
+                recyclerView.setAdapter(adapterAll);
 
                 //scroll the horizontal scroll view programatically with animation and delay
                 final Handler handler = new Handler();
@@ -505,7 +600,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnMetropolitian.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnMetropolitian.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(NewListItemAdapter.adapterMetroplitan);
+                recyclerView.setAdapter(adapterMetroplitan);
             }
         });
         btnSubMetropolitian.setOnClickListener(new View.OnClickListener() {
@@ -514,7 +609,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnSubMetropolitian.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnSubMetropolitian.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(NewListItemAdapter.adapterSubMetropolitan);
+                recyclerView.setAdapter(adapterSubMetropolitan);
             }
         });
 
@@ -524,7 +619,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnMunicipality.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnMunicipality.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(NewListItemAdapter.adapterMunicipal);
+                recyclerView.setAdapter(adapterMunicipal);
             }
         });
         btnRuralMunicipality.setOnClickListener(new View.OnClickListener() {
@@ -533,7 +628,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 SetAllBtnColorToDefault();
                 btnRuralMunicipality.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 btnRuralMunicipality.setTextColor(Color.WHITE);
-                recyclerView.setAdapter(NewListItemAdapter.adapterRuralMunicipal);
+                recyclerView.setAdapter(adapterRuralMunicipal);
             }
         });
 
@@ -563,15 +658,26 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String typedText = s.toString().toLowerCase();
-                List<ListItem> newList = new ArrayList<>();
+                final List<ListItem> newList = new ArrayList<>();
                 for (ListItem list : getData()) {
                     String stateName = list.getName().toLowerCase();
                     if (stateName.contains(typedText)) {
                         newList.add(list);
                     }
                 }
-                NewAdapter = new NewListItemAdapter(getContext(), newList, recyclerView);
-                recyclerView.setAdapter(NewAdapter);
+                newAdapter = new NewListItemAdapter(getContext(), newList, recyclerView, new RecyclerViewOnItemClickListener() {
+                    @Override
+                    public void onItemClickListener(int position, View view) {
+                        globalState=newList.get(position).getName();
+                        loadingPlaces.setVisibility(View.VISIBLE);
+                        if(isLocalToOldClicked){
+                            populateDistrictRecyclerView("new");
+                        }else {
+                            populateDistrictRecyclerView("old");
+                        }
+                    }
+                });
+                recyclerView.setAdapter(newAdapter);
             }
 
             @Override
@@ -640,7 +746,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
     }
 
-    public static List<ListItem> getData() {
+   private List<ListItem> getData() {
         List<ListItem> listItems = new ArrayList<>();
         int[] icons = {R.drawable.state1_logo, R.drawable.state2_logo, R.drawable.state3_logo,
                 R.drawable.state4_logo, R.drawable.state5_logo, R.drawable.state6_logo, R.drawable.state7_logo};
@@ -918,6 +1024,659 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
             Toast.makeText(getContext(), "Internet is not available", Toast.LENGTH_LONG).show();
 
         }
+    }
+
+    
+    
+    
+    private void getOldDetail(final String type) {
+        //Start Caching
+        final RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"vdcs/OldVdcList/",
+                globalLocalLevel);
+
+        CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+
+                    JSONArray localLevelJsonArray = new JSONArray(jsonString);
+                    stringBuilder.setLength(0);
+                    stringBuilder.append(type + " " + globalLocalLevel + " includes following VDCs:\n\n");
+                    for (int i = 0; i < localLevelJsonArray.length(); i++) {
+                        String localLevel;
+                        int j = i + 1;
+                        JSONObject jsonObject1 = localLevelJsonArray.getJSONObject(i);
+                        localLevel = jsonObject1.getString("oldVdc");
+                        stringBuilder.append(j + ". " + localLevel + "\n");
+                    }
+                    showMessage(stringBuilder.toString());
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+        //End of Caching
+
+
+    }
+
+    private void showMessage(String message) {
+        SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences("TTSMessage", MODE_PRIVATE).edit();
+        editor.clear();
+        editor.apply();
+        editor.putString("message", message);
+        editor.apply();
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View dialogView = inflater.inflate(R.layout.mapping_result_custom_design, null);
+        dialogBuilder.setView(dialogView);
+
+        TextView textView = dialogView.findViewById(R.id.mapping_place_result);
+        textView.setText(message);
+        Button okBtn = dialogView.findViewById(R.id.mapping_place_btn);
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimationLeftRight;
+        loadingPlaces.setVisibility(View.GONE);
+        alertDialog.show();
+        MainPage.readMessage.performClick();
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+    }
+
+
+    private void populateLocalLevelRecyclerView() {
+        final String[] allNames, ruralMunicipalNames, municipalNames, metropolitanNames, subMetropolitanNames;
+        // final List<ListItem> vdcList=new ArrayList<>();
+        final List<ListItem> allList = new ArrayList<>();
+        final List<ListItem> metropolitanList = new ArrayList<>();
+        final List<ListItem> subMetropolitanList = new ArrayList<>();
+        final List<ListItem> municipalList = new ArrayList<>();
+        final List<ListItem> ruralMunicipalList = new ArrayList<>();
+
+        searchBox.setHint("Search Local gov");
+        searchBox.setText("");
+        catagories.setText("VDCs");
+        catagories.setVisibility(View.GONE);
+        horizontalScrollViewMenu.setVisibility(View.VISIBLE);
+        districtBtn.setText(globalDistrict);
+
+        stateBtn.setVisibility(View.VISIBLE);
+        vdcBtn.setVisibility(View.VISIBLE);
+        vdcBtn.setText("Local Levels");
+        districtBtn.setVisibility(View.VISIBLE);
+
+        //Start Caching
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/localLevel/",
+                globalDistrict);
+
+
+        CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    JSONArray ruralMuniJsonArray = jsonObject.getJSONArray("ruralMunicipal");
+                    JSONArray municipalJsonArray = jsonObject.getJSONArray("municipal");
+                    JSONArray metropolitanJsonArray = jsonObject.getJSONArray("metropolitan");
+                    JSONArray subMetropolitanJsonArray = jsonObject.getJSONArray("subMetropolitan");
+
+                    //Removing duplication of data from cache
+                    allList.clear();
+                    ruralMunicipalList.clear();
+                    municipalList.clear();
+                    subMetropolitanList.clear();
+                    metropolitanList.clear();
+
+                    //for ruralMunicipal
+                    for (int i = 0; i < ruralMuniJsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = ruralMuniJsonArray.getJSONObject(i);
+                        String vdcName = jsonObject1.getString("ruralMunicipal");
+                        listItem.setName(vdcName);
+                        listItem.setIcon(R.drawable.rural_municipal);
+                        listItem.setType("ruralMunicipal");
+                        ruralMunicipalList.add(listItem);
+                        allList.add(listItem);
+                    }
+                    adapterRuralMunicipal = new NewListItemAdapter(getContext(), ruralMunicipalList, recyclerView, new RecyclerViewOnItemClickListener() {
+                        @Override
+                        public void onItemClickListener(int position, View view) {
+                            clickLocalLevelMenu("RuralMunicipal",ruralMunicipalList.get(position));
+                        }
+                    });
+                    //for municipal
+                    for (int i = 0; i < municipalJsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = municipalJsonArray.getJSONObject(i);
+                        String municipalName = jsonObject1.getString("municipal");
+                        listItem.setName(municipalName);
+                        listItem.setIcon(R.drawable.municipal);
+                        listItem.setType("municipal");
+                        municipalList.add(listItem);
+                        allList.add(listItem);
+                    }
+                    adapterMunicipal = new NewListItemAdapter(getContext(), municipalList, recyclerView, new RecyclerViewOnItemClickListener() {
+                        @Override
+                        public void onItemClickListener(int position, View view) { 
+                            clickLocalLevelMenu("municipal",municipalList.get(position));
+                        }
+                    });
+                    //for metropolitan
+                    for (int i = 0; i < metropolitanJsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = metropolitanJsonArray.getJSONObject(i);
+                        String metropolitanName = jsonObject1.getString("metropolitan");
+                        listItem.setName(metropolitanName);
+                        listItem.setIcon(R.drawable.metropolitan);
+                        listItem.setType("metropolitan");
+                        metropolitanList.add(listItem);
+                        allList.add(listItem);
+                    }
+                    adapterMetroplitan = new NewListItemAdapter(getContext(), metropolitanList, recyclerView, new RecyclerViewOnItemClickListener() {
+                        @Override
+                        public void onItemClickListener(int position, View view) {
+                            clickLocalLevelMenu("metropolitan",metropolitanList.get(position));
+                        }
+                    });
+                    //for subMetropolitan
+                    for (int i = 0; i < subMetropolitanJsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = subMetropolitanJsonArray.getJSONObject(i);
+                        String subMetropolitanName = jsonObject1.getString("subMetropolitan");
+                        listItem.setName(subMetropolitanName);
+                        listItem.setIcon(R.drawable.sub_metropolitan);
+                        listItem.setType("subMetropolitan");
+                        subMetropolitanList.add(listItem);
+                        allList.add(listItem);
+                    }
+                    adapterSubMetropolitan = new NewListItemAdapter(getContext(), subMetropolitanList, recyclerView, new RecyclerViewOnItemClickListener() {
+                        @Override
+                        public void onItemClickListener(int position, View view) {
+                                clickLocalLevelMenu("subMetropolitan",subMetropolitanList.get(position));
+                        }
+                    });
+
+                    adapterAll = new NewListItemAdapter(getContext(), allList, recyclerView, new RecyclerViewOnItemClickListener() {
+                        @Override
+                        public void onItemClickListener(int position, View view) {
+                            clickLocalLevelMenu(allList.get(position).getType(),ruralMunicipalList.get(position));
+                        }
+                    });
+                    loadingPlaces.setVisibility(View.GONE);
+                    recyclerView.setAdapter(adapterAll);
+                    btnAll.performClick();
+
+                    //mainPageToSetAdapter.setAdapters(adapterAll,adapterMetroplitan,adapterSubMetropolitan,adapterMunicipal,adapterRuralMunicipal);
+
+                    //Toast.makeText(getContext(), "onResponse:\n\n" + jsonObject.toString(), Toast.LENGTH_SHORT).show();
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                loadingPlaces.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "No value in district Adapter", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+
+        allNames = new String[allList.size()];
+        int j = 0;
+        for (ListItem names : allList) {
+            allNames[j] = names.getName();
+            j++;
+        }
+
+        final ArrayAdapter<String> autoComAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, allNames);
+        searchBox.setAdapter(autoComAdapter);
+        searchBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String typedText = s.toString().toLowerCase();
+                final List<ListItem> newList = new ArrayList<>();
+                for (ListItem list : allList) {
+                    String stateName = list.getName().toLowerCase();
+                    if (stateName.contains(typedText)) {
+                        newList.add(list);
+                    }
+                }
+                NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView, new RecyclerViewOnItemClickListener() {
+                    @Override
+                    public void onItemClickListener(int position, View view) {
+                        clickLocalLevelMenu(newList.get(position).getType(),ruralMunicipalList.get(position));
+
+                    }
+                });
+                recyclerView.setAdapter(filteredAdapter);
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+
+    private void populateDistrictRecyclerView(final String choice) {
+        final String[] districtNames;
+        final List<ListItem> districtList = new ArrayList<>();
+
+        searchBox.setHint("Search District");
+        searchBox.setText("");
+        catagories.setText("Districts");
+        stateBtn.setText(globalState);
+
+        stateBtn.setVisibility(View.VISIBLE);
+        vdcBtn.setVisibility(View.GONE);
+        districtBtn.setText("Districts");
+        districtBtn.setVisibility(View.VISIBLE);
+
+        //Start Caching
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/state/",
+                globalState);
+
+        CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    //JSONObject jsonObject = new JSONObject(jsonString);
+                    JSONArray jsonArray = new JSONArray(jsonString);
+                    districtList.clear();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                        String districtName = jsonObject1.getString("district");
+                        listItem.setName(districtName);
+                        listItem.setIcon(R.drawable.district);
+                        listItem.setType("district");
+
+                        districtList.add(listItem);
+                    }
+
+
+                    adapterDistrict = new NewListItemAdapter(getContext(), districtList, recyclerView, new RecyclerViewOnItemClickListener() {
+                        @Override
+                        public void onItemClickListener(int position, View view) {
+                            ListItem listItem= districtList.get(position);
+                            globalDistrict = listItem.getName();
+
+                            String location = globalDistrict + ", " + "Nepal";
+                            // findPlace(location,context);
+                            SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
+                            editor.clear();
+                            editor.apply();
+                            editor.putString("location", location);
+                            editor.apply();
+                            trigger.performClick();
+                            if(choice.equals("new")){
+                                populateLocalLevelRecyclerView();
+
+                            }else if("old".equals(choice)){
+                                populateOldVdcRecyclerView();
+                            }
+                        }
+                    });
+
+                    if (adapterDistrict != null) {
+                        loadingPlaces.setVisibility(View.GONE);
+                        recyclerView.setAdapter(adapterDistrict);
+                    } else {
+                        loadingPlaces.setVisibility(View.GONE);
+                        Toast.makeText(getContext(), "No value in district Adapter", Toast.LENGTH_SHORT).show();
+                    }
+
+
+                    //Toast.makeText(getContext(), "onResponse:\n\n" + jsonObject.toString(), Toast.LENGTH_SHORT).show();
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                loadingPlaces.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "No Internet Available", Toast.LENGTH_SHORT).show();
+
+                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+
+
+        districtNames = new String[districtList.size()];
+        int j = 0;
+        for (ListItem names : districtList) {
+            districtNames[j] = names.getName();
+            j++;
+        }
+        final ArrayAdapter<String> autoComAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, districtNames);
+        searchBox.setAdapter(autoComAdapter);
+
+//        adapterDistrict = new NewListItemAdapter(getContext(), districtList, recyclerView);
+//        recyclerView.setAdapter(adapterDistrict);
+
+        searchBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String typedText = s.toString().toLowerCase();
+                List<ListItem> newList = new ArrayList<>();
+                for (ListItem list : districtList) {
+                    String stateName = list.getName().toLowerCase();
+                    if (stateName.contains(typedText)) {
+                        newList.add(list);
+                    }
+                }
+                NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView, new RecyclerViewOnItemClickListener() {
+                    @Override
+                    public void onItemClickListener(int position, View view) {
+                        ListItem listItem= districtList.get(position);
+                        globalDistrict = listItem.getName();
+
+                        String location = globalDistrict + ", " + "Nepal";
+                        // findPlace(location,context);
+                        SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
+                        editor.clear();
+                        editor.apply();
+                        editor.putString("location", location);
+                        editor.apply();
+                        trigger.performClick();
+                        populateLocalLevelRecyclerView();
+                    }
+                });
+                recyclerView.setAdapter(filteredAdapter);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+    private void clickLocalLevelMenu(String type,ListItem currentItem) {
+        globalLocalLevel = currentItem.getName();
+        stateBtn.setVisibility(View.VISIBLE);
+        vdcBtn.setVisibility(View.VISIBLE);
+        districtBtn.setVisibility(View.VISIBLE);
+        vdcBtn.setText(currentItem.getName());
+        catagories.setText("VDCs");
+
+        String location = globalDistrict + ", " + globalLocalLevel + ", " + "Nepal";
+        SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
+
+        editor.clear();
+        editor.apply();
+        editor.putString("location", location);
+        editor.apply();
+        editor.commit();
+        trigger.performClick();
+
+        getOldDetail(type);
+    }
+    private void populateOldVdcRecyclerView() {
+        final String[] oldVdcNames;
+        final List<ListItem>oldVdcList=new ArrayList<>();
+
+       stateBtn.setVisibility(View.VISIBLE);
+       vdcBtn.setVisibility(View.VISIBLE);
+       vdcBtn.setText("VDCs");
+       districtBtn.setVisibility(View.VISIBLE);
+       districtBtn.setText(globalDistrict);
+       searchBox.setHint("Search VDCs");
+       catagories.setText("VDCs");
+
+        //Start Caching
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"vdcs/district/",
+                globalDistrict);
+
+
+        CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    // JSONObject jsonObject = new JSONObject(jsonString);
+                    // JSONArray oldVdcJsonArray = jsonObject.getJSONArray("oldVdcs");
+                    JSONArray oldVdcJsonArray = new JSONArray(jsonString);
+                    //Removing duplication of data from cache
+                    oldVdcList.clear();
+
+                    for (int i = 0; i < oldVdcJsonArray.length(); i++) {
+                        ListItem listItem=new ListItem();
+                        JSONObject jsonObject1 = oldVdcJsonArray.getJSONObject(i);
+                        String vdcName = jsonObject1.getString("oldVdc");
+                        listItem.setName(vdcName);
+                        listItem.setIcon(R.drawable.rural_municipal);
+                        listItem.setType("oldVdc");
+                        oldVdcList.add(listItem);
+                    }
+                    adapterOldVdc=new OldListItemAdapter(getContext(), oldVdcList, new RecyclerViewOnItemClickListener() {
+                        @Override
+                        public void onItemClickListener(int position, View view) {
+                            globalOldVdc=oldVdcList.get(position).getName();
+                            stateBtn.setVisibility(View.VISIBLE);
+                            vdcBtn.setVisibility(View.VISIBLE);
+                            districtBtn.setVisibility(View.VISIBLE);
+                            vdcBtn.setText(oldVdcList.get(position).getName());
+                            catagories.setText("VDCs");
+
+                            String location = globalDistrict + ", "+ globalOldVdc+ ", " + "Nepal";
+                            SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
+                            editor.clear();
+                            editor.apply();
+                            editor.putString("location", location);
+                            editor.apply();
+                            editor.commit();
+                            trigger.performClick();
+                            getNewDetail();
+                        }
+                    });
+                    loadingPlaces.setVisibility(View.GONE);
+                    recyclerView.setAdapter(adapterOldVdc);
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+
+        oldVdcNames= new String[oldVdcList.size()];
+        int j = 0;
+        for (ListItem names : oldVdcList) {
+            oldVdcNames[j] = names.getName();
+            j++;
+        }
+
+        final ArrayAdapter<String> autoComAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, oldVdcNames);
+        searchBox.setAdapter(autoComAdapter);
+        searchBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String typedText = s.toString().toLowerCase();
+                List<ListItem> newList = new ArrayList<>();
+                for (ListItem list : oldVdcList) {
+                    String stateName = list.getName().toLowerCase();
+                    if (stateName.contains(typedText)) {
+                        newList.add(list);
+                    }
+                }
+                OldListItemAdapter filteredAdapter = new OldListItemAdapter(getContext(), newList, new RecyclerViewOnItemClickListener() {
+                    @Override
+                    public void onItemClickListener(int position, View view) {
+                        globalOldVdc=oldVdcList.get(position).getName();
+                        stateBtn.setVisibility(View.VISIBLE);
+                        vdcBtn.setVisibility(View.VISIBLE);
+                        districtBtn.setVisibility(View.VISIBLE);
+                        vdcBtn.setText(oldVdcList.get(position).getName());
+                        catagories.setText("VDCs");
+
+                        String location = globalDistrict + ", "+ globalOldVdc+ ", " + "Nepal";
+                        SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
+                        editor.clear();
+                        editor.apply();
+                        editor.putString("location", location);
+                        editor.apply();
+                        editor.commit();
+                        trigger.performClick();
+                        getNewDetail();
+                    }
+                });
+                if(null != filteredAdapter){
+                    recyclerView.setAdapter(filteredAdapter);
+                }else {
+                    recyclerView.setAdapter(adapterDistrict);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+    private void getNewDetail() {
+        //Start Caching
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"vdcs/oldVdc/",
+                globalOldVdc);
+
+
+        CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+
+                    JSONArray localLevelJsonArray = new JSONArray(jsonString);
+
+                    //Removing duplication of data from cache
+                    stringBuilder.setLength(0);
+                    stringBuilder.append(globalOldVdc+" VDC"+" lies on\n\n");
+                    for (int i = 0; i < localLevelJsonArray.length(); i++) {
+                        String localLevel,type;
+                        JSONObject jsonObject1 = localLevelJsonArray.getJSONObject(i);
+                        localLevel = jsonObject1.getString("newVdc");
+                        type = jsonObject1.getString("localLevelType");
+                        stringBuilder.append(localLevel+" "+type+"\n");
+                        showMessage(stringBuilder.toString());
+                    }
+
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+    }
+
+    private String makeFinalUrl(String baseUrl, String param) {
+        String parameter = param;
+        String urlWithParameter = null;
+        String encodedUrl = null;
+        if (param != null) {
+            if (param.contains(" ")) {
+
+                parameter = param.replaceAll(" ", "%20");
+            }
+            try {
+                urlWithParameter = baseUrl + java.net.URLEncoder.encode(parameter, "UTF-8");
+                Log.d("Pre URL::", urlWithParameter);
+                urlWithParameter = urlWithParameter.replaceAll("%2520", "%20");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            try {
+                URL URL = new URL(urlWithParameter);
+                encodedUrl = String.valueOf(URL);
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            URL URL = null;
+            try {
+                URL = new URL(baseUrl);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            encodedUrl = String.valueOf(URL);
+        }
+
+        Log.d("Final Url: ", encodedUrl.toString());
+        return encodedUrl;
+
+
     }
 
 }
