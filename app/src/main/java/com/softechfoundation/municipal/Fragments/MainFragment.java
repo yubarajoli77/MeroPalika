@@ -470,44 +470,6 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
             }
         });
-//        //Ask user to choose place mapping
-//        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-//        LayoutInflater inflater = LayoutInflater.from(getActivity());
-//        View dialogView = inflater.inflate(R.layout.choose_place_dialog, null);
-//        dialogBuilder.setView(dialogView);
-//
-//        Button oldToNew=dialogView.findViewById(R.id.old_to_new_btn);
-//        Button newToOld=dialogView.findViewById(R.id.new_to_old_btn);
-//
-//        final AlertDialog alertDialog = dialogBuilder.create();
-//        alertDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimationUpBottom;
-//        alertDialog.show();
-//        alertDialog.setCancelable(true);
-//        oldToNew.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                alertDialog.dismiss();
-//                OldAdapter = new OldListItemAdapter(getContext(), getData(), recyclerView);
-//                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
-//                recyclerView.setAdapter(OldAdapter);
-//                searchBox.setAdapter(autoComAdapter);
-//                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
-//            }
-//        });
-//        newToOld.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                alertDialog.dismiss();
-//                NewAdapter = new NewListItemAdapter(getContext(), getData(), recyclerView);
-//                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
-//                recyclerView.setAdapter(NewAdapter);
-//                searchBox.setAdapter(autoComAdapter);
-//                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
-//
-//            }
-//        });
-
 
         stateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -693,38 +655,6 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
             }
         });
-
-
-
-
-//        //Start Caching
-//        RequestQueue queue = Volley.newRequestQueue(this);
-//        String url = "https://jsonplaceholder.typicode.com/posts/1";
-//
-//        CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
-//            @Override
-//            public void onResponse(NetworkResponse response) {
-//                try {
-//                    final String jsonString = new String(response.data,
-//                            HttpHeaderParser.parseCharset(response.headers));
-//                    JSONObject jsonObject = new JSONObject(jsonString);
-//                   // textView.setText(jsonObject.toString(5));
-//                    Toast.makeText(MainPage.this, "onResponse:\n\n" + jsonObject.toString(), Toast.LENGTH_SHORT).show();
-//                } catch (UnsupportedEncodingException | JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Toast.makeText(MainPage.this, "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        // Add the request to the RequestQueue.
-//        queue.add(cacheRequest);
-//
-//    //End of Caching
 
     }
 
@@ -1026,9 +956,6 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
-    
-    
-    
     private void getOldDetail(final String type) {
         //Start Caching
         final RequestQueue queue = Volley.newRequestQueue(getContext());
@@ -1098,7 +1025,6 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
             }
         });
     }
-
 
     private void populateLocalLevelRecyclerView() {
         final String[] allNames, ruralMunicipalNames, municipalNames, metropolitanNames, subMetropolitanNames;
@@ -1289,7 +1215,6 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         });
     }
 
-
     private void populateDistrictRecyclerView(final String choice) {
         final String[] districtNames;
         final List<ListItem> districtList = new ArrayList<>();
@@ -1458,6 +1383,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
         getOldDetail(type);
     }
+
     private void populateOldVdcRecyclerView() {
         final String[] oldVdcNames;
         final List<ListItem>oldVdcList=new ArrayList<>();
@@ -1595,6 +1521,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
             }
         });
     }
+
     private void getNewDetail() {
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());

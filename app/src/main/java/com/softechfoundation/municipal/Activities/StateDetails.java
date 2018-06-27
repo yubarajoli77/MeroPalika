@@ -1,17 +1,21 @@
 package com.softechfoundation.municipal.Activities;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Interpolator;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,6 +34,8 @@ import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.Fragments.MainFragment;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.R;
+import com.softechfoundation.municipal.RecyclerViewOnItemClickListener;
+import com.softechfoundation.municipal.SpeedyLinearLayoutManager;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
 
 import org.json.JSONArray;
@@ -47,20 +53,26 @@ import java.util.Locale;
 
 import static com.android.volley.Request.Method.GET;
 
-public class StateDetails extends AppCompatActivity implements View.OnClickListener {
+public class StateDetails extends AppCompatActivity {
     private LinearLayout naturalResources, infrastructure, mainAttraction, urgentServices, avaliableContacts;
-    public static TextView stateName, capitalName, area, population, density, governer, chiefMinister, website, chiefMinisterLabel, capitalCityLabel;
-    public static CollapsingToolbarLayout collapsingToolbarLayout;
+    private TextView stateName, capitalName, area, population, density, governer, chiefMinister, website, chiefMinisterLabel, capitalCityLabel;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
     private RecyclerView filterRecyclerview;
     private FilterCustomAdapter adapter;
-    public static TextView filterRviewTitle, filterBackButton;
+    private TextView filterRviewTitle, filterBackButton;
     private ImageView filterOnOff;
-    public static View filterLoading;
+    private View filterLoading;
     private boolean isFilterExpand = false;
+    private String whereToJumpOnFilterBackBtn="state";
     private static final String MY_PREFS = "districtOrPalika";
     private String gorvernerName, websiteName, state, capitalCity, areaValue, populationValue, densityValue, chiefMinisterName;
-    public static String selectedFilter,selectedFilterType;
+    private String selectedFilter,selectedFilterType;
 
+
+    public static String globalState, globalDistrict, globalLocalLevel;
+    private StringBuilder stringBuilder = new StringBuilder();
+    private FilterCustomAdapter adapterDistrict, adapterVdc, adapterMetroplitan, adapterAll, adapterOldVdc;
+    private FilterCustomAdapter adapterSubMetropolitan, adapterMunicipal, adapterRuralMunicipal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,12 +102,11 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
         urgentServices = findViewById(R.id.urgent_services_layout);
 
         filterRecyclerview = findViewById(R.id.filter_recycleriew);
-        filterRecyclerview.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        filterRecyclerview.setLayoutManager(new SpeedyLinearLayoutManager(this, SpeedyLinearLayoutManager.HORIZONTAL, false));
         filterRviewTitle = findViewById(R.id.filter_recyclerview_title);
         filterBackButton = findViewById(R.id.filter_back);
         filterLoading = findViewById(R.id.dotted_filter_loading);
         filterOnOff = findViewById(R.id.filter_on_off);
-
 
         Intent intentGetValue = getIntent();
         gorvernerName = intentGetValue.getStringExtra("governer");
@@ -109,14 +120,14 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
         selectedFilter=state;
         selectedFilterType="state";
         showStateDetail();
-
+        expandOrHideFilter();
 //        getSupportActionBar().setTitle("Detail about"+" "+state);
 
 
         naturalResources.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "RESOURCES");
                 intent.putExtra("state", state);
                 intent.putExtra("selectedFilter",selectedFilter);
@@ -129,7 +140,7 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
         infrastructure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "INFRASTRUCTURES");
                 intent.putExtra("state", state);
                 intent.putExtra("selectedFilter",selectedFilter);
@@ -141,7 +152,7 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
         urgentServices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "URGENTSERVICES");
                 intent.putExtra("state", state);
                 intent.putExtra("selectedFilter",selectedFilter);
@@ -153,7 +164,7 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
         mainAttraction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "MAINATTRACTIONS");
                 intent.putExtra("state", state);
                 intent.putExtra("selectedFilter",selectedFilter);
@@ -165,7 +176,7 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
         avaliableContacts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(StateDetails.this, ListOfServicesAndResources.class);
+                Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "AVALIABLECONTACTS");
                 intent.putExtra("state", state);
                 intent.putExtra("selectedFilter",selectedFilter);
@@ -177,12 +188,24 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
         filterBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filterRviewTitle.setText("Districts");
-                getDistricts(state);
-                selectedFilterType="state";
-                selectedFilter=state;
-                showStateDetail();
-                filterBackButton.setVisibility(View.GONE);
+
+                if("district".equals(whereToJumpOnFilterBackBtn)){
+                    filterRviewTitle.setText("Filter information by Districts");
+                    getDistricts(state);
+                    selectedFilterType="district";
+                    selectedFilter=state;
+                    showStateDetail();
+                    filterBackButton.setVisibility(View.GONE);
+                }else if("palika".equals(whereToJumpOnFilterBackBtn)){
+                    filterRviewTitle.setText("Filter information by LocalLevel");
+                    whereToJumpOnFilterBackBtn="district";
+                    populateLocalLevelRecyclerView();
+                    selectedFilterType="district";
+                    selectedFilter=state;
+                    showDistrictDetail(globalDistrict);
+                    filterBackButton.setVisibility(View.VISIBLE);
+                }
+
             }
         });
 
@@ -207,7 +230,7 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
             isFilterExpand = true;
             filterRecyclerview.setVisibility(View.VISIBLE);
             getDistricts(state);
-            filterRviewTitle.setText("Districts");
+            filterRviewTitle.setText("Filter information by Districts");
             return;
         }
         if (isFilterExpand) {
@@ -234,9 +257,11 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
         chiefMinisterLabel.setText("(Chief Minister)");
         collapsingToolbarLayout.setTitle("Detail about" + " " + state);
         collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(R.color.white));
+
     }
 
     private void getDistricts(String state) {
+        whereToJumpOnFilterBackBtn="state";
         //Start Caching
         filterLoading.setVisibility(View.VISIBLE);
         final List<ListItem> districtList = new ArrayList<>(Collections.<ListItem>emptyList());
@@ -264,7 +289,91 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
                         districtList.add(listItem);
                     }
 
-                    adapter = new FilterCustomAdapter(StateDetails.this, districtList, filterRecyclerview);
+                    adapter = new FilterCustomAdapter(getApplicationContext(), districtList, new RecyclerViewOnItemClickListener() {
+                        @Override
+                        public void onItemClickListener(int position, View view) {
+                            filterBackButton.setVisibility(View.VISIBLE);
+                            filterLoading.setVisibility(View.VISIBLE);
+                           
+                                filterRviewTitle.setText("Filter info by Local Levels");
+                                globalDistrict = districtList.get(position).getName();
+                                selectedFilter=globalDistrict;
+                                selectedFilterType=districtList.get(position).getType();
+                                showDistrictDetail(globalDistrict);
+                                populateLocalLevelRecyclerView();
+
+                        }
+                    });
+                    filterLoading.setVisibility(View.GONE);
+                    filterRecyclerview.setAdapter(adapter);
+                    filterRecyclerview.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            filterRecyclerview.smoothScrollToPosition(adapter.getItemCount()-3);
+                        }
+                    });
+
+
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                filterLoading.setVisibility(View.GONE);
+                Toast.makeText(getApplicationContext(), "No Internet Available", Toast.LENGTH_SHORT).show();
+
+                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+    }
+
+    private void getWards(String palika) {
+        whereToJumpOnFilterBackBtn="palika";
+        final List<ListItem> wardList=new ArrayList<>();
+        //Start Caching
+        filterLoading.setVisibility(View.VISIBLE);
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl2 + "locallevels/",
+                palika);
+
+        CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    JSONArray jsonArray = jsonObject.getJSONArray("wardNo");
+                    wardList.clear();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                        String wardName = jsonObject1.getString("wardNo");
+                        listItem.setName(wardName);
+                        listItem.setIcon(R.drawable.district);
+                        listItem.setType("ward");
+                        wardList.add(listItem);
+                    }
+
+                    adapter = new FilterCustomAdapter(getApplicationContext(), wardList,
+                            new RecyclerViewOnItemClickListener() {
+                                @Override
+                                public void onItemClickListener(int position, View view) {
+                                    ListItem item=wardList.get(position);
+                                    selectedFilter=item.getName();
+                                    selectedFilterType=item.getName();
+                                    Toast.makeText(StateDetails.this, "Ward "+item.getName()+" is successfully selected and\nServices and Resources are filtered", Toast.LENGTH_LONG).show();
+//                                    showWardDetail(item.getName());
+
+                                }
+                            });
                     filterLoading.setVisibility(View.GONE);
                     filterRecyclerview.setAdapter(adapter);
 
@@ -276,9 +385,8 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onErrorResponse(VolleyError error) {
                 filterLoading.setVisibility(View.GONE);
-                Toast.makeText(StateDetails.this, "No Internet Available", Toast.LENGTH_SHORT).show();
-
-                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+                Log.d("WardGettingError::",error.toString());
+                Toast.makeText(getApplicationContext(), "No response from Server", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -292,6 +400,316 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+
+    private void showWardDetail(final String name) {
+        //Start Caching
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl2+"locallevels/",
+                name);
+
+        CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    JSONObject jsonObject = new JSONObject(jsonString);
+
+                    String chairMan = jsonObject.getString("chairmen");
+                    String chairManContact=jsonObject.getString("chairmenContact");
+                    String chairManEmail=jsonObject.getString("chairmenEmail");
+                    String viceChairMan=jsonObject.getString("viceChairmen");
+                    String viceChairManContact=jsonObject.getString("viceChairmenContact");
+                    String viceChairManEmail=jsonObject.getString("viceChairmenEmail");
+                    String palikaArea=jsonObject.getString("area");
+                    String palikaPopulation =jsonObject.getString("population");
+                    String website=jsonObject.getString("website");
+                    String palikaDensity=jsonObject.getString("density");
+                    String localLevelType=jsonObject.getString("localLevelType");
+
+
+
+                    stateName.setText(name);
+                    chiefMinisterLabel.setVisibility(View.VISIBLE);
+                    chiefMinister.setVisibility(View.VISIBLE);
+                    if("RURAL".equals(localLevelType)){
+                        capitalCityLabel.setText("(Chairman)");
+                        chiefMinisterLabel.setText(" (Vice-Chairman)");
+                    }else{
+                        capitalCityLabel.setText("(Mayor)");
+                        chiefMinisterLabel.setText(" (Deputy-Mayor)");
+                    }
+                    capitalName.setText(chairMan);
+                    chiefMinister.setText(viceChairMan);
+                    area.setText(palikaArea);
+                    population.setText(palikaPopulation);
+                    density.setText(palikaDensity);
+                    collapsingToolbarLayout.setTitle("Detail about" + " " + name);
+                    collapsingToolbarLayout.setExpandedTitleColor(getApplicationContext().getResources().getColor(R.color.white));
+                    filterLoading.setVisibility(View.GONE);
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "No Internet Available", Toast.LENGTH_SHORT).show();
+
+                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+    }
+
+    private void showDistrictDetail(final String globalDistrict) {
+        //Start Caching
+        final List<ListItem> districtList=new ArrayList<>(Collections.<ListItem>emptyList());
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/district/",
+                globalDistrict);
+
+        CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    districtList.clear();
+
+                    String districtArea=jsonObject.getString("area");
+                    String districtPopulation =jsonObject.getString("population");
+                    String districtHeadquater =jsonObject.getString("headquater");
+                    String districtState = jsonObject.getString("state");
+                    String districtPicture=jsonObject.getString("districtPicture");
+
+                    stateName.setText(globalDistrict);
+                    capitalName.setText(districtHeadquater);
+                    capitalCityLabel.setText("(Headquarter)");
+                    chiefMinisterLabel.setVisibility(View.INVISIBLE);
+                    chiefMinister.setVisibility(View.INVISIBLE);
+                    area.setText(districtArea);
+                    population.setText(districtPopulation);
+                    collapsingToolbarLayout.setTitle("Detail about" + " " + globalDistrict);
+                    collapsingToolbarLayout.setExpandedTitleColor(getApplicationContext().getResources().getColor(R.color.white));
+
+
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "No Internet Available", Toast.LENGTH_SHORT).show();
+
+                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+    }
+
+    private void showLocalLevelDetail(final String name) {
+        //Start Caching
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl2+"locallevels/",
+                name);
+
+        CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    JSONObject jsonObject = new JSONObject(jsonString);
+
+                    String chairMan = jsonObject.getString("chairmen");
+                    String chairManContact=jsonObject.getString("chairmenContact");
+                    String chairManEmail=jsonObject.getString("chairmenEmail");
+                    String viceChairMan=jsonObject.getString("viceChairmen");
+                    String viceChairManContact=jsonObject.getString("viceChairmenContact");
+                    String viceChairManEmail=jsonObject.getString("viceChairmenEmail");
+                    String palikaArea=jsonObject.getString("area");
+                    String palikaPopulation =jsonObject.getString("population");
+                    String website=jsonObject.getString("website");
+                    String palikaDensity=jsonObject.getString("density");
+                    String localLevelType=jsonObject.getString("localLevelType");
+
+
+
+                    stateName.setText(name);
+                    chiefMinisterLabel.setVisibility(View.VISIBLE);
+                    chiefMinister.setVisibility(View.VISIBLE);
+                    if("RURAL".equals(localLevelType)){
+                        capitalCityLabel.setText("(Chairman)");
+                        chiefMinisterLabel.setText(" (Vice-Chairman)");
+                    }else{
+                        capitalCityLabel.setText("(Mayor)");
+                        chiefMinisterLabel.setText(" (Deputy-Mayor)");
+                    }
+                    capitalName.setText(chairMan);
+                    chiefMinister.setText(viceChairMan);
+                    area.setText(palikaArea);
+                    population.setText(palikaPopulation);
+                    density.setText(palikaDensity);
+                    collapsingToolbarLayout.setTitle("Detail about" + " " + name);
+                    collapsingToolbarLayout.setExpandedTitleColor(getApplicationContext().getResources().getColor(R.color.white));
+                    filterLoading.setVisibility(View.GONE);
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "No Internet Available", Toast.LENGTH_SHORT).show();
+
+                // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
+    }
+
+    private void populateLocalLevelRecyclerView() {
+        whereToJumpOnFilterBackBtn="district";
+        final String[] allNames, ruralMunicipalNames, municipalNames, metropolitanNames, subMetropolitanNames;
+        // final List<ListItem> vdcList=new ArrayList<>();
+        final List<ListItem> allList = new ArrayList<>();
+        final List<ListItem> metropolitanList = new ArrayList<>();
+        final List<ListItem> subMetropolitanList = new ArrayList<>();
+        final List<ListItem> municipalList = new ArrayList<>();
+        final List<ListItem> ruralMunicipalList = new ArrayList<>();
+
+        //Start Caching
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/localLevel/",
+                globalDistrict);
+
+
+        CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
+            @Override
+            public void onResponse(NetworkResponse response) {
+                try {
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    JSONArray ruralMuniJsonArray = jsonObject.getJSONArray("ruralMunicipal");
+                    JSONArray municipalJsonArray = jsonObject.getJSONArray("municipal");
+                    JSONArray metropolitanJsonArray = jsonObject.getJSONArray("metropolitan");
+                    JSONArray subMetropolitanJsonArray = jsonObject.getJSONArray("subMetropolitan");
+
+                    //Removing duplication of data from cache
+                    allList.clear();
+                    ruralMunicipalList.clear();
+                    municipalList.clear();
+                    subMetropolitanList.clear();
+                    metropolitanList.clear();
+
+                    //for ruralMunicipal
+                    for (int i = 0; i < ruralMuniJsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = ruralMuniJsonArray.getJSONObject(i);
+                        String vdcName = jsonObject1.getString("ruralMunicipal");
+                        listItem.setName(vdcName);
+                        listItem.setIcon(R.drawable.rural_municipal);
+                        listItem.setType("ruralMunicipal");
+                        ruralMunicipalList.add(listItem);
+                        allList.add(listItem);
+                    }
+                    // adapterRuralMunicipal = new FilterCustomAdapter(getContext(), ruralMunicipalList, recyclerView);
+                    //for municipal
+                    for (int i = 0; i < municipalJsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = municipalJsonArray.getJSONObject(i);
+                        String municipalName = jsonObject1.getString("municipal");
+                        listItem.setName(municipalName);
+                        listItem.setIcon(R.drawable.municipal);
+                        listItem.setType("municipal");
+                        municipalList.add(listItem);
+                        allList.add(listItem);
+                    }
+                    //adapterMunicipal = new FilterCustomAdapter(getContext(), municipalList, recyclerView);
+                    //for metropolitan
+                    for (int i = 0; i < metropolitanJsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = metropolitanJsonArray.getJSONObject(i);
+                        String metropolitanName = jsonObject1.getString("metropolitan");
+                        listItem.setName(metropolitanName);
+                        listItem.setIcon(R.drawable.metropolitan);
+                        listItem.setType("metropolitan");
+                        metropolitanList.add(listItem);
+                        allList.add(listItem);
+                    }
+                    //adapterMetroplitan = new FilterCustomAdapter(getContext(), metropolitanList, recyclerView);
+                    //for subMetropolitan
+                    for (int i = 0; i < subMetropolitanJsonArray.length(); i++) {
+                        ListItem listItem = new ListItem();
+                        JSONObject jsonObject1 = subMetropolitanJsonArray.getJSONObject(i);
+                        String subMetropolitanName = jsonObject1.getString("subMetropolitan");
+                        listItem.setName(subMetropolitanName);
+                        listItem.setIcon(R.drawable.sub_metropolitan);
+                        listItem.setType("subMetropolitan");
+                        subMetropolitanList.add(listItem);
+                        allList.add(listItem);
+                    }
+                    //  adapterSubMetropolitan = new FilterCustomAdapter(getContext(), subMetropolitanList, recyclerView);
+
+                    adapterAll = new FilterCustomAdapter(getApplicationContext(), allList, new RecyclerViewOnItemClickListener() {
+                        @Override
+                        public void onItemClickListener(int position, View view) {
+                            ListItem currentItem=allList.get(position);
+                                showLocalLevelDetail(currentItem.getName());
+                                selectedFilter=currentItem.getName();
+                                selectedFilterType=currentItem.getType();
+                                globalLocalLevel=currentItem.getName();
+                                filterRviewTitle.setText("Filter information from ward");
+                                getWards(currentItem.getName());
+                        }
+                    });
+                    filterLoading.setVisibility(View.GONE);
+                    filterRecyclerview.setAdapter(adapterAll);
+                    filterRecyclerview.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                           filterRecyclerview.smoothScrollToPosition(adapterAll.getItemCount()-3);
+                        }
+                    },100);
+
+                    //mainPageToSetAdapter.setAdapters(adapterAll,adapterMetroplitan,adapterSubMetropolitan,adapterMunicipal,adapterRuralMunicipal);
+
+                    //Toast.makeText(getContext(), "onResponse:\n\n" + jsonObject.toString(), Toast.LENGTH_SHORT).show();
+                } catch (UnsupportedEncodingException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Toast.makeText(getApplicationContext(), "No value in district Adapter", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(cacheRequest);
+
+        //End of Caching
     }
 
     private String makeFinalUrl(String baseUrl, String param) {
@@ -332,12 +750,4 @@ public class StateDetails extends AppCompatActivity implements View.OnClickListe
 
 
     }
-
-
-    @Override
-    public void onClick(View v) {
-
-    }
-
-
 }

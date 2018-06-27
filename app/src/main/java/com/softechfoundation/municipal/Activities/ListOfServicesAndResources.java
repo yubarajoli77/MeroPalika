@@ -439,12 +439,14 @@ public class ListOfServicesAndResources extends AppCompatActivity {
         infraAirportBtn.setBackgroundColor(Color.TRANSPARENT);
         infraIndustryBtn.setBackgroundColor(Color.TRANSPARENT);
         infraHydropowerBtn.setBackgroundColor(Color.TRANSPARENT);
+        infraAcademicInstiBtn.setBackgroundColor(Color.TRANSPARENT);
 
         infraAllBtn.setTextColor(getResources().getColor(R.color.black));
         infraHotelBtn.setTextColor(getResources().getColor(R.color.black));
         infraAirportBtn.setTextColor(getResources().getColor(R.color.black));
         infraIndustryBtn.setTextColor(getResources().getColor(R.color.black));
         infraHydropowerBtn.setTextColor(getResources().getColor(R.color.black));
+        infraAcademicInstiBtn.setTextColor(getResources().getColor(R.color.black));
     }
 
     private void defineView() {

@@ -1,5 +1,7 @@
 package com.softechfoundation.municipal.Pojos;
 
+import java.util.List;
+
 /**
  * Created by yubar on 4/9/2018.
  */
@@ -9,6 +11,16 @@ public class ResourcePojo {
     private String address;
     private String info;
     private String district;
+
+    public List<LocalLevelResponsePojo> getLocalLevelResponsePojoList() {
+        return localLevelResponsePojoList;
+    }
+
+    public void setLocalLevelResponsePojoList(List<LocalLevelResponsePojo> localLevelResponsePojoList) {
+        this.localLevelResponsePojoList = localLevelResponsePojoList;
+    }
+
+    private List<LocalLevelResponsePojo> localLevelResponsePojoList;
 
     public String getDistrict() {
         return district;
@@ -41,4 +53,6 @@ public class ResourcePojo {
     public void setAddress(String phone) {
         this.address = phone;
     }
+
+
 }
