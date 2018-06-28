@@ -4,31 +4,29 @@ import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.softechfoundation.municipal.Adapters.ResourceCustomAdapter;
 import com.softechfoundation.municipal.Adapters.ServiceCustomAdapter;
 import com.softechfoundation.municipal.CommonUrl;
-import com.softechfoundation.municipal.Pojos.ListItem;
+import com.softechfoundation.municipal.Pojos.LocalLevelResponsePojo;
 import com.softechfoundation.municipal.Pojos.ResourcePojo;
 import com.softechfoundation.municipal.Pojos.ServicePojo;
 import com.softechfoundation.municipal.R;
@@ -50,20 +48,20 @@ public class ListOfServicesAndResources extends AppCompatActivity {
 
     private RecyclerView resourceRecyclerView;
 
-    private ResourceCustomAdapter resourceCustomAdapter,mountainCustomAdapter,
-            riverCustomAdapter,lakeCustomAdapter,protectedAreaCustomAdapter,waterFallCustomAdapter;
-    private ServiceCustomAdapter serviceCustomAdapter,hydroCustomAdapter,
-            airportCustomAdapter,industryCustomAdapter,hotelCustomAdapter,academicInstiAdapter;
-    private ServiceCustomAdapter urgentAllCustomAdapter,urgentHospitalCustomAdapter,
-            urgentBloodBankCustomAdapter,urgentAtmCustomAdapter,urgentPoliceCustomAdapter;
+    private ResourceCustomAdapter allResourceCustomAdapter, mountainCustomAdapter,
+            riverCustomAdapter, lakeCustomAdapter, protectedAreaCustomAdapter, waterFallCustomAdapter;
+    private ServiceCustomAdapter serviceCustomAdapter, hydroCustomAdapter,
+            airportCustomAdapter, industryCustomAdapter, hotelCustomAdapter, academicInstiAdapter;
+    private ServiceCustomAdapter urgentAllCustomAdapter, urgentHospitalCustomAdapter,
+            urgentBloodBankCustomAdapter, urgentAtmCustomAdapter, urgentPoliceCustomAdapter;
     private ResourceCustomAdapter mainAttractionCustomAdapter;
 
-    private View naturalResourceMenu,urgentServicesMenu,infraStructureMenu;
+    private View naturalResourceMenu, urgentServicesMenu, infraStructureMenu;
 
-    private Button nResourceRiverBtn,nResourceMountainBtn,
-            nResourceLakeBtn,nResourceWaterfallsBtn,nResourceProtectedAreaBtn,nReaourceAllBtn;
-    private Button infraAirportBtn,infraHotelBtn,infraIndustryBtn,infraHydropowerBtn,infraAllBtn,infraAcademicInstiBtn;
-    private Button urgentHospitalBtn,urgentBloodBankBtn,urgentAtmBtn,urgentPoliceBtn,urgentAllBtn;
+    private Button nResourceRiverBtn, nResourceMountainBtn,
+            nResourceLakeBtn, nResourceWaterfallsBtn, nResourceProtectedAreaBtn, nReaourceAllBtn;
+    private Button infraAirportBtn, infraHotelBtn, infraIndustryBtn, infraHydropowerBtn, infraAllBtn, infraAcademicInstiBtn;
+    private Button urgentHospitalBtn, urgentBloodBankBtn, urgentAtmBtn, urgentPoliceBtn, urgentAllBtn;
     private HorizontalScrollView horizontalScrollViewMenu;
     private View resourceServiceLoading;
 
@@ -81,42 +79,38 @@ public class ListOfServicesAndResources extends AppCompatActivity {
     }
 
     private void mainProcessing() {
-        Intent intent= getIntent();
-        String catagory=intent.getStringExtra("catagory");
-        String state =intent.getStringExtra("state");
-        String selectedFilter=intent.getStringExtra("selectedFilter");
-        String selectedFilterType=intent.getStringExtra("selectedFilterType");
-        if("URGENTSERVICES".equals(catagory)){
+        Intent intent = getIntent();
+        String catagory = intent.getStringExtra("catagory");
+        String state = intent.getStringExtra("state");
+        String selectedFilter = intent.getStringExtra("selectedFilter");
+        String selectedFilterType = intent.getStringExtra("selectedFilterType");
+        if ("URGENTSERVICES".equals(catagory)) {
             urgentServicesMenu.setVisibility(View.VISIBLE);
             naturalResourceMenu.setVisibility(View.GONE);
             infraStructureMenu.setVisibility(View.GONE);
             getSupportActionBar().setTitle("Urgent Servicces");
-            getUrgentServices(state,selectedFilter,selectedFilterType);
-        }
-        else if("RESOURCES".equals(catagory)){
+            getUrgentServices(state, selectedFilter, selectedFilterType);
+        } else if ("RESOURCES".equals(catagory)) {
             naturalResourceMenu.setVisibility(View.VISIBLE);
             urgentServicesMenu.setVisibility(View.GONE);
             infraStructureMenu.setVisibility(View.GONE);
             getSupportActionBar().setTitle("Natural Resources");
-            getResources(state,selectedFilter,selectedFilterType);
-        }
-        else if ("INFRASTRUCTURES".equals(catagory)){
+            getResources(state, selectedFilter, selectedFilterType);
+        } else if ("INFRASTRUCTURES".equals(catagory)) {
 
             infraStructureMenu.setVisibility(View.VISIBLE);
             naturalResourceMenu.setVisibility(View.GONE);
             urgentServicesMenu.setVisibility(View.GONE);
             getSupportActionBar().setTitle("Infrastructures");
-            getInfrastructure(state,selectedFilter,selectedFilterType);
-        }
-        else if("MAINATTRACTIONS".equals(catagory)){
+            getInfrastructure(state, selectedFilter, selectedFilterType);
+        } else if ("MAINATTRACTIONS".equals(catagory)) {
             infraStructureMenu.setVisibility(View.GONE);
             naturalResourceMenu.setVisibility(View.GONE);
             urgentServicesMenu.setVisibility(View.GONE);
             getSupportActionBar().setTitle("Main Attractions");
-            getMainAttraction(state,selectedFilter,selectedFilterType);
+            getMainAttraction(state, selectedFilter, selectedFilterType);
 
-        }
-        else if("AVALIABLECONTACTS".equals(catagory)){
+        } else if ("AVALIABLECONTACTS".equals(catagory)) {
             infraStructureMenu.setVisibility(View.GONE);
             naturalResourceMenu.setVisibility(View.GONE);
             urgentServicesMenu.setVisibility(View.GONE);
@@ -124,7 +118,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
             Toast.makeText(this, "Comming Soon :)", Toast.LENGTH_SHORT).show();
             resourceServiceLoading.setVisibility(View.GONE);
         }
-        
+
         infraAllBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -269,7 +263,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                 nReaourceAllBtn.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 nReaourceAllBtn.setTextColor(Color.WHITE);
                 resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
-                resourceRecyclerView.setAdapter(resourceCustomAdapter);
+                resourceRecyclerView.setAdapter(allResourceCustomAdapter);
                 //scroll the horizontal scroll view programatically with animation and delay
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -337,10 +331,10 @@ public class ListOfServicesAndResources extends AppCompatActivity {
     }
 
     private void getMainAttraction(String parameter, final String selectedFilter, final String selectedFilterType) {
-        final List<ResourcePojo> mainAttractionList=new ArrayList<>();
+        final List<ResourcePojo> mainAttractionList = new ArrayList<>();
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"famousFor/getAttraction/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "famousFor/getAttraction/",
                 parameter);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -356,24 +350,23 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         ResourcePojo listItem = new ResourcePojo();
                         JSONObject jsonObject1 = jsonArray.getJSONObject(i);
                         String attractionName = jsonObject1.getString("item");
-                        String attractionDistrict=jsonObject1.getString("district");
-                        String  attractionDescription=jsonObject1.getString("description");
+                        String attractionDistrict = jsonObject1.getString("district");
+                        String attractionDescription = jsonObject1.getString("description");
                         //String addresString=jsonObject1.getString("addresString");
                         listItem.setName(attractionName);
-                        listItem.setAddress(attractionDistrict+", "+"Nepal");
+                        listItem.setAddress(attractionDistrict + ", " + "Nepal");
                         mainAttractionList.add(listItem);
                     }
 
-                    if("state".equals(selectedFilterType)) {
-                        mainAttractionCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this,mainAttractionList);
+                    if ("state".equals(selectedFilterType)) {
+                        mainAttractionCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, mainAttractionList);
                         resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                         resourceServiceLoading.setVisibility(View.GONE);
                         resourceRecyclerView.setAdapter(mainAttractionCustomAdapter);
-                    }
-                    else if("district".equals(selectedFilterType)){
-                        List<ResourcePojo> filteredList=new ArrayList<>();
-                        for(ResourcePojo item:mainAttractionList){
-                            if(item.getDistrict().equals(selectedFilter)){
+                    } else if ("district".equals(selectedFilterType)) {
+                        List<ResourcePojo> filteredList = new ArrayList<>();
+                        for (ResourcePojo item : mainAttractionList) {
+                            if (item.getDistrict().equals(selectedFilter)) {
                                 filteredList.add(item);
                             }
                         }
@@ -450,47 +443,47 @@ public class ListOfServicesAndResources extends AppCompatActivity {
     }
 
     private void defineView() {
-        resourceRecyclerView=findViewById(R.id.state_detail_list);
+        resourceRecyclerView = findViewById(R.id.state_detail_list);
         resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
 
-        naturalResourceMenu=findViewById(R.id.natural_resources_catagory);
-        urgentServicesMenu=findViewById(R.id.urgent_services_catagory);
-        infraStructureMenu=findViewById(R.id.infrastructure_catagory);
+        naturalResourceMenu = findViewById(R.id.natural_resources_catagory);
+        urgentServicesMenu = findViewById(R.id.urgent_services_catagory);
+        infraStructureMenu = findViewById(R.id.infrastructure_catagory);
 
-        nResourceRiverBtn=findViewById(R.id.natural_resources_btn_rivers);
-        nResourceLakeBtn=findViewById(R.id.natural_resources_btn_lakes);
-        nResourceMountainBtn=findViewById(R.id.natural_resources_btn_mountains);
-        nResourceWaterfallsBtn=findViewById(R.id.natural_resources_btn_water_fall);
-        nResourceProtectedAreaBtn=findViewById(R.id.natural_resources_btn_protected_areas);
-        nReaourceAllBtn=findViewById(R.id.natural_resources_btn_all);
+        nResourceRiverBtn = findViewById(R.id.natural_resources_btn_rivers);
+        nResourceLakeBtn = findViewById(R.id.natural_resources_btn_lakes);
+        nResourceMountainBtn = findViewById(R.id.natural_resources_btn_mountains);
+        nResourceWaterfallsBtn = findViewById(R.id.natural_resources_btn_water_fall);
+        nResourceProtectedAreaBtn = findViewById(R.id.natural_resources_btn_protected_areas);
+        nReaourceAllBtn = findViewById(R.id.natural_resources_btn_all);
 
-        infraAirportBtn=findViewById(R.id.services_btn_airport);
-        infraHotelBtn=findViewById(R.id.services_btn_hotel);
-        infraIndustryBtn=findViewById(R.id.services_btn_industry);
-        infraHydropowerBtn=findViewById(R.id.services_btn_hydropower);
-        infraAllBtn=findViewById(R.id.services_btn_all);
-        infraAcademicInstiBtn=findViewById(R.id.services_btn_academic_insti);
+        infraAirportBtn = findViewById(R.id.services_btn_airport);
+        infraHotelBtn = findViewById(R.id.services_btn_hotel);
+        infraIndustryBtn = findViewById(R.id.services_btn_industry);
+        infraHydropowerBtn = findViewById(R.id.services_btn_hydropower);
+        infraAllBtn = findViewById(R.id.services_btn_all);
+        infraAcademicInstiBtn = findViewById(R.id.services_btn_academic_insti);
 
-        urgentHospitalBtn=findViewById(R.id.urgent_services_btn_hospital);
-        urgentAtmBtn=findViewById(R.id.urgent_services_btn_atm);
-        urgentBloodBankBtn=findViewById(R.id.urgent_services_btn_blood_bank);
-        urgentPoliceBtn=findViewById(R.id.urgent_services_btn_police);
-        urgentAllBtn=findViewById(R.id.urgent_services_btn_all);
+        urgentHospitalBtn = findViewById(R.id.urgent_services_btn_hospital);
+        urgentAtmBtn = findViewById(R.id.urgent_services_btn_atm);
+        urgentBloodBankBtn = findViewById(R.id.urgent_services_btn_blood_bank);
+        urgentPoliceBtn = findViewById(R.id.urgent_services_btn_police);
+        urgentAllBtn = findViewById(R.id.urgent_services_btn_all);
 
-        horizontalScrollViewMenu=findViewById(R.id.horizontal_scroll_catagories);
+        horizontalScrollViewMenu = findViewById(R.id.horizontal_scroll_catagories);
 
-        resourceServiceLoading=findViewById(R.id.dotted_res_ser_loading);
-        
+        resourceServiceLoading = findViewById(R.id.dotted_res_ser_loading);
+
     }
 
     private void getInfrastructure(String parameter, final String selectedFilter, final String selectedFilterType) {
-        final List<ServicePojo> allInfrastructureList=new ArrayList<>();
-        final List<ServicePojo>airportList=new ArrayList<>();
-        final List<ServicePojo>hydropowerList=new ArrayList<>();
-        final List<ServicePojo>industryList=new ArrayList<>();
+        final List<ServicePojo> allInfrastructureList = new ArrayList<>();
+        final List<ServicePojo> airportList = new ArrayList<>();
+        final List<ServicePojo> hydropowerList = new ArrayList<>();
+        final List<ServicePojo> industryList = new ArrayList<>();
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"states/Infrastructure/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "states/Infrastructure/",
                 parameter);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -501,8 +494,8 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                             HttpHeaderParser.parseCharset(response.headers));
                     JSONObject jsonObject = new JSONObject(jsonString);
                     JSONArray jsonAirportArray = jsonObject.getJSONArray("airports");
-                    JSONArray jsonHydropower=jsonObject.getJSONArray("hydropower");
-                    JSONArray jsonIndustry=jsonObject.getJSONArray("industry");
+                    JSONArray jsonHydropower = jsonObject.getJSONArray("hydropower");
+                    JSONArray jsonIndustry = jsonObject.getJSONArray("industry");
                     allInfrastructureList.clear();
                     airportList.clear();
                     hydropowerList.clear();
@@ -511,12 +504,12 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         ServicePojo listItem = new ServicePojo();
                         JSONObject jsonObject1 = jsonAirportArray.getJSONObject(i);
                         String airportName = jsonObject1.getString("airportName");
-                        String airportDistrict=jsonObject1.getString("disrict");
- //                       String  airportPhone=jsonObject1.getString("hospitalContactNumber");
-                        String airportAddress=jsonObject1.getString("airportAddress");
+                        String airportDistrict = jsonObject1.getString("disrict");
+                        //                       String  airportPhone=jsonObject1.getString("hospitalContactNumber");
+                        String airportAddress = jsonObject1.getString("airportAddress");
                         listItem.setDistrict(airportDistrict);
                         listItem.setName(airportName);
-                        listItem.setAddress(airportAddress+", "+airportDistrict+", "+"Nepal");
+                        listItem.setAddress(airportAddress + ", " + airportDistrict + ", " + "Nepal");
                         listItem.setPhone("");
                         airportList.add(listItem);
                         allInfrastructureList.add(listItem);
@@ -525,14 +518,14 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         ServicePojo listItem = new ServicePojo();
                         JSONObject jsonObject1 = jsonHydropower.getJSONObject(i);
                         String hydroName = jsonObject1.getString("hydropower");
-                        String hydroDistrict=jsonObject1.getString("district");
-                        String  hydroCapacity=jsonObject1.getString("capacity");
-                        String hydroAddress=jsonObject1.getString("address");
-                        String hydroStatus=jsonObject1.getString("hydroStatus");
+                        String hydroDistrict = jsonObject1.getString("district");
+                        String hydroCapacity = jsonObject1.getString("capacity");
+                        String hydroAddress = jsonObject1.getString("address");
+                        String hydroStatus = jsonObject1.getString("hydroStatus");
                         listItem.setDistrict(hydroDistrict);
                         listItem.setName(hydroName);
-                        listItem.setAddress(hydroAddress+", "+hydroDistrict+", "+"Nepal");
-                        listItem.setInfo(hydroCapacity+"\n"+hydroStatus);
+                        listItem.setAddress(hydroAddress + ", " + hydroDistrict + ", " + "Nepal");
+                        listItem.setInfo(hydroCapacity + "\n" + hydroStatus);
                         listItem.setPhone("");
                         hydropowerList.add(listItem);
                         allInfrastructureList.add(listItem);
@@ -541,28 +534,27 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         ServicePojo listItem = new ServicePojo();
                         JSONObject jsonObject1 = jsonIndustry.getJSONObject(i);
                         String industryName = jsonObject1.getString("industry");
-                        String industryDistrict=jsonObject1.getString("district");
-                        String industryAddress=jsonObject1.getString("address");
+                        String industryDistrict = jsonObject1.getString("district");
+                        String industryAddress = jsonObject1.getString("address");
                         listItem.setDistrict(industryDistrict);
                         listItem.setName(industryName);
-                        listItem.setAddress(industryAddress+", "+industryDistrict+", "+"Nepal");
+                        listItem.setAddress(industryAddress + ", " + industryDistrict + ", " + "Nepal");
                         listItem.setPhone("");
                         hydropowerList.add(listItem);
                         allInfrastructureList.add(listItem);
                     }
-                    if("state".equals(selectedFilterType)) {
-                        hydroCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,hydropowerList);
-                        airportCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,airportList);
-                        industryCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,industryList);
-                        serviceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,allInfrastructureList);
+                    if ("state".equals(selectedFilterType)) {
+                        hydroCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, hydropowerList);
+                        airportCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, airportList);
+                        industryCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, industryList);
+                        serviceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, allInfrastructureList);
                         resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                         resourceServiceLoading.setVisibility(View.GONE);
                         resourceRecyclerView.setAdapter(serviceCustomAdapter);
-                    }
-                    else if("district".equals(selectedFilterType)){
-                        List<ServicePojo> filteredList=new ArrayList<>();
-                        for(ServicePojo item:allInfrastructureList){
-                            if(item.getDistrict().equals(selectedFilter)){
+                    } else if ("district".equals(selectedFilterType)) {
+                        List<ServicePojo> filteredList = new ArrayList<>();
+                        for (ServicePojo item : allInfrastructureList) {
+                            if (item.getDistrict().equals(selectedFilter)) {
                                 filteredList.add(item);
                             }
                         }
@@ -591,16 +583,15 @@ public class ListOfServicesAndResources extends AppCompatActivity {
 
     public void getResources(String parameter, final String selectedFilter, final String selectedFilterType) {
 
-        final List<ResourcePojo> allResourceList=new ArrayList<>();
-        final List<ResourcePojo>mountainList=new ArrayList<>();
-        final List<ResourcePojo>riverList=new ArrayList<>();
-        final List<ResourcePojo>lakeList=new ArrayList<>();
-        final List<ResourcePojo>waterFallList=new ArrayList<>();
-        final List<ResourcePojo>protectedAreaList=new ArrayList<>();
+        final List<ResourcePojo> allResourceList = new ArrayList<>();
+        final List<ResourcePojo> mountainList = new ArrayList<>();
+        final List<ResourcePojo> lakeList = new ArrayList<>();
+        final List<ResourcePojo> waterFallList = new ArrayList<>();
+        final List<ResourcePojo> protectedAreaList = new ArrayList<>();
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"states/naturalResources/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl2 + "states/naturalResources/",
                 parameter);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -611,126 +602,282 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                             HttpHeaderParser.parseCharset(response.headers));
                     JSONObject jsonObject = new JSONObject(jsonString);
                     JSONArray jsonMountainArray = jsonObject.getJSONArray("mountains");
-                    JSONArray jsonRiverArray=jsonObject.getJSONArray("rivers");
-                    JSONArray jsonLakeArray=jsonObject.getJSONArray("lakes");
-                    JSONArray jsonWaterFallArray=jsonObject.getJSONArray("waterfalls");
-                    JSONArray jsonProtectedAreaArray=jsonObject.getJSONArray("protectedAreases");
+                    JSONArray jsonLakeArray = jsonObject.getJSONArray("lakes");
+                    JSONArray jsonWaterFallArray = jsonObject.getJSONArray("waterfalls");
+                    JSONArray jsonProtectedAreaArray = jsonObject.getJSONArray("protectedAreases");
 
                     allResourceList.clear();
                     mountainList.clear();
-                    riverList.clear();
                     lakeList.clear();
                     waterFallList.clear();
                     protectedAreaList.clear();
+
                     for (int i = 0; i < jsonMountainArray.length(); i++) {
                         ResourcePojo listItem = new ResourcePojo();
                         JSONObject jsonObject1 = jsonMountainArray.getJSONObject(i);
                         String mountainName = jsonObject1.getString("mountain");
-                        String mountainDistrict=jsonObject1.getString("district");
-                        String mountainHeight=jsonObject1.getString("mountainHeight");
+                        String mountainDistrict = jsonObject1.getString("district");
+                        String mountainHeight = jsonObject1.getString("mountainHeight");
+                        Integer mountainId=Integer.parseInt(jsonObject1.getString("id"));
+                        String mountainImage=jsonObject1.getString("mountainImage");
+                        String mountainDescription=jsonObject1.getString("description");
+                        String mountainLocalAddress=jsonObject1.getString("address");
+
+
+                        JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
+                        listItem.setId(mountainId);
+                        listItem.setDescription(mountainDescription);
+                        listItem.setImage(mountainImage);
                         listItem.setDistrict(mountainDistrict);
                         listItem.setName(mountainName);
-                        listItem.setInfo(mountainHeight );
-                        listItem.setAddress(mountainDistrict+", "+"Nepal");
+                        listItem.setInfo(mountainHeight);
+                        listItem.setAddress(mountainLocalAddress+", "+mountainDistrict + ", " + "Nepal");
+                        listItem.setLocalLevelResponsePojoList(getListOfLocalLevel(localLevelArray));
                         mountainList.add(listItem);
                         allResourceList.add(listItem);
                     }
-                    for (int i = 0; i < jsonRiverArray.length(); i++) {
-                        ResourcePojo listItem = new ResourcePojo();
-                        JSONObject jsonObject1 = jsonRiverArray.getJSONObject(i);
-                        String riverName = jsonObject1.getString("river");
-                        String riverDistrict=jsonObject1.getString("district");
-                        listItem.setDistrict(riverDistrict);
-                        listItem.setName(riverName);
-                        listItem.setAddress(riverDistrict+", "+"Nepal");
-                        riverList.add(listItem);
-                        allResourceList.add(listItem);
-                    }
+
                     for (int i = 0; i < jsonLakeArray.length(); i++) {
                         ResourcePojo listItem = new ResourcePojo();
                         JSONObject jsonObject1 = jsonLakeArray.getJSONObject(i);
+                        Integer lakeId=Integer.parseInt(jsonObject1.getString("id"));
                         String lakeName = jsonObject1.getString("lake");
-                        String lakeDistrict=jsonObject1.getString("district");
-//                        String lakeAddress=jsonObject1.getString("address");
+                        String lakeDistrict = jsonObject1.getString("district");
+                        String lakeDescription=jsonObject1.getString("description");
+                        String lakeLocalAddress=jsonObject1.getString("address");
+                        String lakeImage=jsonObject1.getString("lakeImage");
+
+                        JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
+
                         listItem.setDistrict(lakeDistrict);
                         listItem.setName(lakeName);
-                        listItem.setAddress(lakeDistrict+", "+"Nepal");
+                        listItem.setDescription(lakeDescription);
+                        listItem.setId(lakeId);
+                        listItem.setImage(lakeImage);
+                        listItem.setAddress(lakeLocalAddress+", "+lakeDistrict + ", " + "Nepal");
+                        listItem.setLocalLevelResponsePojoList(getListOfLocalLevel(localLevelArray));
                         lakeList.add(listItem);
                         allResourceList.add(listItem);
                     }
                     for (int i = 0; i < jsonWaterFallArray.length(); i++) {
                         ResourcePojo listItem = new ResourcePojo();
                         JSONObject jsonObject1 = jsonWaterFallArray.getJSONObject(i);
+                        Integer waterfallId=Integer.parseInt(jsonObject1.getString("id"));
                         String waterfallName = jsonObject1.getString("waterfall");
-                        String waterfallDistrict=jsonObject1.getString("district");
+                        String waterfallDistrict = jsonObject1.getString("district");
+                        String waterfallDescription=jsonObject1.getString("description");
+                        String waterfallHeight=jsonObject1.getString("height");
+                        String waterfallImage=jsonObject1.getString("waterfallImage");
+                        String waterfallLocalAddress=jsonObject1.getString("address");
+
+                        JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
+
+                        listItem.setId(waterfallId);
+                        listItem.setImage(waterfallImage);
+                        listItem.setDescription(waterfallDescription);
+                        listItem.setInfo(waterfallHeight);
                         listItem.setDistrict(waterfallDistrict);
                         listItem.setName(waterfallName);
-                        listItem.setAddress(waterfallDistrict+", "+"Nepal");
+                        listItem.setAddress(waterfallLocalAddress+", "+waterfallDistrict + ", " + "Nepal");
+                        listItem.setLocalLevelResponsePojoList(getListOfLocalLevel(localLevelArray));
+
                         waterFallList.add(listItem);
                         allResourceList.add(listItem);
                     }
                     for (int i = 0; i < jsonProtectedAreaArray.length(); i++) {
                         ResourcePojo listItem = new ResourcePojo();
                         JSONObject jsonObject1 = jsonProtectedAreaArray.getJSONObject(i);
+                        Integer protectedAreaId=Integer.parseInt(jsonObject1.getString("id"));
                         String protectedAreaName = jsonObject1.getString("protectedAreas");
-                        String protectedAreaDistrict=jsonObject1.getString("district");
-                        String protectedAreasArea=jsonObject1.getString("area");
+                        String protectedAreaDistrict = jsonObject1.getString("district");
+                        String protectedAreasArea = jsonObject1.getString("area");
+                        String protectedAreaImage=jsonObject1.getString( "protectedAreasImage");
+                        String protectedAreaDescription=jsonObject1.getString("description");
+                        String protectedAreaLocalAddress=jsonObject1.getString("address");
+                        JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
+
+                        listItem.setId(protectedAreaId);
+                        listItem.setInfo(protectedAreasArea);
+                        listItem.setDescription(protectedAreaDescription);
+                        listItem.setImage(protectedAreaImage);
                         listItem.setDistrict(protectedAreaDistrict);
                         listItem.setName(protectedAreaName);
-                        listItem.setAddress(protectedAreaDistrict+", "+"Nepal\n"+protectedAreasArea);
+                        listItem.setAddress(protectedAreaLocalAddress+", "+protectedAreaDistrict + ", " + "Nepal\n" + protectedAreasArea);
+                        listItem.setLocalLevelResponsePojoList(getListOfLocalLevel(localLevelArray));
                         protectedAreaList.add(listItem);
                         allResourceList.add(listItem);
                     }
 
-                    if("state".equals(selectedFilterType)) {
-                        resourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, allResourceList);
+                    if ("state".equals(selectedFilterType)) {
+                        allResourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, allResourceList);
                         mountainCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, mountainList);
-                        riverCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, riverList);
                         lakeCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, lakeList);
                         waterFallCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, waterFallList);
                         protectedAreaCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, protectedAreaList);
                         resourceServiceLoading.setVisibility(View.GONE);
-                        resourceRecyclerView.setAdapter(resourceCustomAdapter);
-                    }
-                    else if("district".equals(selectedFilterType)){
-                        List<ResourcePojo> filteredList=new ArrayList<>();
-                        for(ResourcePojo item:allResourceList){
-                            if(item.getDistrict().equals(selectedFilter)){
-                                filteredList.add(item);
+                        resourceRecyclerView.setAdapter(allResourceCustomAdapter);
+                    } else if ("district".equals(selectedFilterType)) {
+                        List<ResourcePojo> filteredAllList = getFilteredResourceFromDistrict(allResourceList);
+                        List<ResourcePojo> filteredMountainList = getFilteredResourceFromDistrict(mountainList);
+                        List<ResourcePojo> filteredLakeList = getFilteredResourceFromDistrict(lakeList);
+                        List<ResourcePojo> filteredWaterFallList = getFilteredResourceFromDistrict(waterFallList);
+                        List<ResourcePojo> filteredProtectedAreaList = getFilteredResourceFromDistrict(protectedAreaList);
 
-                            }
-                        }
-                        resourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredList);
+
+                        allResourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredAllList);
+                        mountainCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredMountainList);
+                        lakeCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredLakeList);
+                        waterFallCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredWaterFallList);
+                        protectedAreaCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredProtectedAreaList);
                         resourceServiceLoading.setVisibility(View.GONE);
-                        resourceRecyclerView.setAdapter(resourceCustomAdapter);
+                        resourceRecyclerView.setAdapter(allResourceCustomAdapter);
+
+                    } else if ("palika".equals(selectedFilterType)) {
+                        List<ResourcePojo> filteredAllList = getFilteredResourceFromPalika(allResourceList);
+                        List<ResourcePojo> filteredMountainList = getFilteredResourceFromPalika(mountainList);
+                        List<ResourcePojo> filteredLakeList = getFilteredResourceFromPalika(lakeList);
+                        List<ResourcePojo> filteredWaterFallList = getFilteredResourceFromPalika(waterFallList);
+                        List<ResourcePojo> filteredProtectedAreaList = getFilteredResourceFromPalika(protectedAreaList);
+
+
+                        allResourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredAllList);
+                        mountainCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredMountainList);
+                        lakeCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredLakeList);
+                        waterFallCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredWaterFallList);
+                        protectedAreaCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredProtectedAreaList);
+                        allResourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredAllList);
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(allResourceCustomAdapter);
+
+                    } else if ("ward".equals(selectedFilterType)) {
+                        List<ResourcePojo> filteredAllList = getFilteredResourceFromWard(allResourceList);
+                        List<ResourcePojo> filteredMountainList = getFilteredResourceFromWard(mountainList);
+                        List<ResourcePojo> filteredLakeList = getFilteredResourceFromWard(lakeList);
+                        List<ResourcePojo> filteredWaterFallList = getFilteredResourceFromWard(waterFallList);
+                        List<ResourcePojo> filteredProtectedAreaList = getFilteredResourceFromWard(protectedAreaList);
+
+
+                        allResourceCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredAllList);
+                        mountainCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredMountainList);
+                        lakeCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredLakeList);
+                        waterFallCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredWaterFallList);
+                        protectedAreaCustomAdapter = new ResourceCustomAdapter(ListOfServicesAndResources.this, filteredProtectedAreaList);
+                        resourceServiceLoading.setVisibility(View.GONE);
+                        resourceRecyclerView.setAdapter(allResourceCustomAdapter);
+
                     }
                     nReaourceAllBtn.performClick();
                 } catch (UnsupportedEncodingException | JSONException e) {
                     e.printStackTrace();
                 }
             }
+
+            @NonNull
+            private List<ResourcePojo> getFilteredResourceFromDistrict(List<ResourcePojo> unfilteredList) {
+                List<ResourcePojo> filteredList = new ArrayList<>();
+                for (ResourcePojo item : unfilteredList) {
+                    if (item.getDistrict().equals(selectedFilter)) {
+                        filteredList.add(item);
+
+                    }
+                }
+                return filteredList;
+            }
+
+            @NonNull
+            private List<ResourcePojo> getFilteredResourceFromWard(List<ResourcePojo> unfilteredList) {
+                List<ResourcePojo> filteredList = new ArrayList<>();
+                for (ResourcePojo item : unfilteredList) {
+                    for (int i = 0; i < item.getLocalLevelResponsePojoList().size(); i++) {
+                        if (item.getLocalLevelResponsePojoList().get(i).getWardNo().equals(selectedFilter)) {
+                            filteredList.add(item);
+                        }
+
+                    }
+                }
+                return filteredList;
+            }
+
+            @NonNull
+            private List<ResourcePojo> getFilteredResourceFromPalika(List<ResourcePojo> unfilteredList) {
+                List<ResourcePojo> filteredList = new ArrayList<>();
+                for (ResourcePojo item : unfilteredList) {
+                    for (int i = 0; i < item.getLocalLevelResponsePojoList().size(); i++) {
+                        if (item.getLocalLevelResponsePojoList().get(i).getMetropolitan() != null) {
+                            if (item.getLocalLevelResponsePojoList().get(i).getMetropolitan().equals(selectedFilter)) {
+                                filteredList.add(item);
+                            }
+                        }
+                        if (item.getLocalLevelResponsePojoList().get(i).getSubMetropolitan() != null) {
+                            if (item.getLocalLevelResponsePojoList().get(i).getSubMetropolitan().equals(selectedFilter)) {
+                                filteredList.add(item);
+                            }
+                        }
+                        if (item.getLocalLevelResponsePojoList().get(i).getMunicipality() != null) {
+                            if (item.getLocalLevelResponsePojoList().get(i).getMunicipality().equals(selectedFilter)) {
+                                filteredList.add(item);
+                            }
+                        }
+                        if (item.getLocalLevelResponsePojoList().get(i).getRuralMunicipality() != null) {
+                            if (item.getLocalLevelResponsePojoList().get(i).getRuralMunicipality().equals(selectedFilter)) {
+                                filteredList.add(item);
+                            }
+                        }
+                    }
+                }
+                return filteredList;
+            }
+
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 resourceServiceLoading.setVisibility(View.GONE);
+                Log.d("NaturalError",error.toString());
                 // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
-
+        int socketTimeout = 30000;//30 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        cacheRequest.setRetryPolicy(policy);
         // Add the request to the RequestQueue.
         queue.add(cacheRequest);
         //End of Caching
-}
+    }
+
+    private List<LocalLevelResponsePojo> getListOfLocalLevel(JSONArray localLevelArray) throws JSONException {
+        final List<LocalLevelResponsePojo> localLevelList = new ArrayList<>();
+        for (int j = 0; j < localLevelArray.length(); j++) {
+            LocalLevelResponsePojo localLevelResponsePojo = new LocalLevelResponsePojo();
+            JSONObject localLevelJsonObj = localLevelArray.getJSONObject(j);
+            String localLevelId = localLevelJsonObj.getString("id");
+            String localLevelRuralMunicipality = localLevelJsonObj.getString("ruralMunicipality");
+            String localLevelMunicipality = localLevelJsonObj.getString("municipality");
+            String localLevelMetropolitan = localLevelJsonObj.getString("metropolitan");
+            String localLevelSubMetropolitan = localLevelJsonObj.getString("subMetropolitan");
+            String localLevelWardNo = localLevelJsonObj.getString("wardNo");
+
+            localLevelResponsePojo.setId(Integer.parseInt(localLevelId));
+            localLevelResponsePojo.setRuralMunicipality(localLevelRuralMunicipality);
+            localLevelResponsePojo.setSubMetropolitan(localLevelSubMetropolitan);
+            localLevelResponsePojo.setMetropolitan(localLevelMetropolitan);
+            localLevelResponsePojo.setMunicipality(localLevelMunicipality);
+            localLevelResponsePojo.setWardNo(localLevelWardNo);
+
+            localLevelList.add(localLevelResponsePojo);
+        }
+        return localLevelList;
+    }
+
     public void getUrgentServices(String parameter, final String selectedFilter, final String selectedFilterType) {
-        final List<ServicePojo> allUrgentServices=new ArrayList<>();
-        final List<ServicePojo>atmList=new ArrayList<>();
-        final List<ServicePojo>bloodBankList=new ArrayList<>();
-        final List<ServicePojo>hospitalList=new ArrayList<>();
-        final List<ServicePojo>policeStationList=new ArrayList<>();
+        final List<ServicePojo> allUrgentServices = new ArrayList<>();
+        final List<ServicePojo> atmList = new ArrayList<>();
+        final List<ServicePojo> bloodBankList = new ArrayList<>();
+        final List<ServicePojo> hospitalList = new ArrayList<>();
+        final List<ServicePojo> policeStationList = new ArrayList<>();
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"states/UrgentService/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "states/UrgentService/",
                 parameter);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -741,9 +888,9 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                             HttpHeaderParser.parseCharset(response.headers));
                     JSONObject jsonObject = new JSONObject(jsonString);
                     JSONArray jsonBloodBankArray = jsonObject.getJSONArray("bloodbank");
-                    JSONArray jsonHospitalArray=jsonObject.getJSONArray("hospital");
-                    JSONArray jsonPoliceStationArray=jsonObject.getJSONArray("policeStation");
-                    JSONArray jsonAtmArray=jsonObject.getJSONArray("atm");
+                    JSONArray jsonHospitalArray = jsonObject.getJSONArray("hospital");
+                    JSONArray jsonPoliceStationArray = jsonObject.getJSONArray("policeStation");
+                    JSONArray jsonAtmArray = jsonObject.getJSONArray("atm");
 
                     allUrgentServices.clear();
                     bloodBankList.clear();
@@ -755,10 +902,10 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         JSONObject jsonObject1 = jsonBloodBankArray.getJSONObject(i);
                         String bloodBankName = jsonObject1.getString("bloodBankName");
                         String localAddress = jsonObject1.getString("localAddress");
-                        String bloodBankDistrict=jsonObject1.getString("district");
-                        String contactNo=jsonObject1.getString("contactNo");
+                        String bloodBankDistrict = jsonObject1.getString("district");
+                        String contactNo = jsonObject1.getString("contactNo");
                         listItem.setName(bloodBankName);
-                        listItem.setAddress(localAddress+", "+bloodBankDistrict+", "+"Nepal");
+                        listItem.setAddress(localAddress + ", " + bloodBankDistrict + ", " + "Nepal");
                         listItem.setPhone(contactNo);
                         bloodBankList.add(listItem);
                         allUrgentServices.add(listItem);
@@ -767,13 +914,13 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         ServicePojo listItem = new ServicePojo();
                         JSONObject jsonObject1 = jsonPoliceStationArray.getJSONObject(i);
                         String policeStationName = jsonObject1.getString("policeStationName");
-                        String policeLocalAddress=jsonObject1.getString("localAddress");
-                        String policeContact=jsonObject1.getString("contactNo");
-                        String policeDistrict=jsonObject1.getString("district");
+                        String policeLocalAddress = jsonObject1.getString("localAddress");
+                        String policeContact = jsonObject1.getString("contactNo");
+                        String policeDistrict = jsonObject1.getString("district");
                         listItem.setName(policeStationName);
                         listItem.setPhone(policeContact);
                         listItem.setDistrict(policeDistrict);
-                        listItem.setAddress(policeLocalAddress+", "+policeDistrict+", "+"Nepal");
+                        listItem.setAddress(policeLocalAddress + ", " + policeDistrict + ", " + "Nepal");
                         policeStationList.add(listItem);
                         allUrgentServices.add(listItem);
                     }
@@ -781,10 +928,10 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         ServicePojo listItem = new ServicePojo();
                         JSONObject jsonObject1 = jsonAtmArray.getJSONObject(i);
                         String atmName = jsonObject1.getString("atmName");
-                        String atmLocalAddress=jsonObject1.getString("localAddress");
-                        String atmDistrict=jsonObject1.getString("district");
+                        String atmLocalAddress = jsonObject1.getString("localAddress");
+                        String atmDistrict = jsonObject1.getString("district");
                         listItem.setName(atmName);
-                        listItem.setAddress(atmLocalAddress+", "+atmDistrict+", "+"Nepal");
+                        listItem.setAddress(atmLocalAddress + ", " + atmDistrict + ", " + "Nepal");
                         atmList.add(listItem);
                         allUrgentServices.add(listItem);
                     }
@@ -792,34 +939,33 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         ServicePojo listItem = new ServicePojo();
                         JSONObject jsonObject1 = jsonHospitalArray.getJSONObject(i);
                         String hospitalName = jsonObject1.getString("hospital");
-                        String hospitalContactNumber=jsonObject1.getString("hospitalContactNumber");
-                        String hospitalDistrict=jsonObject1.getString("district");
+                        String hospitalContactNumber = jsonObject1.getString("hospitalContactNumber");
+                        String hospitalDistrict = jsonObject1.getString("district");
                         listItem.setDistrict(hospitalDistrict);
                         listItem.setName(hospitalName);
                         listItem.setPhone(hospitalContactNumber);
-                        listItem.setAddress(hospitalDistrict+", "+"Nepal");
+                        listItem.setAddress(hospitalDistrict + ", " + "Nepal");
                         hospitalList.add(listItem);
                         allUrgentServices.add(listItem);
                     }
 
-                    if("state".equals(selectedFilterType)){
-                        urgentAllCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,allUrgentServices);
-                        urgentBloodBankCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,bloodBankList);
-                        urgentAtmCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,atmList);
-                        urgentHospitalCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,hospitalList);
-                        urgentPoliceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,policeStationList);
+                    if ("state".equals(selectedFilterType)) {
+                        urgentAllCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, allUrgentServices);
+                        urgentBloodBankCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, bloodBankList);
+                        urgentAtmCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, atmList);
+                        urgentHospitalCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, hospitalList);
+                        urgentPoliceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, policeStationList);
                         resourceServiceLoading.setVisibility(View.GONE);
                         resourceRecyclerView.setAdapter(urgentAllCustomAdapter);
                         urgentAllBtn.performClick();
-                    }
-                    else if("district".equals(selectedFilterType)){
-                        List<ServicePojo>filteredServices=new ArrayList<>();
-                        for(ServicePojo item: allUrgentServices){
-                            if(item.getDistrict().equals(selectedFilter)){
+                    } else if ("district".equals(selectedFilterType)) {
+                        List<ServicePojo> filteredServices = new ArrayList<>();
+                        for (ServicePojo item : allUrgentServices) {
+                            if (item.getDistrict().equals(selectedFilter)) {
                                 filteredServices.add(item);
                             }
                         }
-                        urgentAllCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,filteredServices);
+                        urgentAllCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, filteredServices);
                         resourceServiceLoading.setVisibility(View.GONE);
                         resourceRecyclerView.setAdapter(urgentAllCustomAdapter);
                         urgentAllBtn.performClick();
@@ -877,7 +1023,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
             encodedUrl = String.valueOf(URL);
         }
 
-        Log.d("Final Url: ",encodedUrl.toString());
+        Log.d("Final Url: ", encodedUrl.toString());
         return encodedUrl;
 
 

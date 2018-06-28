@@ -7,11 +7,13 @@ import java.util.List;
  */
 
 public class ResourcePojo {
+    private Integer id;
     private String name;
+    private String description;
+    private String Image;
     private String address;
     private String info;
     private String district;
-
     public List<LocalLevelResponsePojo> getLocalLevelResponsePojoList() {
         return localLevelResponsePojoList;
     }
@@ -54,5 +56,27 @@ public class ResourcePojo {
         this.address = phone;
     }
 
+    public Integer getId() {
+        return id;
+    }
 
+    public String getImage() {
+        return Image;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setImage(String image) {
+        Image = image;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

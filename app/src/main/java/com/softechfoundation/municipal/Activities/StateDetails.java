@@ -188,11 +188,10 @@ public class StateDetails extends AppCompatActivity {
         filterBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if("district".equals(whereToJumpOnFilterBackBtn)){
+               if("district".equals(whereToJumpOnFilterBackBtn)){
                     filterRviewTitle.setText("Filter information by Districts");
                     getDistricts(state);
-                    selectedFilterType="district";
+                    selectedFilterType="state";
                     selectedFilter=state;
                     showStateDetail();
                     filterBackButton.setVisibility(View.GONE);
@@ -201,7 +200,7 @@ public class StateDetails extends AppCompatActivity {
                     whereToJumpOnFilterBackBtn="district";
                     populateLocalLevelRecyclerView();
                     selectedFilterType="district";
-                    selectedFilter=state;
+                    selectedFilter=globalDistrict;
                     showDistrictDetail(globalDistrict);
                     filterBackButton.setVisibility(View.VISIBLE);
                 }
@@ -368,7 +367,7 @@ public class StateDetails extends AppCompatActivity {
                                 public void onItemClickListener(int position, View view) {
                                     ListItem item=wardList.get(position);
                                     selectedFilter=item.getName();
-                                    selectedFilterType=item.getName();
+                                    selectedFilterType=item.getType();
                                     Toast.makeText(StateDetails.this, "Ward "+item.getName()+" is successfully selected and\nServices and Resources are filtered", Toast.LENGTH_LONG).show();
 //                                    showWardDetail(item.getName());
 
@@ -401,7 +400,6 @@ public class StateDetails extends AppCompatActivity {
         onBackPressed();
         return true;
     }
-
 
     private void showWardDetail(final String name) {
         //Start Caching
@@ -675,7 +673,7 @@ public class StateDetails extends AppCompatActivity {
                             ListItem currentItem=allList.get(position);
                                 showLocalLevelDetail(currentItem.getName());
                                 selectedFilter=currentItem.getName();
-                                selectedFilterType=currentItem.getType();
+                                selectedFilterType="palika";
                                 globalLocalLevel=currentItem.getName();
                                 filterRviewTitle.setText("Filter information from ward");
                                 getWards(currentItem.getName());

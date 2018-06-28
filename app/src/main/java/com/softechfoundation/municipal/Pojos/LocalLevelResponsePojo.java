@@ -1,18 +1,19 @@
 package com.softechfoundation.municipal.Pojos;
 
 public class LocalLevelResponsePojo {
+    private Integer id;
     private String ruralMunicipality;
     private String municipality;
     private String metropolitan;
     private String subMetropolitan;
     private String wardNo;
 
-    public LocalLevelResponsePojo(String ruralMunicipality, String municipality, String metropolitan, String subMetropolitan, String wardNo) {
-        this.ruralMunicipality = ruralMunicipality;
-        this.municipality = municipality;
-        this.metropolitan = metropolitan;
-        this.subMetropolitan = subMetropolitan;
-        this.wardNo = wardNo;
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getRuralMunicipality() {

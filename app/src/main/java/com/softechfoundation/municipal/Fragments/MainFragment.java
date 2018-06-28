@@ -91,43 +91,44 @@ import static com.android.volley.Request.Method.GET;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainFragment extends Fragment implements OnMapReadyCallback{
+public class MainFragment extends Fragment implements OnMapReadyCallback {
 
 
     public MainFragment() {
         // Required empty public constructor
     }
+
     private String MY_PREFS = "SharedValues";
     private String[] stateNames;
     private RecyclerView recyclerView;
     private NewListItemAdapter newAdapter;
     private OldListItemAdapter oldAdapter;
-    private Button stateBtn, districtBtn, vdcBtn,trigger;
+    private Button stateBtn, districtBtn, vdcBtn, trigger;
     private Button readMessage;
     private AutoCompleteTextView searchBox;
     private TextView catagories;
     private ArrayAdapter<String> autoComAdapter;
     private Button btnOldVdc, btnMetropolitian, btnSubMetropolitian, btnMunicipality, btnRuralMunicipality;
-    private  Button btnAll;
+    private Button btnAll;
     private HorizontalScrollView horizontalScrollViewMenu;
     private View pathView;
     private View topDetail;
-    private Button vdcToLocalLevel,localLevelToVdc;
+    private Button vdcToLocalLevel, localLevelToVdc;
     private View mappingOptionView;
     private TextView chooseMappingOpt;
     private View loadingPlaces;
-    
-    
-    private String globalState, globalDistrict, globalLocalLevel,globalOldVdc;
+
+
+    private String globalState, globalDistrict, globalLocalLevel, globalOldVdc;
     private NewListItemAdapter adapterDistrict, adapterVdc, adapterMetroplitan, adapterAll;
     private OldListItemAdapter adapterOldVdc;
-    private boolean isLocalToOldClicked=false;
+    private boolean isLocalToOldClicked = false;
 
     private NewListItemAdapter adapterSubMetropolitan, adapterMunicipal, adapterRuralMunicipal;
     private StringBuilder stringBuilder = new StringBuilder();
     private TextToSpeech tts;
     private int ACT_CHECK_TTS_DATA = 1000;
-    
+
     private View fragmentMap;
     private GoogleMap mGoogleMap;
     private Marker marker;
@@ -138,27 +139,22 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
     private boolean isInfoWindowShown = false;
     private String TAG = MainPage.class.getSimpleName();
-    static
-    {
+
+    static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
-    //    @Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                             Bundle savedInstanceState) {
-//        // Inflate the layout for this fragment
-//        return inflater.inflate(R.layout.fragment_main, container, false);
-//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view=inflater.inflate(R.layout.fragment_main, container, false);
-       // OnBoardingStart(view);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        // OnBoardingStart(view);
         initialization(view);
 
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.map_fragment);
@@ -188,11 +184,9 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         droidTarget.offset(display.getWidth() / 2, display.getHeight() / 2);
 
 
-
         final SpannableString sassyDesc = new SpannableString("It allows you to go back, sometimes");
 
         sassyDesc.setSpan(new StyleSpan(Typeface.ITALIC), sassyDesc.length() - "sometimes".length(), sassyDesc.length(), 0);
-
 
 
         // We have a sequence of targets, so lets build it!
@@ -302,7 +296,6 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 //                });
 
 
-
         // You don't always need a sequence, and for that there's a single time tap target
 
         final SpannableString spannedDesc = new SpannableString("This is the sample app for TapTargetView");
@@ -311,68 +304,65 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
         TapTargetView.showFor(getActivity(),
                 TapTarget.forView(view.findViewById(R.id.search_box),
-                "Search the state, district and vdc from here", spannedDesc)
-                .outerCircleColor(R.color.targetOuterCircleColor)      // Specify a color for the outer circle
-                .outerCircleAlpha(0.55f)            // Specify the alpha amount for the outer circle
-                .targetCircleColor(R.color.white)   // Specify a color for the target circle
-                .titleTextSize(20)                  // Specify the size (in sp) of the title text
-                .titleTextColor(R.color.white)      // Specify the color of the title text
-                .descriptionTextSize(10)            // Specify the size (in sp) of the description text
-                .descriptionTextColor(R.color.red)  // Specify the color of the description text
-                .textColor(R.color.blue)            // Specify a color for both the title and description text
-                .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
-                .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
-                .drawShadow(true)                   // Whether to draw a drop shadow or not
-                .cancelable(false)                  // Whether tapping outside the outer circle dismisses the view
-                .tintTarget(true)                   // Whether to tint the target view's color
-                .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
-                //.icon(Drawable)                     // Specify a custom drawable to draw as the target
-                .targetRadius(60)
-                .cancelable(false)
+                        "Search the state, district and vdc from here", spannedDesc)
+                        .outerCircleColor(R.color.targetOuterCircleColor)      // Specify a color for the outer circle
+                        .outerCircleAlpha(0.55f)            // Specify the alpha amount for the outer circle
+                        .targetCircleColor(R.color.white)   // Specify a color for the target circle
+                        .titleTextSize(20)                  // Specify the size (in sp) of the title text
+                        .titleTextColor(R.color.white)      // Specify the color of the title text
+                        .descriptionTextSize(10)            // Specify the size (in sp) of the description text
+                        .descriptionTextColor(R.color.red)  // Specify the color of the description text
+                        .textColor(R.color.blue)            // Specify a color for both the title and description text
+                        .textTypeface(Typeface.SANS_SERIF)  // Specify a typeface for the text
+                        .dimColor(R.color.black)            // If set, will dim behind the view with 30% opacity of the given color
+                        .drawShadow(true)                   // Whether to draw a drop shadow or not
+                        .cancelable(false)                  // Whether tapping outside the outer circle dismisses the view
+                        .tintTarget(true)                   // Whether to tint the target view's color
+                        .transparentTarget(false)           // Specify whether the target is transparent (displays the content underneath)
+                        //.icon(Drawable)                     // Specify a custom drawable to draw as the target
+                        .targetRadius(60)
+                        .cancelable(false)
 
-                .drawShadow(true)
+                        .drawShadow(true)
 
-                .titleTextDimen(R.dimen.title_text_size)
+                        .titleTextDimen(R.dimen.title_text_size)
 
-                .tintTarget(false), new TapTargetView.Listener() {
-
-
-
-            @Override
-
-            public void onTargetClick(TapTargetView view) {
-
-                super.onTargetClick(view);
-
-                // .. which evidently starts the sequence we defined earlier
-
-                //sequence.start();
-
-            }
+                        .tintTarget(false), new TapTargetView.Listener() {
 
 
+                    @Override
 
-            @Override
+                    public void onTargetClick(TapTargetView view) {
 
-            public void onOuterCircleClick(TapTargetView view) {
+                        super.onTargetClick(view);
 
-                super.onOuterCircleClick(view);
+                        // .. which evidently starts the sequence we defined earlier
 
-                Toast.makeText(view.getContext(), "Click the target", Toast.LENGTH_SHORT).show();
+                        //sequence.start();
 
-            }
+                    }
 
 
+                    @Override
 
-            @Override
+                    public void onOuterCircleClick(TapTargetView view) {
 
-            public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
+                        super.onOuterCircleClick(view);
 
-                Log.d("TapTargetViewSample", "You dismissed me :(");
+                        Toast.makeText(view.getContext(), "Click the target", Toast.LENGTH_SHORT).show();
 
-            }
+                    }
 
-        });
+
+                    @Override
+
+                    public void onTargetDismissed(TapTargetView view, boolean userInitiated) {
+
+                        Log.d("TapTargetViewSample", "You dismissed me :(");
+
+                    }
+
+                });
 
     }
 
@@ -387,7 +377,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         searchBox.setEnabled(false);
     }
 
-    private void initialization(View view ) {
+    private void initialization(View view) {
         recyclerView = view.findViewById(R.id.list_recycleriew);
         stateBtn = view.findViewById(R.id.path_state_name);
         districtBtn = view.findViewById(R.id.path_district_name);
@@ -403,14 +393,14 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         horizontalScrollViewMenu = view.findViewById(R.id.menu_horizontal_scroll_view);
         fragmentMap = view.findViewById(R.id.map_fragment);
         pathView = view.findViewById(R.id.path_view);
-        trigger=view.findViewById(R.id.trigger);
+        trigger = view.findViewById(R.id.trigger);
 
-        localLevelToVdc=view.findViewById(R.id.local_level_to_vdc);
-        vdcToLocalLevel=view.findViewById(R.id.vdc_to_local_level);
-        mappingOptionView=view.findViewById(R.id.choose_mapping_view);
-        chooseMappingOpt=view.findViewById(R.id.choose_an_option);
-        loadingPlaces=view.findViewById(R.id.dotted_place_loading);
-       // topDetail=view.findViewById(R.id.top_detail_view);
+        localLevelToVdc = view.findViewById(R.id.local_level_to_vdc);
+        vdcToLocalLevel = view.findViewById(R.id.vdc_to_local_level);
+        mappingOptionView = view.findViewById(R.id.choose_mapping_view);
+        chooseMappingOpt = view.findViewById(R.id.choose_an_option);
+        loadingPlaces = view.findViewById(R.id.dotted_place_loading);
+        // topDetail=view.findViewById(R.id.top_detail_view);
         //checkNetConnection();
 
         mainWork();
@@ -421,64 +411,26 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         localLevelToVdc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isLocalToOldClicked=true;
-                mappingOptionView.setVisibility(View.GONE);
-                chooseMappingOpt.setVisibility(View.GONE);
-                searchBox.setEnabled(true);
-                searchBox.setHint("Search States...");
-                pathView.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.VISIBLE);
-                newAdapter = new NewListItemAdapter(getContext(), getData(), recyclerView, new RecyclerViewOnItemClickListener() {
-                    @Override
-                    public void onItemClickListener(int position, View view) {
-                        // MainPage.pathView.setVisibility(View.VISIBLE)
-                        loadingPlaces.setVisibility(View.VISIBLE);
-                        globalState=getData().get(position).getName();
-                        populateDistrictRecyclerView("new");
-                        
-                    }
-                });
-                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
-                recyclerView.setAdapter(newAdapter);
-                searchBox.setAdapter(autoComAdapter);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+                populateState("new");
             }
         });
 
         vdcToLocalLevel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isLocalToOldClicked=false;
-                mappingOptionView.setVisibility(View.GONE);
-                chooseMappingOpt.setVisibility(View.GONE);
-                searchBox.setEnabled(true);
-                searchBox.setHint("Search States...");
-                pathView.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.VISIBLE);
-                oldAdapter = new OldListItemAdapter(getContext(), getData(), new RecyclerViewOnItemClickListener() {
-                    @Override
-                    public void onItemClickListener(int position, View view) {
-                        globalState=getData().get(position).getName();
-                        loadingPlaces.setVisibility(View.VISIBLE);
-                        populateDistrictRecyclerView("old");
-                    }
-                });
-                autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
-                recyclerView.setAdapter(oldAdapter);
-                searchBox.setAdapter(autoComAdapter);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
-
+                populateState("old");
             }
         });
 
         stateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isLocalToOldClicked){
-                    recyclerView.setAdapter(newAdapter);
-                }else{
-                    recyclerView.setAdapter(oldAdapter);
+                if (isLocalToOldClicked) {
+                    localLevelToVdc.performClick();
+                } else {
+                    vdcToLocalLevel.performClick();
                 }
+
                 searchBox.setHint("Search States...");
                 stateBtn.setText("States");
                 districtBtn.setVisibility(View.GONE);
@@ -509,7 +461,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         vdcBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isLocalToOldClicked){
+                if (isLocalToOldClicked) {
                     populateLocalLevelRecyclerView();
                     catagories.setText("Local Levels");
                     vdcBtn.setText("Local Levels");
@@ -519,7 +471,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                     districtBtn.setVisibility(View.VISIBLE);
                     catagories.setVisibility(View.GONE);
                     horizontalScrollViewMenu.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     populateOldVdcRecyclerView();
                     catagories.setText("VDCs");
                     vdcBtn.setText("VDCs");
@@ -528,7 +480,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                     stateBtn.setVisibility(View.VISIBLE);
                     districtBtn.setVisibility(View.VISIBLE);
                     catagories.setVisibility(View.VISIBLE);
-                    horizontalScrollViewMenu.setVisibility(View.GONE);   
+                    horizontalScrollViewMenu.setVisibility(View.GONE);
                 }
             }
         });
@@ -611,6 +563,62 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         });
 
 
+        searchBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+    }
+
+    private void populateState(String oldOrNew) {
+        if ("new".equals(oldOrNew)) {
+            isLocalToOldClicked = true;
+            mappingOptionView.setVisibility(View.GONE);
+            chooseMappingOpt.setVisibility(View.GONE);
+            searchBox.setEnabled(true);
+            searchBox.setHint("Search States...");
+            pathView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.VISIBLE);
+            newAdapter = new NewListItemAdapter(getContext(), getData(), recyclerView, new RecyclerViewOnItemClickListener() {
+                @Override
+                public void onItemClickListener(int position, View view) {
+                    // MainPage.pathView.setVisibility(View.VISIBLE)
+                    loadingPlaces.setVisibility(View.VISIBLE);
+                    globalState = getData().get(position).getName();
+                    populateDistrictRecyclerView("new");
+
+                }
+            });
+            autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
+            recyclerView.setAdapter(newAdapter);
+            searchBox.setAdapter(autoComAdapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        } else if ("old".equals(oldOrNew)) {
+            isLocalToOldClicked = false;
+            mappingOptionView.setVisibility(View.GONE);
+            chooseMappingOpt.setVisibility(View.GONE);
+            searchBox.setEnabled(true);
+            searchBox.setHint("Search States...");
+            pathView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.VISIBLE);
+            oldAdapter = new OldListItemAdapter(getContext(), getData(), new RecyclerViewOnItemClickListener() {
+                @Override
+                public void onItemClickListener(int position, View view) {
+                    globalState = getData().get(position).getName();
+                    loadingPlaces.setVisibility(View.VISIBLE);
+                    populateDistrictRecyclerView("old");
+                }
+            });
+            autoComAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, stateNames);
+            recyclerView.setAdapter(oldAdapter);
+            searchBox.setAdapter(autoComAdapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        }
+
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -630,11 +638,11 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 newAdapter = new NewListItemAdapter(getContext(), newList, recyclerView, new RecyclerViewOnItemClickListener() {
                     @Override
                     public void onItemClickListener(int position, View view) {
-                        globalState=newList.get(position).getName();
+                        globalState = newList.get(position).getName();
                         loadingPlaces.setVisibility(View.VISIBLE);
-                        if(isLocalToOldClicked){
+                        if (isLocalToOldClicked) {
                             populateDistrictRecyclerView("new");
-                        }else {
+                        } else {
                             populateDistrictRecyclerView("old");
                         }
                     }
@@ -644,14 +652,6 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
             @Override
             public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-
-        searchBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
             }
         });
@@ -676,13 +676,13 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
     }
 
-   private List<ListItem> getData() {
+    private List<ListItem> getData() {
         List<ListItem> listItems = new ArrayList<>();
         int[] icons = {R.drawable.state1_logo, R.drawable.state2_logo, R.drawable.state3_logo,
                 R.drawable.state4_logo, R.drawable.state5_logo, R.drawable.state6_logo, R.drawable.state7_logo};
         String[] names = {"State 1", "State 2", "State 3", "State 4", "State 5", "State 6", "State 7"};
         stateNames = names;
-        for (int i = 0; i < names.length && i<icons.length; i++) {
+        for (int i = 0; i < names.length && i < icons.length; i++) {
             ListItem current = new ListItem();
             current.setIcon(icons[i]);
             current.setName(names[i]);
@@ -917,10 +917,10 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 //        mGoogleMap.setLatLngBoundsForCameraTarget(ADELAIDE);
     }
 
-    public void findPlace(){
+    public void findPlace() {
         SharedPreferences pref = getActivity().getApplicationContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
 
-        String location=pref.getString("location", null);
+        String location = pref.getString("location", null);
         //location = district + ", " + vdc + ", " + "Nepal";
         Log.d("location::", String.valueOf(location));
 
@@ -935,7 +935,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
                 Toast.makeText(getActivity(), "Sorry,Unable to locate in Map", Toast.LENGTH_SHORT).show();
                 // alternateChoice(district);
-               // googleSearchBox();
+                // googleSearchBox();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -959,7 +959,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     private void getOldDetail(final String type) {
         //Start Caching
         final RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"vdcs/OldVdcList/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "vdcs/OldVdcList/",
                 globalLocalLevel);
 
         CacheRequest cacheRequest = new CacheRequest(0, url, new Response.Listener<NetworkResponse>() {
@@ -1049,7 +1049,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/localLevel/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "districts/localLevel/",
                 globalDistrict);
 
 
@@ -1086,7 +1086,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                     adapterRuralMunicipal = new NewListItemAdapter(getContext(), ruralMunicipalList, recyclerView, new RecyclerViewOnItemClickListener() {
                         @Override
                         public void onItemClickListener(int position, View view) {
-                            clickLocalLevelMenu("RuralMunicipal",ruralMunicipalList.get(position));
+                            clickLocalLevelMenu("RuralMunicipal", ruralMunicipalList.get(position));
                         }
                     });
                     //for municipal
@@ -1102,8 +1102,8 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                     }
                     adapterMunicipal = new NewListItemAdapter(getContext(), municipalList, recyclerView, new RecyclerViewOnItemClickListener() {
                         @Override
-                        public void onItemClickListener(int position, View view) { 
-                            clickLocalLevelMenu("municipal",municipalList.get(position));
+                        public void onItemClickListener(int position, View view) {
+                            clickLocalLevelMenu("municipal", municipalList.get(position));
                         }
                     });
                     //for metropolitan
@@ -1120,7 +1120,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                     adapterMetroplitan = new NewListItemAdapter(getContext(), metropolitanList, recyclerView, new RecyclerViewOnItemClickListener() {
                         @Override
                         public void onItemClickListener(int position, View view) {
-                            clickLocalLevelMenu("metropolitan",metropolitanList.get(position));
+                            clickLocalLevelMenu("metropolitan", metropolitanList.get(position));
                         }
                     });
                     //for subMetropolitan
@@ -1137,14 +1137,14 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                     adapterSubMetropolitan = new NewListItemAdapter(getContext(), subMetropolitanList, recyclerView, new RecyclerViewOnItemClickListener() {
                         @Override
                         public void onItemClickListener(int position, View view) {
-                                clickLocalLevelMenu("subMetropolitan",subMetropolitanList.get(position));
+                            clickLocalLevelMenu("subMetropolitan", subMetropolitanList.get(position));
                         }
                     });
 
                     adapterAll = new NewListItemAdapter(getContext(), allList, recyclerView, new RecyclerViewOnItemClickListener() {
                         @Override
                         public void onItemClickListener(int position, View view) {
-                            clickLocalLevelMenu(allList.get(position).getType(),ruralMunicipalList.get(position));
+                            clickLocalLevelMenu(allList.get(position).getType(), ruralMunicipalList.get(position));
                         }
                     });
                     loadingPlaces.setVisibility(View.GONE);
@@ -1200,7 +1200,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView, new RecyclerViewOnItemClickListener() {
                     @Override
                     public void onItemClickListener(int position, View view) {
-                        clickLocalLevelMenu(newList.get(position).getType(),ruralMunicipalList.get(position));
+                        clickLocalLevelMenu(newList.get(position).getType(), ruralMunicipalList.get(position));
 
                     }
                 });
@@ -1231,7 +1231,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/state/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "districts/state/",
                 globalState);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -1258,7 +1258,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                     adapterDistrict = new NewListItemAdapter(getContext(), districtList, recyclerView, new RecyclerViewOnItemClickListener() {
                         @Override
                         public void onItemClickListener(int position, View view) {
-                            ListItem listItem= districtList.get(position);
+                            ListItem listItem = districtList.get(position);
                             globalDistrict = listItem.getName();
 
                             String location = globalDistrict + ", " + "Nepal";
@@ -1269,10 +1269,10 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                             editor.putString("location", location);
                             editor.apply();
                             trigger.performClick();
-                            if(choice.equals("new")){
+                            if (choice.equals("new")) {
                                 populateLocalLevelRecyclerView();
 
-                            }else if("old".equals(choice)){
+                            } else if ("old".equals(choice)) {
                                 populateOldVdcRecyclerView();
                             }
                         }
@@ -1329,7 +1329,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String typedText = s.toString().toLowerCase();
-                List<ListItem> newList = new ArrayList<>();
+                final List<ListItem> newList = new ArrayList<>();
                 for (ListItem list : districtList) {
                     String stateName = list.getName().toLowerCase();
                     if (stateName.contains(typedText)) {
@@ -1339,7 +1339,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 NewListItemAdapter filteredAdapter = new NewListItemAdapter(getContext(), newList, recyclerView, new RecyclerViewOnItemClickListener() {
                     @Override
                     public void onItemClickListener(int position, View view) {
-                        ListItem listItem= districtList.get(position);
+                        ListItem listItem = newList.get(position);
                         globalDistrict = listItem.getName();
 
                         String location = globalDistrict + ", " + "Nepal";
@@ -1363,7 +1363,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
         });
     }
 
-    private void clickLocalLevelMenu(String type,ListItem currentItem) {
+    private void clickLocalLevelMenu(String type, ListItem currentItem) {
         globalLocalLevel = currentItem.getName();
         stateBtn.setVisibility(View.VISIBLE);
         vdcBtn.setVisibility(View.VISIBLE);
@@ -1386,19 +1386,19 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
     private void populateOldVdcRecyclerView() {
         final String[] oldVdcNames;
-        final List<ListItem>oldVdcList=new ArrayList<>();
+        final List<ListItem> oldVdcList = new ArrayList<>();
 
-       stateBtn.setVisibility(View.VISIBLE);
-       vdcBtn.setVisibility(View.VISIBLE);
-       vdcBtn.setText("VDCs");
-       districtBtn.setVisibility(View.VISIBLE);
-       districtBtn.setText(globalDistrict);
-       searchBox.setHint("Search VDCs");
-       catagories.setText("VDCs");
+        stateBtn.setVisibility(View.VISIBLE);
+        vdcBtn.setVisibility(View.VISIBLE);
+        vdcBtn.setText("VDCs");
+        districtBtn.setVisibility(View.VISIBLE);
+        districtBtn.setText(globalDistrict);
+        searchBox.setHint("Search VDCs");
+        catagories.setText("VDCs");
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"vdcs/district/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "vdcs/district/",
                 globalDistrict);
 
 
@@ -1415,7 +1415,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                     oldVdcList.clear();
 
                     for (int i = 0; i < oldVdcJsonArray.length(); i++) {
-                        ListItem listItem=new ListItem();
+                        ListItem listItem = new ListItem();
                         JSONObject jsonObject1 = oldVdcJsonArray.getJSONObject(i);
                         String vdcName = jsonObject1.getString("oldVdc");
                         listItem.setName(vdcName);
@@ -1423,17 +1423,17 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                         listItem.setType("oldVdc");
                         oldVdcList.add(listItem);
                     }
-                    adapterOldVdc=new OldListItemAdapter(getContext(), oldVdcList, new RecyclerViewOnItemClickListener() {
+                    adapterOldVdc = new OldListItemAdapter(getContext(), oldVdcList, new RecyclerViewOnItemClickListener() {
                         @Override
                         public void onItemClickListener(int position, View view) {
-                            globalOldVdc=oldVdcList.get(position).getName();
+                            globalOldVdc = oldVdcList.get(position).getName();
                             stateBtn.setVisibility(View.VISIBLE);
                             vdcBtn.setVisibility(View.VISIBLE);
                             districtBtn.setVisibility(View.VISIBLE);
                             vdcBtn.setText(oldVdcList.get(position).getName());
                             catagories.setText("VDCs");
 
-                            String location = globalDistrict + ", "+ globalOldVdc+ ", " + "Nepal";
+                            String location = globalDistrict + ", " + globalOldVdc + ", " + "Nepal";
                             SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
                             editor.clear();
                             editor.apply();
@@ -1462,7 +1462,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
         //End of Caching
 
-        oldVdcNames= new String[oldVdcList.size()];
+        oldVdcNames = new String[oldVdcList.size()];
         int j = 0;
         for (ListItem names : oldVdcList) {
             oldVdcNames[j] = names.getName();
@@ -1480,7 +1480,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String typedText = s.toString().toLowerCase();
-                List<ListItem> newList = new ArrayList<>();
+                final List<ListItem> newList = new ArrayList<>();
                 for (ListItem list : oldVdcList) {
                     String stateName = list.getName().toLowerCase();
                     if (stateName.contains(typedText)) {
@@ -1490,14 +1490,14 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                 OldListItemAdapter filteredAdapter = new OldListItemAdapter(getContext(), newList, new RecyclerViewOnItemClickListener() {
                     @Override
                     public void onItemClickListener(int position, View view) {
-                        globalOldVdc=oldVdcList.get(position).getName();
+                        globalOldVdc = newList.get(position).getName();
                         stateBtn.setVisibility(View.VISIBLE);
                         vdcBtn.setVisibility(View.VISIBLE);
                         districtBtn.setVisibility(View.VISIBLE);
                         vdcBtn.setText(oldVdcList.get(position).getName());
                         catagories.setText("VDCs");
 
-                        String location = globalDistrict + ", "+ globalOldVdc+ ", " + "Nepal";
+                        String location = globalDistrict + ", " + globalOldVdc + ", " + "Nepal";
                         SharedPreferences.Editor editor = getContext().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE).edit();
                         editor.clear();
                         editor.apply();
@@ -1508,9 +1508,9 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
                         getNewDetail();
                     }
                 });
-                if(null != filteredAdapter){
+                if (null != filteredAdapter) {
                     recyclerView.setAdapter(filteredAdapter);
-                }else {
+                } else {
                     recyclerView.setAdapter(adapterDistrict);
                 }
             }
@@ -1525,7 +1525,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
     private void getNewDetail() {
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"vdcs/oldVdc/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "vdcs/oldVdc/",
                 globalOldVdc);
 
 
@@ -1540,13 +1540,13 @@ public class MainFragment extends Fragment implements OnMapReadyCallback{
 
                     //Removing duplication of data from cache
                     stringBuilder.setLength(0);
-                    stringBuilder.append(globalOldVdc+" VDC"+" lies on\n\n");
+                    stringBuilder.append(globalOldVdc + " VDC" + " lies on\n\n");
                     for (int i = 0; i < localLevelJsonArray.length(); i++) {
-                        String localLevel,type;
+                        String localLevel, type;
                         JSONObject jsonObject1 = localLevelJsonArray.getJSONObject(i);
                         localLevel = jsonObject1.getString("newVdc");
                         type = jsonObject1.getString("localLevelType");
-                        stringBuilder.append(localLevel+" "+type+"\n");
+                        stringBuilder.append(localLevel + " " + type + "\n");
                         showMessage(stringBuilder.toString());
                     }
 
