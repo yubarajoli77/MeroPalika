@@ -5,11 +5,16 @@ package com.softechfoundation.municipal.Pojos;
  */
 
 public class ServicePojo {
+    private Integer id;
     private String name;
     private String address;
     private String phone;
     private String info;
     private String district;
+    private String Image;
+    private String description;
+    private String state;
+    private LocalLevelResponsePojo localLevel;
 
     public String getDistrict() {
         return district;
@@ -49,5 +54,45 @@ public class ServicePojo {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getImage() {
+        return Image;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setImage(String image) {
+        Image = image;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public LocalLevelResponsePojo getLocalLevel() {
+        return localLevel;
+    }
+
+    public void setLocalLevel(LocalLevelResponsePojo localLevel) {
+        this.localLevel = localLevel;
     }
 }

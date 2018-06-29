@@ -65,42 +65,72 @@
             android:layout_marginStart="12dp"
             android:layout_marginTop="19dp"
             android:gravity="center"
-            android:text="This is short description for Resources and Services. Very short detail and information is explained here"
+            android:text="@string/test_description"
             android:textColor="@color/white" />
-       <TextView
-           android:id="@+id/rs_more_expand"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:gravity="center"
-           android:layout_centerHorizontal="true"
-           android:layout_below="@+id/rs_description"
-           android:layout_marginTop="8dp"
-           android:padding="4dp"
-           android:text="More..."
-           android:textColor="@color/white"/>
-    </RelativeLayout>
-    <LinearLayout
-        android:id="@+id/rs_long_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:background="#043438"
-        android:layout_below="@id/rs_detail_upper_view"
-        android:orientation="vertical"
-        android:visibility="gone">
+        <ScrollView
+            android:id="@+id/rs_long_description"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:background="#043438"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/rs_description"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:gravity="center"
+                    android:text="@string/test_description"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"/>
+                <TextView
+                    android:id="@+id/rs_less"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:padding="4dp"
+                    android:text="Less..."
+                    android:textColor="@color/white"/>
+            </LinearLayout>
+
+        </ScrollView>
         <TextView
+            android:id="@+id/rs_more_expand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="I am simply toasting the position that was tapped on,but you could do anything with the data at this point. \n\nFor example you may have a list of notes, and tapping on one gives you its position in the list. With that you can get the data object from the list and display the details of that note to the user."
-            android:textColor="@color/white"
-            android:textSize="15sp"/>
-    </LinearLayout>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_images"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/rs_long_description"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/rs_long_description"
+            android:layout_marginTop="8dp"
+            android:padding="4dp"
+            android:text="More..."
+            android:textColor="@color/white"/>
+    </RelativeLayout>
+
+    <com.daimajia.slider.library.SliderLayout
+        android:id="@+id/service_resource_image_slider"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rs_detail_upper_view"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="4dp"
+        android:layout_alignParentEnd="true">
+    </com.daimajia.slider.library.SliderLayout>
+
+    <!--<android.support.v7.widget.RecyclerView-->
+    <!--android:id="@+id/rv_images"-->
+    <!--android:layout_alignParentStart="true"-->
+    <!--android:layout_below="@id/rs_long_description"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"/>-->
 
 
 </android.widget.RelativeLayout>

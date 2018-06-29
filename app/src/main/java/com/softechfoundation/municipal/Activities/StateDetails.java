@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
@@ -70,6 +71,7 @@ public class StateDetails extends AppCompatActivity {
 
 
     public static String globalState, globalDistrict, globalLocalLevel;
+    private FloatingActionButton resourceFilterFab;
     private StringBuilder stringBuilder = new StringBuilder();
     private FilterCustomAdapter adapterDistrict, adapterVdc, adapterMetroplitan, adapterAll, adapterOldVdc;
     private FilterCustomAdapter adapterSubMetropolitan, adapterMunicipal, adapterRuralMunicipal;
@@ -107,6 +109,7 @@ public class StateDetails extends AppCompatActivity {
         filterBackButton = findViewById(R.id.filter_back);
         filterLoading = findViewById(R.id.dotted_filter_loading);
         filterOnOff = findViewById(R.id.filter_on_off);
+        resourceFilterFab=findViewById(R.id.resource_filter_fab);
 
         Intent intentGetValue = getIntent();
         gorvernerName = intentGetValue.getStringExtra("governer");
@@ -218,6 +221,12 @@ public class StateDetails extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 expandOrHideFilter();
+            }
+        });
+        resourceFilterFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(StateDetails.this, "This can be used to filter the Services and Resources", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.softechfoundation.municipal.Activities.ResourcesAndServicesDetail;
 import com.softechfoundation.municipal.Activities.ShowItemInMap;
+import com.softechfoundation.municipal.GloballyCommon;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.Pojos.ServicePojo;
 
@@ -56,23 +57,20 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
         final ServicePojo currentService=dataItem.get(position);
         holder.name.setText(currentService.getName());
         holder.address.setText(currentService.getAddress());
-        if(currentService.getPhone().equals("")){
-            holder.call.setVisibility(View.GONE);
-        }
         if(currentService.getPhone() == null){
-            holder.call.setVisibility(View.GONE);
+            holder.call.setImageDrawable(context.getResources().getDrawable(R.drawable.disabled_phone));
+            holder.call.setClickable(false);
+            holder.call.setEnabled(false);
+        }else{
+            holder.call.setImageDrawable(context.getResources().getDrawable(R.drawable.phone_24dp));
+            holder.call.setClickable(true);
+            holder.call.setEnabled(true);
         }
         if(currentService.getInfo()!=null){
             holder.info.setText(currentService.getInfo());
         } else {
             holder.info.setVisibility(View.GONE);
         }
-        holder.call.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callNumber(currentService.getPhone());
-            }
-        });
 
         holder.location.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +78,7 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
                 Intent intent=new Intent(getContext(), ShowItemInMap.class);
                 intent.putExtra("location",currentService.getAddress());
                 intent.putExtra("name",currentService.getName());
-
+                GloballyCommon.pic=currentService.getImage();
                 getContext().startActivity(intent);
             }
         });

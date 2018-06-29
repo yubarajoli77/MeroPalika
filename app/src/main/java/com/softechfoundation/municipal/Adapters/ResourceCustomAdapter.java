@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.softechfoundation.municipal.Activities.ListOfServicesAndResources;
 import com.softechfoundation.municipal.Activities.ResourcesAndServicesDetail;
 import com.softechfoundation.municipal.Activities.ShowItemInMap;
+import com.softechfoundation.municipal.GloballyCommon;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.Pojos.ResourcePojo;
 
@@ -79,6 +80,7 @@ public class ResourceCustomAdapter extends RecyclerView.Adapter<ResourceCustomAd
                 intent.putExtra("name",currentResource.getName());
                 intent.putExtra("location",currentResource.getAddress());
                 intent.putExtra("phone","NOPHONE");
+                GloballyCommon.pic=currentResource.getImage();
                 getContext().startActivity(intent);
             }
         });

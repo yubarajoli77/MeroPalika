@@ -3,7 +3,7 @@
 <resources>
     <color name="colorPrimaryDark">#0d555b</color>
     <color name="colorPrimary">#117881</color>
-    <color name="colorAccent">#474847</color>
+    <color name="colorAccent">#f50057</color>
     <color name="greisBlue">#5076d2</color>
     <color name="transparent">#00ffffff</color>
 

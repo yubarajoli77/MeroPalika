@@ -8,6 +8,18 @@ public class LocalLevelResponsePojo {
     private String subMetropolitan;
     private String wardNo;
 
+    public LocalLevelResponsePojo() {
+    }
+
+    public LocalLevelResponsePojo(Integer id, String ruralMunicipality, String municipality, String metropolitan, String subMetropolitan, String wardNo) {
+        this.id = id;
+        this.ruralMunicipality = ruralMunicipality;
+        this.municipality = municipality;
+        this.metropolitan = metropolitan;
+        this.subMetropolitan = subMetropolitan;
+        this.wardNo = wardNo;
+    }
+
     public Integer getId() {
         return id;
     }
