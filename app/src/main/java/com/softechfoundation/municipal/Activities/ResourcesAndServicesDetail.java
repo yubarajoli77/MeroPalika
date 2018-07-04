@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.softechfoundation.municipal.GloballyCommon;
@@ -33,9 +34,10 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
     private TextView name, description, lessBtn, more;
     private ImageView address, phone;
     private boolean isExpanded;
-    private View longDescription;
+    private View longDescriptionContainer;
     private SliderLayout mSlider;
-
+    private TextView longDescription;
+    private ImageView detailImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,24 +49,189 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
         address = findViewById(R.id.rs_detail_location);
         phone = findViewById(R.id.rs_detail_call);
         description = findViewById(R.id.rs_description);
-        more = findViewById(R.id.rs_more_expand);
         longDescription = findViewById(R.id.rs_long_description);
+        more = findViewById(R.id.rs_more_expand);
+        longDescriptionContainer = findViewById(R.id.rs_long_description_container);
         lessBtn = findViewById(R.id.rs_less);
-        mSlider = findViewById(R.id.service_resource_image_slider);
+        detailImageView = findViewById(R.id.service_resource_detail_pic);
+//        mSlider = findViewById(R.id.service_resource_image_slider);
 
         Intent intent = getIntent();
         final String rsName = intent.getStringExtra("name");
         final String rsAddress = intent.getStringExtra("location");
         final String rsPhone = intent.getStringExtra("phone");
-        final String rsImage = GloballyCommon.pic;
+        final String rsImage = GloballyCommon.getInstance().getPic();
+        final String rsType=intent.getStringExtra("rsType");
+        final String rsDescription = GloballyCommon.getInstance().getDescription();
 
+        Log.d("Description::", rsDescription);
+        if (rsDescription != null) {
+            description.setText(rsDescription);
+            longDescription.setText(rsDescription);
+        } else {
+            description.setText("There is no description yet");
+            longDescription.setText("There is no description yet");
+        }
+
+        Log.d("PreImage::::", rsImage);
+//        convertImageToFileAndLoadInSlider(rsImage);
+
+        if (rsImage != null) {
+            if (rsImage.length() < 100) {
+                if("hospital".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.hospital_default_pic)
+                            .into(detailImageView);
+                }else if("bloodBank".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.blood_bank_default_pic)
+                            .into(detailImageView);
+                }else if("atm".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.atm_default_pic)
+                            .into(detailImageView);
+                }else if("policeStation".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.police_station_default_pic)
+                            .into(detailImageView);
+                }else if("mountain".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.mountain_default_pic)
+                            .into(detailImageView);
+                }else if("lake".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.lake_default_pic)
+                            .into(detailImageView);
+                }else if("waterfall".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.waterfall_default_pic)
+                            .into(detailImageView);
+                }else if("protectedArea".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.protected_area_default_pic)
+                            .into(detailImageView);
+                }else if("academicInsti".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.educational_insti_default_pic)
+                            .into(detailImageView);
+                }else if("airport".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.airport_default_pic)
+                            .into(detailImageView);
+                }else if("industry".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.industry_default_pic)
+                            .into(detailImageView);
+                }else if("hydropower".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.hydropower_default_pic)
+                            .into(detailImageView);
+                }else if("mainAttraction".equals(rsType)){
+                    Glide.with(getApplicationContext())
+                            .load(R.drawable.mountain_default_pic)
+                            .into(detailImageView);
+                }
+            } else {
+                byte[] decodedString = Base64.decode(rsImage, Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                Glide.with(getApplicationContext())
+                        .load(decodedByte)
+                        .into(detailImageView);
+            }
+        }
+        phone.setEnabled(true);
+        phone.setVisibility(View.VISIBLE);
+
+        if ("NOPHONE".equals(rsPhone)) {
+            phone.setVisibility(View.GONE);
+        }
+        if ("".equals(rsPhone)) {
+            phone.setEnabled(false);
+            phone.setVisibility(View.GONE);
+
+        }
+        if (null == rsPhone) {
+            phone.setEnabled(false);
+            phone.setVisibility(View.GONE);
+
+        }
+
+
+        name.setText(rsName);
+
+        address.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ResourcesAndServicesDetail.this, ShowItemInMap.class);
+                intent.putExtra("location", rsAddress);
+                intent.putExtra("name", rsName);
+                startActivity(intent);
+            }
+        });
+
+        phone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callNumber(rsPhone);
+            }
+        });
+
+
+        more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isExpanded) {
+                    longDescriptionContainer.setVisibility(View.VISIBLE);
+                    more.setText("Less...");
+//                    mSlider.setVisibility(View.GONE);
+                    detailImageView.setVisibility(View.GONE);
+                    description.setVisibility(View.GONE);
+                    lessBtn.setVisibility(View.VISIBLE);
+                    isExpanded = true;
+                } else if (isExpanded) {
+                    longDescriptionContainer.setVisibility(View.GONE);
+                    more.setText("More...");
+//                    mSlider.setVisibility(View.VISIBLE);
+                    detailImageView.setVisibility(View.VISIBLE);
+                    description.setVisibility(View.VISIBLE);
+//                    convertImageToFileAndLoadInSlider(GloballyCommon.getInstance().getPic());
+                    isExpanded = false;
+                }
+            }
+        });
+        lessBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                longDescriptionContainer.setVisibility(View.GONE);
+                more.setText("More...");
+//                mSlider.setVisibility(View.VISIBLE);
+                detailImageView.setVisibility(View.VISIBLE);
+                description.setVisibility(View.VISIBLE);
+                lessBtn.setVisibility(View.GONE);
+                isExpanded = false;
+            }
+        });
+
+
+//        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 3);
+//        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_images);
+//        recyclerView.setHasFixedSize(true);
+//        recyclerView.setLayoutManager(layoutManager);
+//
+//        ImageGalleryAdapter adapter = new ImageGalleryAdapter(this, RSImageGalleryPojo.getRSPhotos());
+//        recyclerView.setAdapter(adapter);
+
+    }
+
+    private void convertImageToFileAndLoadInSlider(String rsImage) {
+        Log.d("Image::::", rsImage);
         TextSliderView textSliderView1 = new TextSliderView(getApplicationContext());
 
         if (rsImage != null) {
-            if(rsImage.length()<100){
+            if (rsImage.length() < 100) {
                 int f = R.drawable.slider2;
                 textSliderView1.description("").image(f);
-            }else{
+            } else {
                 byte[] decodedString = Base64.decode(rsImage, Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
@@ -102,82 +269,6 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
             textSliderView1.description("").image(f);
         }
         mSlider.addSlider(textSliderView1);
-
-
-        phone.setEnabled(true);
-        phone.setVisibility(View.VISIBLE);
-
-        if ("NOPHONE".equals(rsPhone)) {
-            phone.setVisibility(View.GONE);
-        }
-        if ("".equals(rsPhone)) {
-            phone.setEnabled(false);
-        }
-        if (null == rsPhone) {
-            phone.setEnabled(false);
-        }
-
-
-        name.setText(rsName);
-
-        address.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ResourcesAndServicesDetail.this, ShowItemInMap.class);
-                intent.putExtra("location", rsAddress);
-                intent.putExtra("name", rsName);
-                startActivity(intent);
-            }
-        });
-
-        phone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callNumber(rsPhone);
-            }
-        });
-
-
-        more.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isExpanded) {
-                    longDescription.setVisibility(View.VISIBLE);
-                    more.setText("Less...");
-                    mSlider.setVisibility(View.GONE);
-                    description.setVisibility(View.GONE);
-                    lessBtn.setVisibility(View.VISIBLE);
-                    isExpanded = true;
-                } else if (isExpanded) {
-                    longDescription.setVisibility(View.GONE);
-                    more.setText("More...");
-                    mSlider.setVisibility(View.VISIBLE);
-                    description.setVisibility(View.VISIBLE);
-                    isExpanded = false;
-                }
-            }
-        });
-        lessBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                longDescription.setVisibility(View.GONE);
-                more.setText("More...");
-                mSlider.setVisibility(View.VISIBLE);
-                description.setVisibility(View.VISIBLE);
-                lessBtn.setVisibility(View.GONE);
-                isExpanded = false;
-            }
-        });
-
-
-//        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 3);
-//        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_images);
-//        recyclerView.setHasFixedSize(true);
-//        recyclerView.setLayoutManager(layoutManager);
-//
-//        ImageGalleryAdapter adapter = new ImageGalleryAdapter(this, RSImageGalleryPojo.getRSPhotos());
-//        recyclerView.setAdapter(adapter);
-
     }
 
     public void callNumber(String phone) {
@@ -207,4 +298,5 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
         onBackPressed();
         return true;
     }
+
 }

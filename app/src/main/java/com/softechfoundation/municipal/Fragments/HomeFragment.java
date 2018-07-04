@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
+import com.softechfoundation.municipal.GloballyCommon;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
 import com.softechfoundation.municipal.backgroundService.MeroPalikaService;
@@ -58,7 +60,7 @@ public class HomeFragment extends Fragment {
     private MeroPalikaService meroPalikaService;
     private Integer todayPopulations,tomorrowPopulation;
     public static Integer tdPop;
-
+    private FrameLayout frameLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -138,7 +140,7 @@ public class HomeFragment extends Fragment {
         popToday = view.findViewById(R.id.home_today_population);
         popTomorrow = view.findViewById(R.id.home_tomorrow_population);
         serviceIntent = new Intent(getActivity().getApplicationContext(), MeroPalikaService.class);
-
+        frameLayout=view.findViewById(R.id.home_frame_layout);
         process();
     }
 
@@ -236,6 +238,7 @@ public class HomeFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                GloballyCommon.checkErrorResponse(frameLayout,getContext());
                 // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });

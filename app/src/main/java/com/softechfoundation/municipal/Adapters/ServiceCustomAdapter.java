@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +58,7 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
         final ServicePojo currentService=dataItem.get(position);
         holder.name.setText(currentService.getName());
         holder.address.setText(currentService.getAddress());
+
         if(currentService.getPhone() == null){
             holder.call.setImageDrawable(context.getResources().getDrawable(R.drawable.disabled_phone));
             holder.call.setClickable(false);
@@ -78,7 +80,6 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
                 Intent intent=new Intent(getContext(), ShowItemInMap.class);
                 intent.putExtra("location",currentService.getAddress());
                 intent.putExtra("name",currentService.getName());
-                GloballyCommon.pic=currentService.getImage();
                 getContext().startActivity(intent);
             }
         });
@@ -90,6 +91,11 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
                 intent.putExtra("name",currentService.getName());
                 intent.putExtra("location",currentService.getAddress());
                 intent.putExtra("phone",currentService.getPhone());
+                intent.putExtra("rsType",currentService.getServiceType());
+//                intent.putExtra("description",currentService.getDescription());
+                GloballyCommon.getInstance().setDescription(currentService.getDescription());
+                Log.d("AdapterImage::",currentService.getImage());
+                GloballyCommon.getInstance().setPic(currentService.getImage());
                 getContext().startActivity(intent);
             }
         });

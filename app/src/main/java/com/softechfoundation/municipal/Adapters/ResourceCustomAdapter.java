@@ -80,7 +80,10 @@ public class ResourceCustomAdapter extends RecyclerView.Adapter<ResourceCustomAd
                 intent.putExtra("name",currentResource.getName());
                 intent.putExtra("location",currentResource.getAddress());
                 intent.putExtra("phone","NOPHONE");
-                GloballyCommon.pic=currentResource.getImage();
+                intent.putExtra("rsType",currentResource.getResourceType());
+//                intent.putExtra("description",currentResource.getDescription());
+                GloballyCommon.getInstance().setPic(currentResource.getImage());
+                GloballyCommon.getInstance().setDescription(currentResource.getDescription());
                 getContext().startActivity(intent);
             }
         });

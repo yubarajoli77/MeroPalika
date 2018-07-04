@@ -14,6 +14,7 @@ public class ResourcePojo {
     private String address;
     private String info;
     private String district;
+    private String resourceType;
     public List<LocalLevelResponsePojo> getLocalLevelResponsePojoList() {
         return localLevelResponsePojoList;
     }
@@ -78,5 +79,13 @@ public class ResourcePojo {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
     }
 }

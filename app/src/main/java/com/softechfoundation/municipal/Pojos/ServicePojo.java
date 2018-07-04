@@ -15,6 +15,7 @@ public class ServicePojo {
     private String description;
     private String state;
     private LocalLevelResponsePojo localLevel;
+    private String serviceType;
 
     public String getDistrict() {
         return district;
@@ -94,5 +95,13 @@ public class ServicePojo {
 
     public void setLocalLevel(LocalLevelResponsePojo localLevel) {
         this.localLevel = localLevel;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 }

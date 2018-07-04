@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -52,6 +53,7 @@ import com.softechfoundation.municipal.Fragments.MainFragment;
 import com.softechfoundation.municipal.Fragments.MinistryFragment;
 import com.softechfoundation.municipal.Fragments.SeperateDetailMapFragment;
 import com.softechfoundation.municipal.Fragments.StateFragment;
+import com.softechfoundation.municipal.GloballyCommon;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
 
@@ -76,6 +78,7 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
     private boolean isHomeFirstTime = true;
     public static Button readMessage;
     private TextToSpeech tts=null;
+    private CoordinatorLayout coordinatorLayout;
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -88,7 +91,7 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
 
         requestWritePermission();
         fragment = null;
-
+        coordinatorLayout=findViewById(R.id.main_page_coordinator_layout);
         AHBottomNavigation bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
         // Create items
         AHBottomNavigationItem item1 = new AHBottomNavigationItem(R.string.bottom_nav_home, R.drawable.ic_home_black_24dp, R.color.bottn_nav_color);
@@ -259,6 +262,7 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                GloballyCommon.checkErrorResponse(coordinatorLayout,getApplicationContext());
                 error.printStackTrace();
                 requestQueue.stop();
             }

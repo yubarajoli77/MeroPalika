@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
@@ -22,6 +23,7 @@ import com.softechfoundation.municipal.CircularListViewDesign.CircularItemAdapte
 import com.softechfoundation.municipal.CircularListViewDesign.CircularListView;
 import com.softechfoundation.municipal.CircularListViewDesign.CircularTouchListener;
 import com.softechfoundation.municipal.CommonUrl;
+import com.softechfoundation.municipal.GloballyCommon;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.Activities.StateDetails;
@@ -46,6 +48,7 @@ public class StateFragment extends Fragment {
     private CircularItemAdapter adapter;
     private  String stateName,area,population,website,governer,chiefMinister,capital,density;
     private View stateDetailLoading;
+    private FrameLayout frameLayout;
     public StateFragment() {
         // Required empty public constructor
     }
@@ -62,6 +65,7 @@ public class StateFragment extends Fragment {
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_state, container, false);
         stateDetailLoading=view.findViewById(R.id.dotted_state_detail_loading);
+        frameLayout=view.findViewById(R.id.fragment_state_frame_layout);
         doTask(view);
         return view;
     }
@@ -102,7 +106,7 @@ public class StateFragment extends Fragment {
 
                 //Start Caching
                 RequestQueue queue = Volley.newRequestQueue(getContext());
-                String url = makeFinalUrl(CommonUrl.BaseUrl+"states/stateDetails/",
+                String url = makeFinalUrl(CommonUrl.BaseUrl2+"states/stateDetails/",
                         parameter);
 
 
@@ -151,6 +155,7 @@ public class StateFragment extends Fragment {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         stateDetailLoading.setVisibility(View.GONE);
+                        GloballyCommon.checkErrorResponse(frameLayout,getContext());
 //                        Toast.makeText(getActivity().getApplicationContext(), "You are disconnected from internet", Toast.LENGTH_SHORT).show();
                         //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
                     }

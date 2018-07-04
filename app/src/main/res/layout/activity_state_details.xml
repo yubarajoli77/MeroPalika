@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/state_detail_coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ecebeb"
@@ -238,5 +239,6 @@
         android:layout_gravity="end|bottom"
         app:rippleColor="#56011f"
         android:layout_margin="40dp"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_sort_white_24dp"/>
 </android.support.design.widget.CoordinatorLayout>

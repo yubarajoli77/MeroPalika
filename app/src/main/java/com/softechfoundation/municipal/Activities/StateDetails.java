@@ -6,9 +6,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import android.os.Handler;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
@@ -31,8 +34,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
 import com.softechfoundation.municipal.Adapters.FilterCustomAdapter;
+import com.softechfoundation.municipal.CheckInternet.CheckInternet;
 import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.Fragments.MainFragment;
+import com.softechfoundation.municipal.GloballyCommon;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.R;
 import com.softechfoundation.municipal.RecyclerViewOnItemClickListener;
@@ -64,11 +69,11 @@ public class StateDetails extends AppCompatActivity {
     private ImageView filterOnOff;
     private View filterLoading;
     private boolean isFilterExpand = false;
-    private String whereToJumpOnFilterBackBtn="state";
+    private String whereToJumpOnFilterBackBtn = "state";
     private static final String MY_PREFS = "districtOrPalika";
     private String gorvernerName, websiteName, state, capitalCity, areaValue, populationValue, densityValue, chiefMinisterName;
-    private String selectedFilter,selectedFilterType;
-
+    private String selectedFilter, selectedFilterType;
+    private CoordinatorLayout coordinatorLayout;
 
     public static String globalState, globalDistrict, globalLocalLevel;
     private FloatingActionButton resourceFilterFab;
@@ -109,7 +114,8 @@ public class StateDetails extends AppCompatActivity {
         filterBackButton = findViewById(R.id.filter_back);
         filterLoading = findViewById(R.id.dotted_filter_loading);
         filterOnOff = findViewById(R.id.filter_on_off);
-        resourceFilterFab=findViewById(R.id.resource_filter_fab);
+        resourceFilterFab = findViewById(R.id.resource_filter_fab);
+        coordinatorLayout = findViewById(R.id.state_detail_coordinator_layout);
 
         Intent intentGetValue = getIntent();
         gorvernerName = intentGetValue.getStringExtra("governer");
@@ -120,8 +126,8 @@ public class StateDetails extends AppCompatActivity {
         areaValue = intentGetValue.getStringExtra("area");
         populationValue = intentGetValue.getStringExtra("population");
         densityValue = intentGetValue.getStringExtra("density");
-        selectedFilter=state;
-        selectedFilterType="state";
+        selectedFilter = state;
+        selectedFilterType = "state";
         showStateDetail();
         expandOrHideFilter();
 //        getSupportActionBar().setTitle("Detail about"+" "+state);
@@ -133,8 +139,8 @@ public class StateDetails extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "RESOURCES");
                 intent.putExtra("state", state);
-                intent.putExtra("selectedFilter",selectedFilter);
-                intent.putExtra("selectedFilterType",selectedFilterType);
+                intent.putExtra("selectedFilter", selectedFilter);
+                intent.putExtra("selectedFilterType", selectedFilterType);
                 startActivity(intent);
 
             }
@@ -146,8 +152,8 @@ public class StateDetails extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "INFRASTRUCTURES");
                 intent.putExtra("state", state);
-                intent.putExtra("selectedFilter",selectedFilter);
-                intent.putExtra("selectedFilterType",selectedFilterType);
+                intent.putExtra("selectedFilter", selectedFilter);
+                intent.putExtra("selectedFilterType", selectedFilterType);
                 startActivity(intent);
             }
         });
@@ -158,8 +164,8 @@ public class StateDetails extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "URGENTSERVICES");
                 intent.putExtra("state", state);
-                intent.putExtra("selectedFilter",selectedFilter);
-                intent.putExtra("selectedFilterType",selectedFilterType);
+                intent.putExtra("selectedFilter", selectedFilter);
+                intent.putExtra("selectedFilterType", selectedFilterType);
                 startActivity(intent);
             }
         });
@@ -170,8 +176,8 @@ public class StateDetails extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "MAINATTRACTIONS");
                 intent.putExtra("state", state);
-                intent.putExtra("selectedFilter",selectedFilter);
-                intent.putExtra("selectedFilterType",selectedFilterType);
+                intent.putExtra("selectedFilter", selectedFilter);
+                intent.putExtra("selectedFilterType", selectedFilterType);
                 startActivity(intent);
             }
         });
@@ -182,8 +188,8 @@ public class StateDetails extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), ListOfServicesAndResources.class);
                 intent.putExtra("catagory", "AVALIABLECONTACTS");
                 intent.putExtra("state", state);
-                intent.putExtra("selectedFilter",selectedFilter);
-                intent.putExtra("selectedFilterType",selectedFilterType);
+                intent.putExtra("selectedFilter", selectedFilter);
+                intent.putExtra("selectedFilterType", selectedFilterType);
                 startActivity(intent);
             }
         });
@@ -191,19 +197,19 @@ public class StateDetails extends AppCompatActivity {
         filterBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               if("district".equals(whereToJumpOnFilterBackBtn)){
+                if ("district".equals(whereToJumpOnFilterBackBtn)) {
                     filterRviewTitle.setText("Filter information by Districts");
                     getDistricts(state);
-                    selectedFilterType="state";
-                    selectedFilter=state;
+                    selectedFilterType = "state";
+                    selectedFilter = state;
                     showStateDetail();
                     filterBackButton.setVisibility(View.GONE);
-                }else if("palika".equals(whereToJumpOnFilterBackBtn)){
+                } else if ("palika".equals(whereToJumpOnFilterBackBtn)) {
                     filterRviewTitle.setText("Filter information by LocalLevel");
-                    whereToJumpOnFilterBackBtn="district";
+                    whereToJumpOnFilterBackBtn = "district";
                     populateLocalLevelRecyclerView();
-                    selectedFilterType="district";
-                    selectedFilter=globalDistrict;
+                    selectedFilterType = "district";
+                    selectedFilter = globalDistrict;
                     showDistrictDetail(globalDistrict);
                     filterBackButton.setVisibility(View.VISIBLE);
                 }
@@ -247,8 +253,8 @@ public class StateDetails extends AppCompatActivity {
             filterRecyclerview.setVisibility(View.GONE);
             filterRviewTitle.setText("Filter information");
             showStateDetail();
-            selectedFilterType="state";
-            selectedFilter=state;
+            selectedFilterType = "state";
+            selectedFilter = state;
         }
     }
 
@@ -269,7 +275,7 @@ public class StateDetails extends AppCompatActivity {
     }
 
     private void getDistricts(String state) {
-        whereToJumpOnFilterBackBtn="state";
+        whereToJumpOnFilterBackBtn = "state";
         //Start Caching
         filterLoading.setVisibility(View.VISIBLE);
         final List<ListItem> districtList = new ArrayList<>(Collections.<ListItem>emptyList());
@@ -302,13 +308,15 @@ public class StateDetails extends AppCompatActivity {
                         public void onItemClickListener(int position, View view) {
                             filterBackButton.setVisibility(View.VISIBLE);
                             filterLoading.setVisibility(View.VISIBLE);
-                           
-                                filterRviewTitle.setText("Filter info by Local Levels");
-                                globalDistrict = districtList.get(position).getName();
-                                selectedFilter=globalDistrict;
-                                selectedFilterType=districtList.get(position).getType();
-                                showDistrictDetail(globalDistrict);
-                                populateLocalLevelRecyclerView();
+
+                            filterRviewTitle.setText("Filter info by Local Levels");
+                            globalDistrict = districtList.get(position).getName();
+                            selectedFilter = globalDistrict;
+                            selectedFilterType = districtList.get(position).getType();
+//                            Toast.makeText(StateDetails.this, "District " + districtList.get(position).getName() + " is successfully selected and\nServices and Resources are filtered accordingly", Toast.LENGTH_LONG).show();
+
+                            showDistrictDetail(globalDistrict);
+                            populateLocalLevelRecyclerView();
 
                         }
                     });
@@ -317,7 +325,7 @@ public class StateDetails extends AppCompatActivity {
                     filterRecyclerview.post(new Runnable() {
                         @Override
                         public void run() {
-                            filterRecyclerview.smoothScrollToPosition(adapter.getItemCount()-3);
+                            filterRecyclerview.smoothScrollToPosition(adapter.getItemCount() - 3);
                         }
                     });
 
@@ -343,8 +351,8 @@ public class StateDetails extends AppCompatActivity {
     }
 
     private void getWards(String palika) {
-        whereToJumpOnFilterBackBtn="palika";
-        final List<ListItem> wardList=new ArrayList<>();
+        whereToJumpOnFilterBackBtn = "palika";
+        final List<ListItem> wardList = new ArrayList<>();
         //Start Caching
         filterLoading.setVisibility(View.VISIBLE);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
@@ -374,10 +382,10 @@ public class StateDetails extends AppCompatActivity {
                             new RecyclerViewOnItemClickListener() {
                                 @Override
                                 public void onItemClickListener(int position, View view) {
-                                    ListItem item=wardList.get(position);
-                                    selectedFilter=item.getName();
-                                    selectedFilterType=item.getType();
-                                    Toast.makeText(StateDetails.this, "Ward "+item.getName()+" is successfully selected and\nServices and Resources are filtered", Toast.LENGTH_LONG).show();
+                                    ListItem item = wardList.get(position);
+                                    selectedFilter = item.getName();
+                                    selectedFilterType = item.getType();
+                                    Toast.makeText(StateDetails.this, "Ward " + item.getName() + " is successfully selected and\nServices and Resources are filtered", Toast.LENGTH_LONG).show();
 //                                    showWardDetail(item.getName());
 
                                 }
@@ -393,8 +401,7 @@ public class StateDetails extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 filterLoading.setVisibility(View.GONE);
-                Log.d("WardGettingError::",error.toString());
-                Toast.makeText(getApplicationContext(), "No response from Server", Toast.LENGTH_SHORT).show();
+                GloballyCommon.checkErrorResponse(coordinatorLayout,getApplicationContext());
             }
         });
 
@@ -403,6 +410,7 @@ public class StateDetails extends AppCompatActivity {
 
         //End of Caching
     }
+
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -413,7 +421,7 @@ public class StateDetails extends AppCompatActivity {
     private void showWardDetail(final String name) {
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = makeFinalUrl(CommonUrl.BaseUrl2+"locallevels/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl2 + "locallevels/",
                 name);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -425,26 +433,25 @@ public class StateDetails extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(jsonString);
 
                     String chairMan = jsonObject.getString("chairmen");
-                    String chairManContact=jsonObject.getString("chairmenContact");
-                    String chairManEmail=jsonObject.getString("chairmenEmail");
-                    String viceChairMan=jsonObject.getString("viceChairmen");
-                    String viceChairManContact=jsonObject.getString("viceChairmenContact");
-                    String viceChairManEmail=jsonObject.getString("viceChairmenEmail");
-                    String palikaArea=jsonObject.getString("area");
-                    String palikaPopulation =jsonObject.getString("population");
-                    String website=jsonObject.getString("website");
-                    String palikaDensity=jsonObject.getString("density");
-                    String localLevelType=jsonObject.getString("localLevelType");
-
+                    String chairManContact = jsonObject.getString("chairmenContact");
+                    String chairManEmail = jsonObject.getString("chairmenEmail");
+                    String viceChairMan = jsonObject.getString("viceChairmen");
+                    String viceChairManContact = jsonObject.getString("viceChairmenContact");
+                    String viceChairManEmail = jsonObject.getString("viceChairmenEmail");
+                    String palikaArea = jsonObject.getString("area");
+                    String palikaPopulation = jsonObject.getString("population");
+                    String website = jsonObject.getString("website");
+                    String palikaDensity = jsonObject.getString("density");
+                    String localLevelType = jsonObject.getString("localLevelType");
 
 
                     stateName.setText(name);
                     chiefMinisterLabel.setVisibility(View.VISIBLE);
                     chiefMinister.setVisibility(View.VISIBLE);
-                    if("RURAL".equals(localLevelType)){
+                    if ("RURAL".equals(localLevelType)) {
                         capitalCityLabel.setText("(Chairman)");
                         chiefMinisterLabel.setText(" (Vice-Chairman)");
-                    }else{
+                    } else {
                         capitalCityLabel.setText("(Mayor)");
                         chiefMinisterLabel.setText(" (Deputy-Mayor)");
                     }
@@ -463,8 +470,7 @@ public class StateDetails extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "No Internet Available", Toast.LENGTH_SHORT).show();
-
+                GloballyCommon.checkErrorResponse(coordinatorLayout,getApplicationContext());
                 // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -477,9 +483,9 @@ public class StateDetails extends AppCompatActivity {
 
     private void showDistrictDetail(final String globalDistrict) {
         //Start Caching
-        final List<ListItem> districtList=new ArrayList<>(Collections.<ListItem>emptyList());
+        final List<ListItem> districtList = new ArrayList<>(Collections.<ListItem>emptyList());
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/district/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "districts/district/",
                 globalDistrict);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -491,11 +497,11 @@ public class StateDetails extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(jsonString);
                     districtList.clear();
 
-                    String districtArea=jsonObject.getString("area");
-                    String districtPopulation =jsonObject.getString("population");
-                    String districtHeadquater =jsonObject.getString("headquater");
+                    String districtArea = jsonObject.getString("area");
+                    String districtPopulation = jsonObject.getString("population");
+                    String districtHeadquater = jsonObject.getString("headquater");
                     String districtState = jsonObject.getString("state");
-                    String districtPicture=jsonObject.getString("districtPicture");
+                    String districtPicture = jsonObject.getString("districtPicture");
 
                     stateName.setText(globalDistrict);
                     capitalName.setText(districtHeadquater);
@@ -515,8 +521,7 @@ public class StateDetails extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "No Internet Available", Toast.LENGTH_SHORT).show();
-
+                GloballyCommon.checkErrorResponse(coordinatorLayout,getApplicationContext());
                 // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -530,7 +535,7 @@ public class StateDetails extends AppCompatActivity {
     private void showLocalLevelDetail(final String name) {
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = makeFinalUrl(CommonUrl.BaseUrl2+"locallevels/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl2 + "locallevels/",
                 name);
 
         CacheRequest cacheRequest = new CacheRequest(GET, url, new Response.Listener<NetworkResponse>() {
@@ -542,26 +547,25 @@ public class StateDetails extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(jsonString);
 
                     String chairMan = jsonObject.getString("chairmen");
-                    String chairManContact=jsonObject.getString("chairmenContact");
-                    String chairManEmail=jsonObject.getString("chairmenEmail");
-                    String viceChairMan=jsonObject.getString("viceChairmen");
-                    String viceChairManContact=jsonObject.getString("viceChairmenContact");
-                    String viceChairManEmail=jsonObject.getString("viceChairmenEmail");
-                    String palikaArea=jsonObject.getString("area");
-                    String palikaPopulation =jsonObject.getString("population");
-                    String website=jsonObject.getString("website");
-                    String palikaDensity=jsonObject.getString("density");
-                    String localLevelType=jsonObject.getString("localLevelType");
-
+                    String chairManContact = jsonObject.getString("chairmenContact");
+                    String chairManEmail = jsonObject.getString("chairmenEmail");
+                    String viceChairMan = jsonObject.getString("viceChairmen");
+                    String viceChairManContact = jsonObject.getString("viceChairmenContact");
+                    String viceChairManEmail = jsonObject.getString("viceChairmenEmail");
+                    String palikaArea = jsonObject.getString("area");
+                    String palikaPopulation = jsonObject.getString("population");
+                    String website = jsonObject.getString("website");
+                    String palikaDensity = jsonObject.getString("density");
+                    String localLevelType = jsonObject.getString("localLevelType");
 
 
                     stateName.setText(name);
                     chiefMinisterLabel.setVisibility(View.VISIBLE);
                     chiefMinister.setVisibility(View.VISIBLE);
-                    if("RURAL".equals(localLevelType)){
+                    if ("RURAL".equals(localLevelType)) {
                         capitalCityLabel.setText("(Chairman)");
                         chiefMinisterLabel.setText(" (Vice-Chairman)");
-                    }else{
+                    } else {
                         capitalCityLabel.setText("(Mayor)");
                         chiefMinisterLabel.setText(" (Deputy-Mayor)");
                     }
@@ -580,8 +584,7 @@ public class StateDetails extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "No Internet Available", Toast.LENGTH_SHORT).show();
-
+                GloballyCommon.checkErrorResponse(coordinatorLayout,getApplicationContext());
                 // Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -593,7 +596,7 @@ public class StateDetails extends AppCompatActivity {
     }
 
     private void populateLocalLevelRecyclerView() {
-        whereToJumpOnFilterBackBtn="district";
+        whereToJumpOnFilterBackBtn = "district";
         final String[] allNames, ruralMunicipalNames, municipalNames, metropolitanNames, subMetropolitanNames;
         // final List<ListItem> vdcList=new ArrayList<>();
         final List<ListItem> allList = new ArrayList<>();
@@ -604,7 +607,7 @@ public class StateDetails extends AppCompatActivity {
 
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = makeFinalUrl(CommonUrl.BaseUrl+"districts/localLevel/",
+        String url = makeFinalUrl(CommonUrl.BaseUrl + "districts/localLevel/",
                 globalDistrict);
 
 
@@ -679,13 +682,16 @@ public class StateDetails extends AppCompatActivity {
                     adapterAll = new FilterCustomAdapter(getApplicationContext(), allList, new RecyclerViewOnItemClickListener() {
                         @Override
                         public void onItemClickListener(int position, View view) {
-                            ListItem currentItem=allList.get(position);
-                                showLocalLevelDetail(currentItem.getName());
-                                selectedFilter=currentItem.getName();
-                                selectedFilterType="palika";
-                                globalLocalLevel=currentItem.getName();
-                                filterRviewTitle.setText("Filter information from ward");
-                                getWards(currentItem.getName());
+                            ListItem currentItem = allList.get(position);
+                            showLocalLevelDetail(currentItem.getName());
+                            selectedFilter = currentItem.getName();
+                            selectedFilterType = "palika";
+                            globalLocalLevel = currentItem.getName();
+                            GloballyCommon.getInstance().setSelectedPalikaForWardFilter(currentItem.getName());
+                            filterRviewTitle.setText("Filter information from ward");
+//                            Toast.makeText(StateDetails.this, currentItem.getName() + " is successfully selected and\nServices and Resources are filtered accordingly", Toast.LENGTH_LONG).show();
+
+                            getWards(currentItem.getName());
                         }
                     });
                     filterLoading.setVisibility(View.GONE);
@@ -693,9 +699,9 @@ public class StateDetails extends AppCompatActivity {
                     filterRecyclerview.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                           filterRecyclerview.smoothScrollToPosition(adapterAll.getItemCount()-3);
+                            filterRecyclerview.smoothScrollToPosition(adapterAll.getItemCount() - 3);
                         }
-                    },100);
+                    }, 100);
 
                     //mainPageToSetAdapter.setAdapters(adapterAll,adapterMetroplitan,adapterSubMetropolitan,adapterMunicipal,adapterRuralMunicipal);
 
@@ -707,8 +713,7 @@ public class StateDetails extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
-                Toast.makeText(getApplicationContext(), "No value in district Adapter", Toast.LENGTH_SHORT).show();
+                GloballyCommon.checkErrorResponse(coordinatorLayout,getApplicationContext());
                 //Toast.makeText(getContext(), "onErrorResponse:\n\n" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -757,4 +762,5 @@ public class StateDetails extends AppCompatActivity {
 
 
     }
+
 }
