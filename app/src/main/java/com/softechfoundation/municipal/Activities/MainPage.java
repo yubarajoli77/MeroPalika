@@ -665,6 +665,10 @@ public class MainPage extends AppCompatActivity implements TextToSpeech.OnInitLi
         if(id==R.id.check_update){
             checkAppUpdate("fromMenu");
         }
+        if(id==R.id.about){
+            Intent intent=new Intent(getApplicationContext(), About.class);
+            startActivity(intent);
+        }
         return super.onOptionsItemSelected(item);
     }
 

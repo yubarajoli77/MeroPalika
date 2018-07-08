@@ -385,6 +385,7 @@ public class StateDetails extends AppCompatActivity {
                                     ListItem item = wardList.get(position);
                                     selectedFilter = item.getName();
                                     selectedFilterType = item.getType();
+//                                    showWardDetail(item.getName());
                                     Toast.makeText(StateDetails.this, "Ward " + item.getName() + " is successfully selected and\nServices and Resources are filtered", Toast.LENGTH_LONG).show();
 //                                    showWardDetail(item.getName());
 

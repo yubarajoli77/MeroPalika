@@ -10,7 +10,7 @@ public class ResourcePojo {
     private Integer id;
     private String name;
     private String description;
-    private String Image;
+    private List<PicturePojo> images;
     private String address;
     private String info;
     private String district;
@@ -61,16 +61,16 @@ public class ResourcePojo {
         return id;
     }
 
-    public String getImage() {
-        return Image;
+    public List<PicturePojo> getImage() {
+        return images;
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-    public void setImage(String image) {
-        Image = image;
+    public void setImage(List<PicturePojo> images) {
+        this.images = images;
     }
 
     public String getDescription() {

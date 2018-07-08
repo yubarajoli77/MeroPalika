@@ -5,7 +5,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -21,23 +23,38 @@ import com.bumptech.glide.Glide;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.softechfoundation.municipal.GloballyCommon;
+import com.softechfoundation.municipal.ImageSlider.ImageModel;
+import com.softechfoundation.municipal.ImageSlider.SlidingImage_Adapter;
+import com.softechfoundation.municipal.Pojos.PicturePojo;
 import com.softechfoundation.municipal.R;
+import com.viewpagerindicator.CirclePageIndicator;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ResourcesAndServicesDetail extends AppCompatActivity {
     private TextView name, description, lessBtn, more;
     private ImageView address, phone;
     private boolean isExpanded;
     private View longDescriptionContainer;
-    private SliderLayout mSlider;
     private TextView longDescription;
-    private ImageView detailImageView;
+
+
+    private static ViewPager mPager;
+    private static int currentPage = 0;
+    private static int NUM_PAGES = 0;
+    private ArrayList<ImageModel> imageModelArrayList;
+    private List<Bitmap> rsImageList=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,14 +70,12 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
         more = findViewById(R.id.rs_more_expand);
         longDescriptionContainer = findViewById(R.id.rs_long_description_container);
         lessBtn = findViewById(R.id.rs_less);
-        detailImageView = findViewById(R.id.service_resource_detail_pic);
-//        mSlider = findViewById(R.id.service_resource_image_slider);
 
         Intent intent = getIntent();
         final String rsName = intent.getStringExtra("name");
         final String rsAddress = intent.getStringExtra("location");
         final String rsPhone = intent.getStringExtra("phone");
-        final String rsImage = GloballyCommon.getInstance().getPic();
+        final List<PicturePojo> rsImage = GloballyCommon.getInstance().getPic();
         final String rsType=intent.getStringExtra("rsType");
         final String rsDescription = GloballyCommon.getInstance().getDescription();
 
@@ -73,72 +88,139 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
             longDescription.setText("There is no description yet");
         }
 
-        Log.d("PreImage::::", rsImage);
+        for(PicturePojo picturePojo: rsImage){
+            Log.d("rsImage",picturePojo.getPicture());
+            byte[] decodedString = Base64.decode(picturePojo.getPicture(), Base64.NO_WRAP);
+            InputStream inputStream  = new ByteArrayInputStream(decodedString);
+            Bitmap image  = BitmapFactory.decodeStream(inputStream);
+            rsImageList.add(image);
+        }
+
+
+        imageModelArrayList = new ArrayList<>();
+        imageModelArrayList = populateList();
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager.setAdapter(new SlidingImage_Adapter(ResourcesAndServicesDetail.this,imageModelArrayList));
+        CirclePageIndicator indicator = (CirclePageIndicator) findViewById(R.id.indicator);
+        indicator.setFillColor(getResources().getColor(R.color.colorPrimary));
+        indicator.setViewPager(mPager);
+
+        final float density = getResources().getDisplayMetrics().density;
+
+//Set circle indicator radius
+        indicator.setRadius(5 * density);
+
+        NUM_PAGES =imageModelArrayList.size();
+
+        // Auto start of viewpager
+        final Handler handler = new Handler();
+        final Runnable Update = new Runnable() {
+            public void run() {
+                if (currentPage == NUM_PAGES) {
+                    currentPage = 0;
+                }
+                mPager.setCurrentItem(currentPage++, true);
+
+            }
+        };
+        Timer swipeTimer = new Timer();
+        swipeTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(Update);
+            }
+        }, 5000, 40000);
+
+        // Pager listener over indicator
+        indicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            @Override
+            public void onPageSelected(int position) {
+                currentPage = position;
+
+            }
+
+            @Override
+            public void onPageScrolled(int pos, float arg1, int arg2) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int pos) {
+
+            }
+        });
+
+
+
+
+//        Log.d("PreImage::::", rsImage);
 //        convertImageToFileAndLoadInSlider(rsImage);
 
-        if (rsImage != null) {
-            if (rsImage.length() < 100) {
-                if("hospital".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.hospital_default_pic)
-                            .into(detailImageView);
-                }else if("bloodBank".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.blood_bank_default_pic)
-                            .into(detailImageView);
-                }else if("atm".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.atm_default_pic)
-                            .into(detailImageView);
-                }else if("policeStation".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.police_station_default_pic)
-                            .into(detailImageView);
-                }else if("mountain".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.mountain_default_pic)
-                            .into(detailImageView);
-                }else if("lake".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.lake_default_pic)
-                            .into(detailImageView);
-                }else if("waterfall".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.waterfall_default_pic)
-                            .into(detailImageView);
-                }else if("protectedArea".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.protected_area_default_pic)
-                            .into(detailImageView);
-                }else if("academicInsti".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.educational_insti_default_pic)
-                            .into(detailImageView);
-                }else if("airport".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.airport_default_pic)
-                            .into(detailImageView);
-                }else if("industry".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.industry_default_pic)
-                            .into(detailImageView);
-                }else if("hydropower".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.hydropower_default_pic)
-                            .into(detailImageView);
-                }else if("mainAttraction".equals(rsType)){
-                    Glide.with(getApplicationContext())
-                            .load(R.drawable.mountain_default_pic)
-                            .into(detailImageView);
-                }
-            } else {
-                byte[] decodedString = Base64.decode(rsImage, Base64.DEFAULT);
-                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                Glide.with(getApplicationContext())
-                        .load(decodedByte)
-                        .into(detailImageView);
-            }
-        }
+//        if (rsImage != null) {
+//            if (rsImage.length() < 100) {
+//                if("hospital".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.hospital_default_pic)
+//                            .into(detailImageView);
+//                }else if("bloodBank".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.blood_bank_default_pic)
+//                            .into(detailImageView);
+//                }else if("atm".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.atm_default_pic)
+//                            .into(detailImageView);
+//                }else if("policeStation".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.police_station_default_pic)
+//                            .into(detailImageView);
+//                }else if("mountain".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.mountain_default_pic)
+//                            .into(detailImageView);
+//                }else if("lake".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.lake_default_pic)
+//                            .into(detailImageView);
+//                }else if("waterfall".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.waterfall_default_pic)
+//                            .into(detailImageView);
+//                }else if("protectedArea".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.protected_area_default_pic)
+//                            .into(detailImageView);
+//                }else if("academicInsti".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.educational_insti_default_pic)
+//                            .into(detailImageView);
+//                }else if("airport".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.airport_default_pic)
+//                            .into(detailImageView);
+//                }else if("industry".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.industry_default_pic)
+//                            .into(detailImageView);
+//                }else if("hydropower".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.hydropower_default_pic)
+//                            .into(detailImageView);
+//                }else if("mainAttraction".equals(rsType)){
+//                    Glide.with(getApplicationContext())
+//                            .load(R.drawable.mountain_default_pic)
+//                            .into(detailImageView);
+//                }
+//            } else {
+//                byte[] decodedString = Base64.decode(rsImage, Base64.DEFAULT);
+//                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+//                Glide.with(getApplicationContext())
+//                        .load(decodedByte)
+//                        .into(detailImageView);
+//            }
+//        }
+
         phone.setEnabled(true);
         phone.setVisibility(View.VISIBLE);
 
@@ -180,95 +262,24 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
         more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isExpanded) {
                     longDescriptionContainer.setVisibility(View.VISIBLE);
-                    more.setText("Less...");
-//                    mSlider.setVisibility(View.GONE);
-                    detailImageView.setVisibility(View.GONE);
                     description.setVisibility(View.GONE);
                     lessBtn.setVisibility(View.VISIBLE);
-                    isExpanded = true;
-                } else if (isExpanded) {
-                    longDescriptionContainer.setVisibility(View.GONE);
-                    more.setText("More...");
-//                    mSlider.setVisibility(View.VISIBLE);
-                    detailImageView.setVisibility(View.VISIBLE);
-                    description.setVisibility(View.VISIBLE);
-//                    convertImageToFileAndLoadInSlider(GloballyCommon.getInstance().getPic());
-                    isExpanded = false;
-                }
+                    more.setVisibility(View.GONE);
             }
         });
         lessBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 longDescriptionContainer.setVisibility(View.GONE);
-                more.setText("More...");
-//                mSlider.setVisibility(View.VISIBLE);
-                detailImageView.setVisibility(View.VISIBLE);
                 description.setVisibility(View.VISIBLE);
                 lessBtn.setVisibility(View.GONE);
+                more.setVisibility(View.VISIBLE);
                 isExpanded = false;
             }
         });
 
 
-//        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 3);
-//        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_images);
-//        recyclerView.setHasFixedSize(true);
-//        recyclerView.setLayoutManager(layoutManager);
-//
-//        ImageGalleryAdapter adapter = new ImageGalleryAdapter(this, RSImageGalleryPojo.getRSPhotos());
-//        recyclerView.setAdapter(adapter);
-
-    }
-
-    private void convertImageToFileAndLoadInSlider(String rsImage) {
-        Log.d("Image::::", rsImage);
-        TextSliderView textSliderView1 = new TextSliderView(getApplicationContext());
-
-        if (rsImage != null) {
-            if (rsImage.length() < 100) {
-                int f = R.drawable.slider2;
-                textSliderView1.description("").image(f);
-            } else {
-                byte[] decodedString = Base64.decode(rsImage, Base64.DEFAULT);
-                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
-                //converting bitmap to file object
-                //create a file to write bitmap data
-                File f = new File(getApplicationContext().getCacheDir(), "sliderImage");
-                try {
-                    f.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-//Convert bitmap to byte array
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                decodedByte.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
-                byte[] bitmapdata = bos.toByteArray();
-
-//write the bytes in file
-                FileOutputStream fos = null;
-                try {
-                    fos = new FileOutputStream(f);
-                    fos.write(bitmapdata);
-                    fos.flush();
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                textSliderView1.description("").image(f);
-
-            }
-
-
-        } else {
-            int f = R.drawable.slider3;
-            textSliderView1.description("").image(f);
-        }
-        mSlider.addSlider(textSliderView1);
     }
 
     public void callNumber(String phone) {
@@ -293,10 +304,29 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
         }
     }
 
+    private ArrayList<ImageModel> populateList(){
+        Bitmap[] imageArray= rsImageList.toArray(new Bitmap[rsImageList.size()]);
+        ArrayList<ImageModel> list = new ArrayList<>();
+
+        Log.d("size of arraylist",String.valueOf(rsImageList.size()));
+        for(int i = 0; i < imageArray.length; i++){
+            Log.d("Inside loop",String.valueOf(imageArray.length));
+            ImageModel imageModel = new ImageModel();
+            imageModel.setSliderImages(imageArray[i]);
+            list.add(imageModel);
+        }
+
+        return list;
+    }
+
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
 }

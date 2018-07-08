@@ -1,5 +1,7 @@
 package com.softechfoundation.municipal.Pojos;
 
+import java.util.List;
+
 /**
  * Created by yubar on 4/9/2018.
  */
@@ -11,7 +13,7 @@ public class ServicePojo {
     private String phone;
     private String info;
     private String district;
-    private String Image;
+    private List<PicturePojo> images;
     private String description;
     private String state;
     private LocalLevelResponsePojo localLevel;
@@ -61,8 +63,8 @@ public class ServicePojo {
         return id;
     }
 
-    public String getImage() {
-        return Image;
+    public List<PicturePojo> getImage() {
+        return images;
     }
 
     public String getDescription() {
@@ -77,8 +79,8 @@ public class ServicePojo {
         this.id = id;
     }
 
-    public void setImage(String image) {
-        Image = image;
+    public void setImage(List<PicturePojo> images) {
+        this.images = images;
     }
 
     public void setDescription(String description) {

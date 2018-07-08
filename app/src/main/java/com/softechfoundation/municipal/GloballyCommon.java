@@ -12,23 +12,26 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.softechfoundation.municipal.CheckInternet.CheckInternet;
+import com.softechfoundation.municipal.Pojos.PicturePojo;
+
+import java.util.List;
 
 public class GloballyCommon {
-    private String pic;
+    private List<PicturePojo> pictureList;
     private String description;
 
     private String selectedPalikaForWardFilter;
 
-    public String getPic() {
-        return pic;
+    public List<PicturePojo> getPic() {
+        return pictureList;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setPic(String pic) {
-        this.pic = pic;
+    public void setPic(List<PicturePojo>pictureList) {
+        this.pictureList = pictureList;
     }
 
     public void setDescription(String description) {

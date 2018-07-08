@@ -63,8 +63,10 @@
         <activity
             android:name=".Activities.ResourcesAndServicesDetail"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Activities.PhotoViewer"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".Activities.PhotoViewer"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activities.About"></activity>
     </application>
 
 </manifest>

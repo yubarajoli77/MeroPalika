@@ -33,6 +33,7 @@ import com.softechfoundation.municipal.CheckInternet.CheckInternet;
 import com.softechfoundation.municipal.CommonUrl;
 import com.softechfoundation.municipal.GloballyCommon;
 import com.softechfoundation.municipal.Pojos.LocalLevelResponsePojo;
+import com.softechfoundation.municipal.Pojos.PicturePojo;
 import com.softechfoundation.municipal.Pojos.ResourcePojo;
 import com.softechfoundation.municipal.Pojos.ServicePojo;
 import com.softechfoundation.municipal.R;
@@ -405,13 +406,12 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String attractionDescription = jsonObject1.getString("description");
                         String attractionState = jsonObject1.getString("state");
                         String attractionLocalAddress = jsonObject1.getString("localAddress");
-                        String attractionImage = jsonObject1.getString("itemImage");
 
                         listItem.setId(attractionId);
                         listItem.setName(attractionName);
                         listItem.setDistrict(attractionDistrict);
                         listItem.setDescription(attractionDescription);
-                        listItem.setImage(attractionImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setAddress(attractionLocalAddress + ", " + attractionDistrict + ", " + "Nepal");
                         listItem.setState(attractionState);
                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
@@ -463,13 +463,13 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String attractionDescription = jsonObject1.getString("description");
                                         String attractionState = jsonObject1.getString("state");
                                         String attractionLocalAddress = jsonObject1.getString("localAddress");
-                                        String attractionImage = jsonObject1.getString("itemImage");
+                                        listItem.setImage(getPictureList(jsonObject1));
 
                                         listItem.setId(attractionId);
                                         listItem.setName(attractionName);
                                         listItem.setDistrict(attractionDistrict);
                                         listItem.setDescription(attractionDescription);
-                                        listItem.setImage(attractionImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setAddress(attractionLocalAddress + ", " + attractionDistrict + ", " + "Nepal");
                                         listItem.setState(attractionState);
                                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
@@ -526,6 +526,22 @@ public class ListOfServicesAndResources extends AppCompatActivity {
         queue.add(cacheRequest);
 
         //End of Caching
+    }
+
+    @NonNull
+    private List<PicturePojo> getPictureList(JSONObject jsonObject1) throws JSONException {
+        JSONArray pictureArray=jsonObject1.getJSONArray("pictureResponse");
+        List<PicturePojo>pictureList=new ArrayList<>();
+        for(int j=0; j<pictureArray.length();j++){
+            PicturePojo picture=new PicturePojo();
+            JSONObject pictureJsonObject=pictureArray.getJSONObject(j);
+            String image=pictureJsonObject.getString("picture");
+            Integer id= Integer.valueOf(pictureJsonObject.getString("id"));
+            picture.setId(id);
+            picture.setPicture(image);
+            pictureList.add(picture);
+        }
+        return pictureList;
     }
 
     private void setAllNresoureButtonTransparent() {
@@ -648,7 +664,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String airportPhone = jsonObject1.getString("phoneNo");
                         String airportLocalAddress = jsonObject1.getString("airportAddress");
                         String airportState = jsonObject1.getString("state");
-                        String airportImage = jsonObject1.getString("airportImage");
                         String airportDescription = jsonObject1.getString("description");
 
                         listItem.setId(airportId);
@@ -657,7 +672,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         listItem.setAddress(airportLocalAddress + ", " + airportDistrict + ", " + "Nepal");
                         listItem.setPhone(airportPhone);
                         listItem.setState(airportState);
-                        listItem.setImage(airportImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setDescription(airportDescription);
                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
                         listItem.setServiceType("airport");
@@ -673,7 +688,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String hydroCapacity = jsonObject1.getString("capacity");
                         String hydroAddress = jsonObject1.getString("address");
                         String hydroStatus = jsonObject1.getString("hydroStatus");
-                        String hydroImage = jsonObject1.getString("hydropowerImage");
                         String hydroDescription = jsonObject1.getString("description");
                         String hydroPhoneNo = jsonObject1.getString("phoneNo");
 
@@ -681,7 +695,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         listItem.setDistrict(hydroDistrict);
                         listItem.setId(hydroId);
                         listItem.setName(hydroName);
-                        listItem.setImage(hydroImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setDescription(hydroDescription);
                         listItem.setAddress(hydroAddress + ", " + hydroDistrict + ", " + "Nepal");
                         listItem.setInfo(hydroCapacity + "\n" + hydroStatus);
@@ -698,7 +712,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String industryName = jsonObject1.getString("industry");
                         String industryDistrict = jsonObject1.getString("district");
                         String industryLocalAddress = jsonObject1.getString("address");
-                        String industryImage = jsonObject1.getString("industryImage");
                         String industryState = jsonObject1.getString("state");
                         String industryDescription = jsonObject1.getString("description");
                         String industryPhoneNo = jsonObject1.getString("phoneNo");
@@ -706,7 +719,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         listItem.setDistrict(industryDistrict);
                         listItem.setName(industryName);
                         listItem.setId(industryId);
-                        listItem.setImage(industryImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setState(industryState);
                         listItem.setDescription(industryDescription);
                         listItem.setAddress(industryLocalAddress + ", " + industryDistrict + ", " + "Nepal");
@@ -724,7 +737,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String academicInstName = jsonObject1.getString("schoolName");
                         String academicInstDistrict = jsonObject1.getString("district");
                         String academicInstLocalAddress = jsonObject1.getString("address");
-                        String academicInstImage = jsonObject1.getString("schoolImage");
                         String academicInstState = jsonObject1.getString("state");
                         String academicInstDescription = jsonObject1.getString("description");
                         String academicInstPhoneNo = jsonObject1.getString("contactNo");
@@ -733,7 +745,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         listItem.setDistrict(academicInstDistrict);
                         listItem.setName(academicInstName);
                         listItem.setId(academicInstId);
-                        listItem.setImage(academicInstImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setState(academicInstState);
                         listItem.setDescription(academicInstDescription);
                         listItem.setAddress(academicInstLocalAddress + ", " + academicInstDistrict + ", " + "Nepal");
@@ -817,7 +829,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String airportPhone = jsonObject1.getString("phoneNo");
                                         String airportLocalAddress = jsonObject1.getString("airportAddress");
                                         String airportState = jsonObject1.getString("state");
-                                        String airportImage = jsonObject1.getString("airportImage");
                                         String airportDescription = jsonObject1.getString("description");
 
                                         listItem.setId(airportId);
@@ -826,7 +837,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         listItem.setAddress(airportLocalAddress + ", " + airportDistrict + ", " + "Nepal");
                                         listItem.setPhone(airportPhone);
                                         listItem.setState(airportState);
-                                        listItem.setImage(airportImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setDescription(airportDescription);
                                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
                                         listItem.setServiceType("airport");
@@ -842,7 +853,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String hydroCapacity = jsonObject1.getString("capacity");
                                         String hydroAddress = jsonObject1.getString("address");
                                         String hydroStatus = jsonObject1.getString("hydroStatus");
-                                        String hydroImage = jsonObject1.getString("hydropowerImage");
                                         String hydroDescription = jsonObject1.getString("description");
                                         String hydroPhoneNo = jsonObject1.getString("phoneNo");
 
@@ -850,7 +860,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         listItem.setDistrict(hydroDistrict);
                                         listItem.setId(hydroId);
                                         listItem.setName(hydroName);
-                                        listItem.setImage(hydroImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setDescription(hydroDescription);
                                         listItem.setAddress(hydroAddress + ", " + hydroDistrict + ", " + "Nepal");
                                         listItem.setInfo(hydroCapacity + "\n" + hydroStatus);
@@ -867,7 +877,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String industryName = jsonObject1.getString("industry");
                                         String industryDistrict = jsonObject1.getString("district");
                                         String industryLocalAddress = jsonObject1.getString("address");
-                                        String industryImage = jsonObject1.getString("industryImage");
                                         String industryState = jsonObject1.getString("state");
                                         String industryDescription = jsonObject1.getString("description");
                                         String industryPhoneNo = jsonObject1.getString("phoneNo");
@@ -875,7 +884,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         listItem.setDistrict(industryDistrict);
                                         listItem.setName(industryName);
                                         listItem.setId(industryId);
-                                        listItem.setImage(industryImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setState(industryState);
                                         listItem.setDescription(industryDescription);
                                         listItem.setAddress(industryLocalAddress + ", " + industryDistrict + ", " + "Nepal");
@@ -893,7 +902,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String academicInstName = jsonObject1.getString("schoolName");
                                         String academicInstDistrict = jsonObject1.getString("district");
                                         String academicInstLocalAddress = jsonObject1.getString("address");
-                                        String academicInstImage = jsonObject1.getString("schoolImage");
                                         String academicInstState = jsonObject1.getString("state");
                                         String academicInstDescription = jsonObject1.getString("description");
                                         String academicInstPhoneNo = jsonObject1.getString("contactNo");
@@ -902,7 +910,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         listItem.setDistrict(academicInstDistrict);
                                         listItem.setName(academicInstName);
                                         listItem.setId(academicInstId);
-                                        listItem.setImage(academicInstImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setState(academicInstState);
                                         listItem.setDescription(academicInstDescription);
                                         listItem.setAddress(academicInstLocalAddress + ", " + academicInstDistrict + ", " + "Nepal");
@@ -973,7 +981,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
 
 
     }
-
 
     @NonNull
     private List<ServicePojo> getFilteredServicesFromDistrict(List<ServicePojo> unfilteredList, String selectedFilter) {
@@ -1090,7 +1097,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
                         listItem.setId(mountainId);
                         listItem.setDescription(mountainDescription);
-                        listItem.setImage(mountainImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setDistrict(mountainDistrict);
                         listItem.setName(mountainName);
                         listItem.setInfo(mountainHeight);
@@ -1109,7 +1116,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String lakeDistrict = jsonObject1.getString("district");
                         String lakeDescription = jsonObject1.getString("description");
                         String lakeLocalAddress = jsonObject1.getString("address");
-                        String lakeImage = jsonObject1.getString("lakeImage");
 
                         JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
 
@@ -1117,7 +1123,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         listItem.setName(lakeName);
                         listItem.setDescription(lakeDescription);
                         listItem.setId(lakeId);
-                        listItem.setImage(lakeImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setAddress(lakeLocalAddress + ", " + lakeDistrict + ", " + "Nepal");
                         listItem.setLocalLevelResponsePojoList(getListOfLocalLevel(localLevelArray));
                         listItem.setResourceType("lake");
@@ -1132,13 +1138,12 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String waterfallDistrict = jsonObject1.getString("district");
                         String waterfallDescription = jsonObject1.getString("description");
                         String waterfallHeight = jsonObject1.getString("height");
-                        String waterfallImage = jsonObject1.getString("waterfallImage");
                         String waterfallLocalAddress = jsonObject1.getString("address");
 
                         JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
 
                         listItem.setId(waterfallId);
-                        listItem.setImage(waterfallImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setDescription(waterfallDescription);
                         listItem.setInfo(waterfallHeight);
                         listItem.setDistrict(waterfallDistrict);
@@ -1157,7 +1162,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String protectedAreaName = jsonObject1.getString("protectedAreas");
                         String protectedAreaDistrict = jsonObject1.getString("district");
                         String protectedAreasArea = jsonObject1.getString("area");
-                        String protectedAreaImage = jsonObject1.getString("protectedAreasImage");
                         String protectedAreaDescription = jsonObject1.getString("description");
                         String protectedAreaLocalAddress = jsonObject1.getString("address");
                         JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
@@ -1165,7 +1169,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         listItem.setId(protectedAreaId);
                         listItem.setInfo(protectedAreasArea);
                         listItem.setDescription(protectedAreaDescription);
-                        listItem.setImage(protectedAreaImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setDistrict(protectedAreaDistrict);
                         listItem.setName(protectedAreaName);
                         listItem.setAddress(protectedAreaLocalAddress + ", " + protectedAreaDistrict + ", " + "Nepal\n" + protectedAreasArea);
@@ -1247,7 +1251,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String mountainDistrict = jsonObject1.getString("district");
                                         String mountainHeight = jsonObject1.getString("mountainHeight");
                                         Integer mountainId = Integer.parseInt(jsonObject1.getString("id"));
-                                        String mountainImage = jsonObject1.getString("mountainImage");
                                         String mountainDescription = jsonObject1.getString("description");
                                         String mountainLocalAddress = jsonObject1.getString("address");
 
@@ -1255,7 +1258,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
                                         listItem.setId(mountainId);
                                         listItem.setDescription(mountainDescription);
-                                        listItem.setImage(mountainImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setDistrict(mountainDistrict);
                                         listItem.setName(mountainName);
                                         listItem.setInfo(mountainHeight);
@@ -1274,7 +1277,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String lakeDistrict = jsonObject1.getString("district");
                                         String lakeDescription = jsonObject1.getString("description");
                                         String lakeLocalAddress = jsonObject1.getString("address");
-                                        String lakeImage = jsonObject1.getString("lakeImage");
 
                                         JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
 
@@ -1282,7 +1284,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         listItem.setName(lakeName);
                                         listItem.setDescription(lakeDescription);
                                         listItem.setId(lakeId);
-                                        listItem.setImage(lakeImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setAddress(lakeLocalAddress + ", " + lakeDistrict + ", " + "Nepal");
                                         listItem.setLocalLevelResponsePojoList(getListOfLocalLevel(localLevelArray));
                                         listItem.setResourceType("lake");
@@ -1297,13 +1299,12 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String waterfallDistrict = jsonObject1.getString("district");
                                         String waterfallDescription = jsonObject1.getString("description");
                                         String waterfallHeight = jsonObject1.getString("height");
-                                        String waterfallImage = jsonObject1.getString("waterfallImage");
                                         String waterfallLocalAddress = jsonObject1.getString("address");
 
                                         JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
 
                                         listItem.setId(waterfallId);
-                                        listItem.setImage(waterfallImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setDescription(waterfallDescription);
                                         listItem.setInfo(waterfallHeight);
                                         listItem.setDistrict(waterfallDistrict);
@@ -1322,7 +1323,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String protectedAreaName = jsonObject1.getString("protectedAreas");
                                         String protectedAreaDistrict = jsonObject1.getString("district");
                                         String protectedAreasArea = jsonObject1.getString("area");
-                                        String protectedAreaImage = jsonObject1.getString("protectedAreasImage");
                                         String protectedAreaDescription = jsonObject1.getString("description");
                                         String protectedAreaLocalAddress = jsonObject1.getString("address");
                                         JSONArray localLevelArray = jsonObject1.getJSONArray("localLevel");
@@ -1330,7 +1330,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         listItem.setId(protectedAreaId);
                                         listItem.setInfo(protectedAreasArea);
                                         listItem.setDescription(protectedAreaDescription);
-                                        listItem.setImage(protectedAreaImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setDistrict(protectedAreaDistrict);
                                         listItem.setName(protectedAreaName);
                                         listItem.setAddress(protectedAreaLocalAddress + ", " + protectedAreaDistrict + ", " + "Nepal\n" + protectedAreasArea);
@@ -1513,7 +1513,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String bloodBankDistrict = jsonObject1.getString("district");
                         String bloodBankContactNo = jsonObject1.getString("contactNo");
                         String bloodBankDescription = jsonObject1.getString("description");
-                        String bloodBankImage = jsonObject1.getString("picture");
                         String bloodBankState = jsonObject1.getString("state");
 
                         listItem.setName(bloodBankName);
@@ -1521,7 +1520,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         listItem.setDescription(bloodBankDescription);
                         listItem.setAddress(bloodBankLocalAddress + ", " + bloodBankDistrict + ", " + "Nepal");
                         listItem.setPhone(bloodBankContactNo);
-                        listItem.setImage(bloodBankImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setState(bloodBankState);
                         listItem.setDistrict(bloodBankDistrict);
                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
@@ -1540,7 +1539,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String policeDistrict = jsonObject1.getString("district");
                         String policeState = jsonObject1.getString("state");
                         String policeDescription = jsonObject1.getString("description");
-                        String policeStationImage = jsonObject1.getString("image");
 
                         listItem.setId(policeStationId);
                         listItem.setName(policeStationName);
@@ -1548,7 +1546,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         listItem.setDistrict(policeDistrict);
                         listItem.setState(policeState);
                         listItem.setDescription(policeDescription);
-                        listItem.setImage(policeStationImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
                         listItem.setAddress(policeLocalAddress + ", " + policeDistrict + ", " + "Nepal");
                         listItem.setServiceType("policeStation");
@@ -1564,13 +1562,12 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String atmState = jsonObject1.getString("state");
                         String atmDistrict = jsonObject1.getString("district");
                         String atmDescription = jsonObject1.getString("description");
-                        String atmImage = jsonObject1.getString("atmImage");
 
                         listItem.setId(atmId);
                         listItem.setName(atmName);
                         listItem.setAddress(atmLocalAddress + ", " + atmDistrict + ", " + "Nepal");
                         listItem.setState(atmState);
-                        listItem.setImage(atmImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setDistrict(atmDistrict);
                         listItem.setDescription(atmDescription);
                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
@@ -1585,7 +1582,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         String hospitalName = jsonObject1.getString("hospital");
                         String hospitalLocalAddress = jsonObject1.getString("addresString");
                         String hospitalState = jsonObject1.getString("state");
-                        String hospitalImage = jsonObject1.getString("hospitalImage");
                         String hospitalDescription = jsonObject1.getString("description");
                         String hospitalContactNumber = jsonObject1.getString("hospitalContactNumber");
                         String hospitalDistrict = jsonObject1.getString("district");
@@ -1596,7 +1592,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         listItem.setPhone(hospitalContactNumber);
                         listItem.setState(hospitalState);
                         listItem.setDescription(hospitalDescription);
-                        listItem.setImage(hospitalImage);
+                        listItem.setImage(getPictureList(jsonObject1));
                         listItem.setAddress(hospitalLocalAddress + ", " + hospitalDistrict + ", " + "Nepal");
                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
                         listItem.setServiceType("hospital");
@@ -1678,7 +1674,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String bloodBankDistrict = jsonObject1.getString("district");
                                         String bloodBankContactNo = jsonObject1.getString("contactNo");
                                         String bloodBankDescription = jsonObject1.getString("description");
-                                        String bloodBankImage = jsonObject1.getString("picture");
                                         String bloodBankState = jsonObject1.getString("state");
 
                                         listItem.setName(bloodBankName);
@@ -1686,7 +1681,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         listItem.setDescription(bloodBankDescription);
                                         listItem.setAddress(bloodBankLocalAddress + ", " + bloodBankDistrict + ", " + "Nepal");
                                         listItem.setPhone(bloodBankContactNo);
-                                        listItem.setImage(bloodBankImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setState(bloodBankState);
                                         listItem.setDistrict(bloodBankDistrict);
                                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
@@ -1705,7 +1700,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String policeDistrict = jsonObject1.getString("district");
                                         String policeState = jsonObject1.getString("state");
                                         String policeDescription = jsonObject1.getString("description");
-                                        String policeStationImage = jsonObject1.getString("image");
 
                                         listItem.setId(policeStationId);
                                         listItem.setName(policeStationName);
@@ -1713,7 +1707,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         listItem.setDistrict(policeDistrict);
                                         listItem.setState(policeState);
                                         listItem.setDescription(policeDescription);
-                                        listItem.setImage(policeStationImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
                                         listItem.setAddress(policeLocalAddress + ", " + policeDistrict + ", " + "Nepal");
                                         listItem.setServiceType("policeStation");
@@ -1729,13 +1723,12 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String atmState = jsonObject1.getString("state");
                                         String atmDistrict = jsonObject1.getString("district");
                                         String atmDescription = jsonObject1.getString("description");
-                                        String atmImage = jsonObject1.getString("atmImage");
 
                                         listItem.setId(atmId);
                                         listItem.setName(atmName);
                                         listItem.setAddress(atmLocalAddress + ", " + atmDistrict + ", " + "Nepal");
                                         listItem.setState(atmState);
-                                        listItem.setImage(atmImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setDistrict(atmDistrict);
                                         listItem.setDescription(atmDescription);
                                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
@@ -1750,7 +1743,6 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         String hospitalName = jsonObject1.getString("hospital");
                                         String hospitalLocalAddress = jsonObject1.getString("addresString");
                                         String hospitalState = jsonObject1.getString("state");
-                                        String hospitalImage = jsonObject1.getString("hospitalImage");
                                         String hospitalDescription = jsonObject1.getString("description");
                                         String hospitalContactNumber = jsonObject1.getString("hospitalContactNumber");
                                         String hospitalDistrict = jsonObject1.getString("district");
@@ -1761,7 +1753,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         listItem.setPhone(hospitalContactNumber);
                                         listItem.setState(hospitalState);
                                         listItem.setDescription(hospitalDescription);
-                                        listItem.setImage(hospitalImage);
+                                        listItem.setImage(getPictureList(jsonObject1));
                                         listItem.setAddress(hospitalLocalAddress + ", " + hospitalDistrict + ", " + "Nepal");
                                         listItem.setLocalLevel(getLocalLevel(jsonObject1));
                                         listItem.setServiceType("hospital");

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MeroPalika</string>
+    <string name="app_name">Mero Palika</string>
 
     <string name="bottom_nav_home">Home</string>
     <string name="bottom_nav_new_place_mapping">Mapping</string>
@@ -19,6 +19,15 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="feedback_top_message">We can definitely do better. Your feedback is appreciated.</string>
+    <string name="mero_palika_about">With Mero Palika you can find out details about the federal structure of Nepal.Here are some things you can do with Mero Palika:
+        \n1) Find the new locallevel to which the old locallevels belong to and vice-versa.
+\n2) Navigate to each locallevel.
+\n3) Details about
+\n\t· Natural resources(lakes, mountains, protected areas,stream),
+\n\t· Infrastructure(airports, hydropower, industry, hotel),
+\n\t· Urgent services(ATM, blood bank, police station, hospital) and major attraction of each state.
+\n4) Know in detail about each ministry of Nepal.
+\n5) Live population prediction, photo gallery and many more.</string>
     <string name="test_description">I am simply toasting the position that was tapped on,but you could do anything with the data at this point.   For example you may have a list of notes, and tapping on one gives you its position in the list. With that you can get the data object from the list and display the details of that note to the user. \n\n\n\t I am simply toasting the position that was tapped on,but you could do anything with the data at this point.   For example you may have a list of notes, and tapping on one gives you its position in the list. With that you can get the data object from the list and display the details of that note to the user.\n\n\n\t I am simply toasting the position that was tapped on,but you could do anything with the data at this point.   For example you may have a list of notes, and tapping on one gives you its position in the list. With that you can get the data object from the list and display the details of that note to the user. I am simply toasting the position that was tapped on,but you could do anything with the data at this point.   For example you may have a list of notes, and tapping on one gives you its position in the list. With that you can get the data object from the list and display the details of that note to the user.</string>
 
 </resources>

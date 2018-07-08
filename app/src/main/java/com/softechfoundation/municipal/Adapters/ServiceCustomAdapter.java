@@ -83,6 +83,12 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
                 getContext().startActivity(intent);
             }
         });
+        holder.call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callNumber(currentService.getPhone());
+            }
+        });
 
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +100,6 @@ public class ServiceCustomAdapter extends RecyclerView.Adapter<ServiceCustomAdap
                 intent.putExtra("rsType",currentService.getServiceType());
 //                intent.putExtra("description",currentService.getDescription());
                 GloballyCommon.getInstance().setDescription(currentService.getDescription());
-                Log.d("AdapterImage::",currentService.getImage());
                 GloballyCommon.getInstance().setPic(currentService.getImage());
                 getContext().startActivity(intent);
             }

@@ -68,7 +68,7 @@
         <ScrollView
             android:id="@+id/rs_long_description_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:background="#043438"
             android:layout_marginTop="10dp"
@@ -96,7 +96,8 @@
                     android:layout_marginTop="8dp"
                     android:padding="4dp"
                     android:text="Less..."
-                    android:textColor="@color/white"/>
+                    android:textStyle="bold"
+                    android:textColor="@color/gray"/>
             </LinearLayout>
 
         </ScrollView>
@@ -109,35 +110,34 @@
             android:layout_below="@+id/rs_long_description_container"
             android:layout_marginTop="8dp"
             android:padding="4dp"
+            android:textStyle="bold"
             android:text="More..."
-            android:textColor="@color/white"/>
+            android:textColor="@color/gray"/>
     </RelativeLayout>
 
-    <ImageView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/service_resource_detail_pic"
-        android:padding="4dp"
-        android:layout_below="@+id/rs_detail_upper_view"
+        android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_below="@+id/rs_detail_upper_view"
+        android:layout_alignParentEnd="true">
 
-    <!--<com.daimajia.slider.library.SliderLayout-->
-    <!--android:id="@+id/service_resource_image_slider"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:layout_below="@+id/rs_detail_upper_view"-->
-    <!--android:layout_alignParentStart="true"-->
-    <!--android:layout_marginTop="4dp"-->
-    <!--android:layout_alignParentEnd="true">-->
-<!--</com.daimajia.slider.library.SliderLayout>-->
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true" />
 
-    <!--<android.support.v7.widget.RecyclerView-->
-    <!--android:id="@+id/rv_images"-->
-    <!--android:layout_alignParentStart="true"-->
-    <!--android:layout_below="@id/rs_long_description"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"/>-->
-
-
+        <com.viewpagerindicator.CirclePageIndicator
+            android:id="@+id/indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:gravity="bottom"
+            android:padding="10dip"
+            app:centered="true"
+            app:pageColor="@color/gray"
+            app:snap="false" />
+    </RelativeLayout>
 </android.widget.RelativeLayout>
