@@ -122,7 +122,6 @@
                     android:background="@color/transparent"
                     android:text="Hotels"
                     android:textAllCaps="false"
-                    android:visibility="gone"
                     android:textSize="12sp" />
 
                 <Button

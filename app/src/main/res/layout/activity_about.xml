@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activities.About">
@@ -16,7 +17,7 @@
         android:padding="4dp">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
@@ -27,13 +28,11 @@
                 android:padding="4dp"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
                 android:textStyle="bold"/>
-            <TextView
+            <WebView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/about_app_intro"
-                android:padding="8dp"
-                android:textSize="16sp"
-                android:text="@string/mero_palika_about"/>
+                android:padding="8dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -53,11 +52,14 @@
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/ic_location_on_black_24dp"
                 android:drawablePadding="16dp"
+                android:padding="4dp"
+                android:textColor="@color/colorAccent"
                 android:autoLink="map"
                 android:text="Sahabhagita Marga, Mid-Baneshowr, Kathmandu Nepal"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="4dp"
                 android:orientation="horizontal">
                 <TextView
                     android:id="@+id/about_phone1"
@@ -89,16 +91,18 @@
             </LinearLayout>
             <TextView
                 android:id="@+id/about_email"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="16dp"
+                android:padding="4dp"
                 android:drawableStart="@drawable/ic_contact_mail_black_24dp"
                 android:autoLink="email"
                 android:text="info@softechfoundation.com"/>
             <TextView
                 android:id="@+id/about_web"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="4dp"
                 android:drawablePadding="16dp"
                 android:drawableStart="@drawable/ic_public_black_24dp"
                 android:autoLink="web"
@@ -107,6 +111,8 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
+                android:padding="4dp"
+                android:layout_gravity="bottom|center"
                 android:id="@+id/about_softech_logo"
                 android:src="@drawable/softech_logo"/>
 

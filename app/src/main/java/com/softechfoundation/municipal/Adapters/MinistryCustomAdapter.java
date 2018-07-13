@@ -1,6 +1,8 @@
 package com.softechfoundation.municipal.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -25,6 +27,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.Volley;
+import com.softechfoundation.municipal.Activities.MinistryProfileDetail;
 import com.softechfoundation.municipal.Pojos.ListItem;
 import com.softechfoundation.municipal.Pojos.MinistryPojo;
 import com.softechfoundation.municipal.VolleyCache.CacheRequest;
@@ -76,12 +79,28 @@ public class MinistryCustomAdapter extends RecyclerView.Adapter<MinistryCustomAd
     @Override
     public void onBindViewHolder(@NonNull final MinistryViewHolder holder, int position) {
         final MinistryPojo currentItem = dataItem.get(position);
-        if(position==0){
-            holder.ministryName.setBackgroundColor(context.getResources().getColor(R.color.bottn_nav_color));
-        }
+
         holder.ministryName.setText(currentItem.getMinistryName());
         holder.ministerName.setText(currentItem.getMinisterName()+" (Minister)");
         holder.party.setText(currentItem.getParty());
+
+        holder.ministryCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MinistryProfileDetail.class);
+                intent.putExtra("ministry", currentItem.getMinistryName());
+                intent.putExtra("ministerName", currentItem.getMinisterName());
+                intent.putExtra("ministerParty",currentItem.getParty());
+                intent.putExtra("ministerEmail",currentItem.getMinisterEmail());
+                intent.putExtra("ministerPhone",currentItem.getContactNumber());
+                intent.putExtra("ministerPic",currentItem.getMinisterImage());
+                intent.putExtra("ministerFacebook",currentItem.getMinisterFacebook());
+                intent.putExtra("ministerTwitter",currentItem.getMinisterTwitter());
+                intent.putExtra("ministryDescription",currentItem.getMinistryDescription());
+                getContext().startActivity(intent);
+            }
+        });
+
 
     }
 
@@ -92,12 +111,14 @@ public class MinistryCustomAdapter extends RecyclerView.Adapter<MinistryCustomAd
 
     public class MinistryViewHolder extends RecyclerView.ViewHolder {
         TextView ministryName, ministerName, party;
+        CardView ministryCardView;
 
         public MinistryViewHolder(View itemView) {
             super(itemView);
             ministryName = itemView.findViewById(R.id.ministry_name);
             ministerName = itemView.findViewById(R.id.ministry_minister_name);
             party = itemView.findViewById(R.id.ministry_minister_party);
+            ministryCardView=itemView.findViewById(R.id.ministry_card_view);
 
         }
     }

@@ -1,18 +1,28 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.softechfoundation.municipal.Fragments.MinistryFragment">
 
+    <android.support.design.widget.TabLayout
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    app:tabGravity="fill"
+    app:tabMode="scrollable"
+    android:id="@+id/tablayout"
+    app:tabTextColor="@color/white"
+    app:tabIndicatorColor="@color/colorAccent"
+    android:background="@color/colorPrimary"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/ministry_recycler_view"
+    <android.support.v4.view.ViewPager
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:padding="4dp">
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:id="@+id/view_pager">
+    </android.support.v4.view.ViewPager>
 
-    </android.support.v7.widget.RecyclerView>
     <com.eyalbira.loadingdots.LoadingDots
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/dotted_loading"

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ministry_profile_detail_relative_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Activities.MinistryProfileDetail">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/ministry_profile_detail_appbar_layout"
+        android:layout_width="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_height="280dp"
+        android:background="#99117881">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/ministry_profile_detail_pic"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/user_derault_pic"
+            app:civ_border_color="@color/colorPrimaryDark"
+            app:civ_border_width="2dp" />
+
+        <LinearLayout
+            android:id="@+id/ministry_profile_detail_intro_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/ministry_profile_detail_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="Mr. Khadga Parsad Oli"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/ministry_profile_detail_party"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CPN UML"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ministry_profile_detail_social_media_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="8dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ministry_profile_detail_facebook"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/facebook_32dp" />
+
+            <View
+                android:layout_width="30dp"
+                android:layout_height="0dp" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ministry_profile_detail_twitter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/twitter_32dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ministry_profile_detail_action_btn_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/ministry_profile_detail_call"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:drawablePadding="4dp"
+                android:drawableStart="@drawable/phone2_48dp"
+                android:text="Call" />
+
+            <Button
+                android:id="@+id/ministry_profile_detail_mail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:drawablePadding="4dp"
+                android:drawableStart="@drawable/mail_48dp"
+                android:text="Send Mail" />
+        </LinearLayout>
+    </android.support.design.widget.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:scrollIndicators=""
+        android:layout_below="@+id/ministry_profile_detail_appbar_layout"
+        android:orientation="vertical">
+
+        <WebView
+            android:id="@+id/ministry_profile_detail_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </ScrollView>
+</RelativeLayout>

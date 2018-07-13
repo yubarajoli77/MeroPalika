@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,9 +46,8 @@ import java.util.TimerTask;
 public class ResourcesAndServicesDetail extends AppCompatActivity {
     private TextView name, description, lessBtn, more;
     private ImageView address, phone;
-    private boolean isExpanded;
     private View longDescriptionContainer;
-    private TextView longDescription;
+    private WebView longDescription;
 
 
     private static ViewPager mPager;
@@ -60,7 +60,7 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resources_and_services_detail);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         name = findViewById(R.id.rs_detail_name);
         address = findViewById(R.id.rs_detail_location);
@@ -82,20 +82,74 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
         Log.d("Description::", rsDescription);
         if (rsDescription != null) {
             description.setText(rsDescription);
-            longDescription.setText(rsDescription);
+            String htmlDescription=GloballyCommon.convertIntoHtml(rsDescription);
+            longDescription.setVerticalScrollBarEnabled(false);
+            longDescription.loadData(htmlDescription, "text/html; charset=utf-8", "utf-8");
         } else {
             description.setText("There is no description yet");
-            longDescription.setText("There is no description yet");
+            String htmlDescription=GloballyCommon.convertIntoHtml("There is no description available yet");
+
+            longDescription.setVerticalScrollBarEnabled(false);
+            longDescription.loadData(htmlDescription, "text/html; charset=utf-8", "utf-8");
         }
 
-        for(PicturePojo picturePojo: rsImage){
-            Log.d("rsImage",picturePojo.getPicture());
-            byte[] decodedString = Base64.decode(picturePojo.getPicture(), Base64.NO_WRAP);
-            InputStream inputStream  = new ByteArrayInputStream(decodedString);
-            Bitmap image  = BitmapFactory.decodeStream(inputStream);
-            rsImageList.add(image);
-        }
+        if (rsImage == null || rsImage.isEmpty()) {
 
+            if("hospital".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.hotel_default_pic);
+                rsImageList.add(image);
+            }else if("bloodBank".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.blood_bank_default_pic);
+                rsImageList.add(image);
+            }else if("atm".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.atm_default_pic);
+                rsImageList.add(image);
+            }else if("policeStation".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.police_station_default_pic);
+                rsImageList.add(image);
+            }else if("mountain".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.mountain_default_pic);
+                rsImageList.add(image);
+            }else if("lake".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.lake_default_pic);
+                rsImageList.add(image);
+            }else if("waterfall".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.waterfall_default_pic);
+                rsImageList.add(image);
+            }else if("protectedArea".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.protected_area_default_pic);
+                rsImageList.add(image);
+            }else if("academicInsti".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.educational_insti_default_pic);
+                rsImageList.add(image);
+            }else if("airport".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.airport_default_pic);
+                rsImageList.add(image);
+            }else if("industry".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.industry_default_pic);
+                rsImageList.add(image);
+            }else if("hydropower".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.hydropower_default_pic);
+                rsImageList.add(image);
+            }else if("hotel".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.hotel_default_pic);
+                Bitmap image1=BitmapFactory.decodeResource(getResources(),R.drawable.hotel_default_pic1);
+                rsImageList.add(image);
+                rsImageList.add(image1);
+            }else if("mainAttraction".equals(rsType)){
+                Bitmap image=BitmapFactory.decodeResource(getResources(),R.drawable.protected_area_default_pic);
+                rsImageList.add(image);
+            }
+
+        }else{
+            for(PicturePojo picturePojo: rsImage){
+                Log.d("rsImage",picturePojo.getPicture());
+                byte[] decodedString = Base64.decode(picturePojo.getPicture(), Base64.NO_WRAP);
+                InputStream inputStream  = new ByteArrayInputStream(decodedString);
+                Bitmap image  = BitmapFactory.decodeStream(inputStream);
+                rsImageList.add(image);
+            }
+        }
 
         imageModelArrayList = new ArrayList<>();
         imageModelArrayList = populateList();
@@ -152,75 +206,6 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
         });
 
 
-
-
-//        Log.d("PreImage::::", rsImage);
-//        convertImageToFileAndLoadInSlider(rsImage);
-
-//        if (rsImage != null) {
-//            if (rsImage.length() < 100) {
-//                if("hospital".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.hospital_default_pic)
-//                            .into(detailImageView);
-//                }else if("bloodBank".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.blood_bank_default_pic)
-//                            .into(detailImageView);
-//                }else if("atm".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.atm_default_pic)
-//                            .into(detailImageView);
-//                }else if("policeStation".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.police_station_default_pic)
-//                            .into(detailImageView);
-//                }else if("mountain".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.mountain_default_pic)
-//                            .into(detailImageView);
-//                }else if("lake".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.lake_default_pic)
-//                            .into(detailImageView);
-//                }else if("waterfall".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.waterfall_default_pic)
-//                            .into(detailImageView);
-//                }else if("protectedArea".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.protected_area_default_pic)
-//                            .into(detailImageView);
-//                }else if("academicInsti".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.educational_insti_default_pic)
-//                            .into(detailImageView);
-//                }else if("airport".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.airport_default_pic)
-//                            .into(detailImageView);
-//                }else if("industry".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.industry_default_pic)
-//                            .into(detailImageView);
-//                }else if("hydropower".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.hydropower_default_pic)
-//                            .into(detailImageView);
-//                }else if("mainAttraction".equals(rsType)){
-//                    Glide.with(getApplicationContext())
-//                            .load(R.drawable.mountain_default_pic)
-//                            .into(detailImageView);
-//                }
-//            } else {
-//                byte[] decodedString = Base64.decode(rsImage, Base64.DEFAULT);
-//                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-//                Glide.with(getApplicationContext())
-//                        .load(decodedByte)
-//                        .into(detailImageView);
-//            }
-//        }
-
         phone.setEnabled(true);
         phone.setVisibility(View.VISIBLE);
 
@@ -275,7 +260,6 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
                 description.setVisibility(View.VISIBLE);
                 lessBtn.setVisibility(View.GONE);
                 more.setVisibility(View.VISIBLE);
-                isExpanded = false;
             }
         });
 
@@ -329,4 +313,5 @@ public class ResourcesAndServicesDetail extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
     }
+
 }

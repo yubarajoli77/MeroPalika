@@ -115,4 +115,9 @@ public class GloballyCommon {
     }
 
 
+    public static String convertIntoHtml(String textToConvert){
+        String htmlConvertedText="<html><head></head> <body style=\"text-align:justify;color:white;background-color:#043438;text-size:16sp\">"+textToConvert+"</body></html>";
+        return htmlConvertedText;
+    }
+
 }

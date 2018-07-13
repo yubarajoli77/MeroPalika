@@ -196,7 +196,9 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                 setAllInfraButtonTransparent();
                 infraHotelBtn.setBackground(getResources().getDrawable(R.drawable.path_btn_clicked_style));
                 infraHotelBtn.setTextColor(Color.WHITE);
-                Toast.makeText(ListOfServicesAndResources.this, "Comming Soon :) ", Toast.LENGTH_SHORT).show();
+                if (hotelCustomAdapter.getItemCount() == 0) {
+                    Toast.makeText(ListOfServicesAndResources.this, "There are no items in this section", Toast.LENGTH_SHORT).show();
+                }
                 resourceRecyclerView.setAdapter(hotelCustomAdapter);
             }
         });
@@ -633,6 +635,7 @@ public class ListOfServicesAndResources extends AppCompatActivity {
         final List<ServicePojo> hydropowerList = new ArrayList<>();
         final List<ServicePojo> industryList = new ArrayList<>();
         final List<ServicePojo> academicInstiList = new ArrayList<>();
+        final List<ServicePojo> hotelList=new ArrayList<>();
         //Start Caching
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = makeFinalUrl(CommonUrl.BaseUrl2 + "states/Infrastructure/",
@@ -649,12 +652,14 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                     JSONArray jsonHydropower = jsonObject.getJSONArray("hydropower");
                     JSONArray jsonIndustry = jsonObject.getJSONArray("industry");
                     JSONArray jsonAcademicInsti = jsonObject.getJSONArray("school");
+                    JSONArray jsonHotel= jsonObject.getJSONArray("hotelResponseDto");
 
                     allInfrastructureList.clear();
                     airportList.clear();
                     hydropowerList.clear();
                     industryList.clear();
                     academicInstiList.clear();
+                    hotelList.clear();
                     for (int i = 0; i < jsonAirportArray.length(); i++) {
                         ServicePojo listItem = new ServicePojo();
                         JSONObject jsonObject1 = jsonAirportArray.getJSONObject(i);
@@ -755,12 +760,38 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         academicInstiList.add(listItem);
                         allInfrastructureList.add(listItem);
                     }
+                    for (int i = 0; i < jsonHotel.length(); i++) {
+                        ServicePojo listItem = new ServicePojo();
+                        JSONObject jsonObject1 = jsonHotel.getJSONObject(i);
+                        Integer hotelId = Integer.valueOf(jsonObject1.getString("id"));
+                        String hotelName = jsonObject1.getString("hotel");
+                        String hotelDistrict = jsonObject1.getString("district");
+                        String hotelLocalAddress = jsonObject1.getString("address");
+                        String hotelState = jsonObject1.getString("state");
+                        String hotelDescription = jsonObject1.getString("description");
+                        String hotelPhoneNo = jsonObject1.getString("phoneNo");
+
+
+                        listItem.setDistrict(hotelDistrict);
+                        listItem.setName(hotelName);
+                        listItem.setId(hotelId);
+                        listItem.setImage(getPictureList(jsonObject1));
+                        listItem.setState(hotelState);
+                        listItem.setDescription(hotelDescription);
+                        listItem.setAddress(hotelLocalAddress + ", " + hotelDistrict + ", " + "Nepal");
+                        listItem.setPhone(hotelPhoneNo);
+                        listItem.setLocalLevel(getLocalLevel(jsonObject1));
+                        listItem.setServiceType("hotel");
+                        hotelList.add(listItem);
+                        allInfrastructureList.add(listItem);
+                    }
                     if ("state".equals(selectedFilterType)) {
                         hydroCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, hydropowerList);
                         airportCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, airportList);
                         industryCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, industryList);
                         serviceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, allInfrastructureList);
                         academicInstiAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, academicInstiList);
+                        hotelCustomAdapter= new ServiceCustomAdapter(ListOfServicesAndResources.this,hotelList);
 
                         resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                         resourceServiceLoading.setVisibility(View.GONE);
@@ -787,12 +818,14 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                         List<ServicePojo> filteredAcademicInstList = getFilteredServicesFromPalika(academicInstiList, selectedFilter);
                         List<ServicePojo> filteredIndustryList = getFilteredServicesFromPalika(industryList, selectedFilter);
                         List<ServicePojo> filteredHydropowerList = getFilteredServicesFromPalika(hydropowerList, selectedFilter);
-
+                        List<ServicePojo> filteredHotelList= getFilteredServicesFromPalika(hotelList,selectedFilter);
 
                         serviceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, filteredAllList);
                         airportCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, filteredAirportList);
                         academicInstiAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, filteredAcademicInstList);
                         industryCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, filteredIndustryList);
+                        hotelCustomAdapter= new ServiceCustomAdapter(ListOfServicesAndResources.this, filteredHotelList);
+
                         hydroCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, filteredHydropowerList);
                         resourceServiceLoading.setVisibility(View.GONE);
                         resourceRecyclerView.setAdapter(allResourceCustomAdapter);
@@ -814,12 +847,14 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                     JSONArray jsonHydropower = jsonObject.getJSONArray("hydropower");
                                     JSONArray jsonIndustry = jsonObject.getJSONArray("industry");
                                     JSONArray jsonAcademicInsti = jsonObject.getJSONArray("school");
+                                    JSONArray jsonHotel= jsonObject.getJSONArray("hotelResponseDto");
 
                                     allInfrastructureList.clear();
                                     airportList.clear();
                                     hydropowerList.clear();
                                     industryList.clear();
                                     academicInstiList.clear();
+                                    hotelList.clear();
                                     for (int i = 0; i < jsonAirportArray.length(); i++) {
                                         ServicePojo listItem = new ServicePojo();
                                         JSONObject jsonObject1 = jsonAirportArray.getJSONObject(i);
@@ -920,11 +955,38 @@ public class ListOfServicesAndResources extends AppCompatActivity {
                                         academicInstiList.add(listItem);
                                         allInfrastructureList.add(listItem);
                                     }
+
+                                    for (int i = 0; i < jsonHotel.length(); i++) {
+                                        ServicePojo listItem = new ServicePojo();
+                                        JSONObject jsonObject1 = jsonHotel.getJSONObject(i);
+                                        Integer hotelId = Integer.valueOf(jsonObject1.getString("id"));
+                                        String hotelName = jsonObject1.getString("hotel");
+                                        String hotelDistrict = jsonObject1.getString("district");
+                                        String hotelLocalAddress = jsonObject1.getString("address");
+                                        String hotelState = jsonObject1.getString("state");
+                                        String hotelDescription = jsonObject1.getString("description");
+                                        String hotelPhoneNo = jsonObject1.getString("phoneNo");
+
+
+                                        listItem.setDistrict(hotelDistrict);
+                                        listItem.setName(hotelName);
+                                        listItem.setId(hotelId);
+                                        listItem.setImage(getPictureList(jsonObject1));
+                                        listItem.setState(hotelState);
+                                        listItem.setDescription(hotelDescription);
+                                        listItem.setAddress(hotelLocalAddress + ", " + hotelDistrict + ", " + "Nepal");
+                                        listItem.setPhone(hotelPhoneNo);
+                                        listItem.setLocalLevel(getLocalLevel(jsonObject1));
+                                        listItem.setServiceType("hotel");
+                                        hotelList.add(listItem);
+                                        allInfrastructureList.add(listItem);
+                                    }
                                     hydroCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, hydropowerList);
                                     airportCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, airportList);
                                     industryCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, industryList);
                                     serviceCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, allInfrastructureList);
                                     academicInstiAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this, academicInstiList);
+                                    hotelCustomAdapter = new ServiceCustomAdapter(ListOfServicesAndResources.this,hotelList);
 
                                     resourceRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                                     resourceServiceLoading.setVisibility(View.GONE);
